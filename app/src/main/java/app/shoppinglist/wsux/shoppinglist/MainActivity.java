@@ -1,4 +1,4 @@
-package com.maya.goceries;
+package app.shoppinglist.wsux.shoppinglist;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
