@@ -26,17 +26,16 @@ public class LoginManager {
     private final static String TAG = "FIRE_BASE_LOGIN_MANAGER";
 
     private Context context;
-    private LoginStateInterface loginStateInterface;
-
     private GoogleSignInClient googleSignInClient;
     private FirebaseAuth firebaseAuth;
     private FirebaseUser currentUser;
     private UserInfo currentUserInfo;
+    private FireBaseManager manager;
 
 
-    LoginManager(Context context, LoginStateInterface loginStateInterface) {
+    LoginManager(Context context, FireBaseManager manager) {
         this.context = context;
-        this.loginStateInterface = loginStateInterface;
+        this.manager = manager;
     }
 
     void onCreate() {
@@ -52,15 +51,15 @@ public class LoginManager {
         setCurrentUser(firebaseAuth.getCurrentUser());
 
         if (currentUser != null) {
-            loginStateInterface.onSignIn();
+            manager.reportEvent(FireBaseManager.ON_SIGN_IN, getCurrentUserInfo());
         } else {
-            loginStateInterface.onSignInFailed(-1);
+            manager.reportEvent(FireBaseManager.ON_SIGN_ERR);
         }
     }
 
     private void setCurrentUser(FirebaseUser user) {
         currentUser = user;
-        currentUserInfo = user != null ? new UserInfo(user) : null;
+        currentUserInfo = user != null ? new UserInfo(manager, user) : null;
     }
 
     public void requestLogin() {
@@ -96,7 +95,7 @@ public class LoginManager {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             fireBaseAuthWithGoogle(account);
         } catch (ApiException e) {
-            loginStateInterface.onSignInFailed(e.getStatusCode());
+            manager.reportEvent(FireBaseManager.ON_SIGN_ERR, e);
         }
     }
 
@@ -105,11 +104,11 @@ public class LoginManager {
         public void onComplete(Task<AuthResult> task) {
             if (task.isSuccessful()) {
                 setCurrentUser(firebaseAuth.getCurrentUser());
-                loginStateInterface.onSignIn();
+                manager.reportEvent(FireBaseManager.ON_SIGN_IN, getCurrentUserInfo());
 
             } else {
                 setCurrentUser(null);
-                loginStateInterface.onSignInFailed(0);
+                manager.reportEvent(FireBaseManager.ON_SIGN_ERR, task.getException());
             }
         }
     }
@@ -118,18 +117,12 @@ public class LoginManager {
         @Override
         public void onComplete(Task<Void> task) {
             setCurrentUser(null);
-            loginStateInterface.onSignOut();
+            manager.reportEvent(FireBaseManager.ON_SIGN_OUT);
         }
     }
 
     public UserInfo getCurrentUserInfo() {
         return currentUserInfo;
-    }
-
-    interface LoginStateInterface {
-        void onSignIn();
-        void onSignInFailed(int what);
-        void onSignOut();
     }
 
 }

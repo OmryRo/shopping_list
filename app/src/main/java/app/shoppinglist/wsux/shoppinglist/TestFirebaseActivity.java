@@ -2,6 +2,7 @@ package app.shoppinglist.wsux.shoppinglist;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -25,7 +26,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.HashMap;
 import java.util.Map;
 
+import app.shoppinglist.wsux.shoppinglist.firebase.BaseCollectionItem;
 import app.shoppinglist.wsux.shoppinglist.firebase.FireBaseManager;
+import app.shoppinglist.wsux.shoppinglist.firebase.ShopList;
+import app.shoppinglist.wsux.shoppinglist.firebase.ShopTask;
 import app.shoppinglist.wsux.shoppinglist.firebase.UserInfo;
 
 public class TestFirebaseActivity extends AppCompatActivity implements View.OnClickListener {
@@ -40,36 +44,59 @@ public class TestFirebaseActivity extends AppCompatActivity implements View.OnCl
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test_firebase);
+        db = FirebaseFirestore.getInstance();
+
         fireBaseManager = new FireBaseManager(this, new FireBaseManager.FireBaseEventsInterface() {
-            @Override
-            public void onSignIn(UserInfo userInfo) {
-                TestFirebaseActivity.this.userInfo = userInfo;
-                changeAuthView();
-
-                Toast.makeText(TestFirebaseActivity.this, "success", Toast.LENGTH_SHORT).show();
-            }
 
             @Override
-            public void onSignInFailed(int what) {
+            public void onEventOccurred(int what, Object data, Exception e) {
 
-                Toast.makeText(TestFirebaseActivity.this, "failed " + what, Toast.LENGTH_SHORT).show();
+                String message = String.format("%s - %s", what, e != null ? e.getMessage() :"");
+                Log.d(TAG, "onEventOccurred: " + message);
 
-                userInfo = null;
-                changeAuthView();
+                switch (what) {
+                    case FireBaseManager.ON_SIGN_IN:
+                        TestFirebaseActivity.this.userInfo = (UserInfo) data;
+                        changeAuthView();
+
+                        Toast.makeText(TestFirebaseActivity.this, "success", Toast.LENGTH_SHORT).show();
+                        break;
+
+                    case FireBaseManager.ON_SIGN_OUT:
+                        userInfo = null;
+                        changeAuthView();
+
+                        Toast.makeText(TestFirebaseActivity.this, "out", Toast.LENGTH_SHORT).show();
+                        break;
+
+                    case FireBaseManager.ON_SIGN_ERR:
+                        Toast.makeText(TestFirebaseActivity.this, "sign-err: " + message, Toast.LENGTH_SHORT).show();
+
+                        userInfo = null;
+                        changeAuthView();
+                        break;
+
+                    case FireBaseManager.ON_USER_LIST_UPDATED:
+                        fillListOfList();
+                        break;
+
+                    case FireBaseManager.ON_LIST_CREATED:
+                        Toast.makeText(TestFirebaseActivity.this, "list created", Toast.LENGTH_SHORT).show();
+                        break;
+
+                    case FireBaseManager.ON_LIST_FAILURE:
+                        Toast.makeText(TestFirebaseActivity.this, "list fail: " + message, Toast.LENGTH_SHORT).show();
+                        break;
+
+                    default:
+                        Toast.makeText(TestFirebaseActivity.this, "default: " + message, Toast.LENGTH_SHORT).show();
+                        break;
+                }
             }
 
-            @Override
-            public void onSignOut() {
-                userInfo = null;
-                changeAuthView();
-
-                Toast.makeText(TestFirebaseActivity.this, "out", Toast.LENGTH_SHORT).show();
-            }
         });
 
         fireBaseManager.onCreate();
-
-        db = FirebaseFirestore.getInstance();
 
         findViewById(R.id.sign_in_button).setOnClickListener(this);
         findViewById(R.id.sign_out_button).setOnClickListener(this);
@@ -136,61 +163,34 @@ public class TestFirebaseActivity extends AppCompatActivity implements View.OnCl
     }
 
     private void createNewList(String title) {
-        Map<String, Object> newList = new HashMap<>();
-        newList.put("title", title);
-        newList.put("author", userInfo.getUserId());
-
-        db.collection("lists")
-                .add(newList)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        fillListOfList();
-                        Toast.makeText(getApplicationContext(), "New List Added", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getApplicationContext(), "failed to add list", Toast.LENGTH_SHORT).show();
-                    }
-                });
+        userInfo.createNewList(title);
     }
 
     private void fillListOfList() {
         final LinearLayout listOfLists = findViewById(R.id.list_of_listts);
         listOfLists.removeAllViews();
 
-        db.collection("lists")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (final QueryDocumentSnapshot document : task.getResult()) {
+        if (userInfo == null) {
+            return;
+        }
 
-                                final String itemId = document.getId();
-                                Map<String, Object> data = document.getData();
+        for (HashMap.Entry<String, ShopList> entry : userInfo.getLists().entrySet()) {
+            final ShopList listInfo = entry.getValue();
 
-                                TextView titleView = new TextView(getApplicationContext());
-                                titleView.setText((String) data.get("title"));
-                                titleView.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        showList(itemId);
-                                    }
-                                });
+            TextView titleView = new TextView(getApplicationContext());
+            titleView.setText(listInfo.getTitle());
+            titleView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showList(listInfo);
+                }
+            });
 
-                                listOfLists.addView(titleView);
-                            }
-                        } else {
-                            Log.w(TAG, "Error getting documents.", task.getException());
-                        }
-                    }
-                });
+            listOfLists.addView(titleView);
+        }
     }
 
-    public void showList(final String listId) {
+    public void showList(final ShopList shopList) {
 
         final LinearLayout wrapper = new LinearLayout(this);
         wrapper.setOrientation(LinearLayout.VERTICAL);
@@ -198,6 +198,10 @@ public class TestFirebaseActivity extends AppCompatActivity implements View.OnCl
         final LinearLayout header = new LinearLayout(this);
         header.setOrientation(LinearLayout.HORIZONTAL);
         wrapper.addView(header);
+
+        final LinearLayout body = new LinearLayout(this);
+        body.setOrientation(LinearLayout.VERTICAL);
+        wrapper.addView(body);
 
         final AlertDialog alertDialog = new AlertDialog.Builder(this)
                 .setView(wrapper)
@@ -219,36 +223,50 @@ public class TestFirebaseActivity extends AppCompatActivity implements View.OnCl
             @Override
             public void onClick(View v) {
                 alertDialog.dismiss();
-                showAddTaskPopup(listId);
+                showAddTaskPopup(shopList);
             }
         });
         header.addView(addMore);
         alertDialog.show();
 
-        db.collection("lists").document(listId).collection("tasks")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (final QueryDocumentSnapshot document : task.getResult()) {
+        shopList.setOnChildChangeListener(new BaseCollectionItem.OnChildChangeListener() {
+            @Override
+            public void onChange() {
+                body.removeAllViews();
+                for (HashMap.Entry<String, ShopTask> entry : shopList.getTasks().entrySet()) {
+                    final ShopTask shopTask = entry.getValue();
+                    final TextView titleView = new TextView(getApplicationContext());
 
-                                final String itemId = document.getId();
-                                Map<String, Object> data = document.getData();
+                    shopTask.setOnChangeListener(new BaseCollectionItem.OnChangeListener() {
+                        @Override
+                        public void onChange() {
+                            titleView.setText(shopTask.getTitle());
 
-                                TextView titleView = new TextView(getApplicationContext());
-                                titleView.setText((String) data.get("title"));
-
-                                wrapper.addView(titleView);
+                            if (shopTask.getState() == ShopTask.SHOP_TASK_DONE) {
+                                titleView.setPaintFlags(titleView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                            } else {
+                                titleView.setPaintFlags(titleView.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
                             }
-                        } else {
-                            Log.w(TAG, "Error getting documents.", task.getException());
+
+                            titleView.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    shopTask.setState(
+                                            shopTask.getState() == ShopTask.SHOP_TASK_DONE ?
+                                                ShopTask.SHOP_TASK_NOT_DONE :
+                                                ShopTask.SHOP_TASK_DONE);
+                                }
+                            });
                         }
-                    }
-                });
+                    });
+
+                    body.addView(titleView);
+                }
+            }
+        });
     }
 
-    private void showAddTaskPopup(final String listId) {
+    private void showAddTaskPopup(final ShopList shopList) {
         final TextView textView = new TextView(this);
         textView.setText("New task:");
 
@@ -262,38 +280,21 @@ public class TestFirebaseActivity extends AppCompatActivity implements View.OnCl
                 .setPositiveButton("Add", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        createNewTask(listId, editText.getText().toString());
+                        createNewTask(shopList, editText.getText().toString());
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        showList(listId);
+                        showList(shopList);
                     }
                 }).create();
         alertDialog.show();
     }
 
-    public void createNewTask(final String listId, String taskTitle) {
-        Map<String, Object> newTask = new HashMap<>();
-        newTask.put("title", taskTitle);
-
-        db.collection("lists").document(listId).collection("tasks")
-                .add(newTask)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        showList(listId);
-                        Toast.makeText(getApplicationContext(), "New Task Added", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        showList(listId);
-                        Toast.makeText(getApplicationContext(), "failed to add list", Toast.LENGTH_SHORT).show();
-                    }
-                });
+    public void createNewTask(final ShopList shopList, String taskTitle) {
+        shopList.addNewTask(taskTitle, "");
+        showList(shopList);
     }
 
     @Override
