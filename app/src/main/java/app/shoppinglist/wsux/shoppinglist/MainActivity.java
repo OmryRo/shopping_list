@@ -16,7 +16,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private static final int NUM_LIST_ITEMS = 100;
     private RecyclerView mNumbersList;
-    private GreenAdapter mAdapter;
+    private TaskAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
     @Override
@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity
         mLayoutManager = new LinearLayoutManager(this);
         mNumbersList.setLayoutManager(mLayoutManager);
 
-        mAdapter = new GreenAdapter(NUM_LIST_ITEMS);
+        mAdapter = new TaskAdapter(NUM_LIST_ITEMS);
         mNumbersList.setAdapter(mAdapter);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

@@ -10,14 +10,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-public class GreenAdapter extends RecyclerView.Adapter<GreenAdapter.NumberViewHolder>
+public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.NumberViewHolder>
 {
 
-    private static final String TAG = GreenAdapter.class.getSimpleName();
+    private static final String TAG = TaskAdapter.class.getSimpleName();
 
     private int mNumberItems;
 
-    public GreenAdapter(int numberOfItems) {
+    public TaskAdapter(int numberOfItems) {
         mNumberItems = numberOfItems;
     }
 
