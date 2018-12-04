@@ -133,9 +133,21 @@ public class UserInfo {
         ShopList.createNewList(manager, this, listTitle)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        addOwnedList(documentReference.getId());
-                        manager.reportEvent(FireBaseManager.ON_LIST_CREATED);
+                    public void onSuccess(final DocumentReference documentReference) {
+                        Collaborator.addNewCollaborator(documentReference, UserInfo.this)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        addOwnedList(documentReference.getId());
+                                        manager.reportEvent(FireBaseManager.ON_LIST_CREATED);
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        manager.reportEvent(FireBaseManager.ON_LIST_FAILURE, e);
+                                    }
+                                });
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {

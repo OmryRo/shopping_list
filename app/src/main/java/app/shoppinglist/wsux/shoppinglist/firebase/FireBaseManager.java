@@ -27,6 +27,10 @@ public class FireBaseManager {
     public static final int ON_TASK_UPDATED = 11;
     public static final int ON_TASK_FAILURE = 12;
     public static final int ON_TASK_DELETED = 13;
+    public static final int ON_COLLABORATOR_CREATED = 14;
+    public static final int ON_COLLABORATOR_UPDATED = 15;
+    public static final int ON_COLLABORATOR_FAILURE = 16;
+    public static final int ON_COLLABORATOR_DELETED = 17;
 
     public FireBaseManager(Context context, FireBaseEventsInterface eventsInterface) {
         this.context = context;

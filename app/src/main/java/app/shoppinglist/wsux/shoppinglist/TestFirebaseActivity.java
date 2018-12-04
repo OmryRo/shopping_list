@@ -4,7 +4,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -14,19 +13,12 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import app.shoppinglist.wsux.shoppinglist.firebase.BaseCollectionItem;
+import app.shoppinglist.wsux.shoppinglist.firebase.Collaborator;
 import app.shoppinglist.wsux.shoppinglist.firebase.FireBaseManager;
 import app.shoppinglist.wsux.shoppinglist.firebase.ShopList;
 import app.shoppinglist.wsux.shoppinglist.firebase.ShopTask;
@@ -233,6 +225,23 @@ public class TestFirebaseActivity extends AppCompatActivity implements View.OnCl
             @Override
             public void onChange() {
                 body.removeAllViews();
+
+                for (HashMap.Entry<String, Collaborator> entry : shopList.getCollaborators().entrySet()) {
+                    final Collaborator collaborator = entry.getValue();
+                    final TextView titleView = new TextView(getApplicationContext());
+
+                    collaborator.setOnChangeListener(new BaseCollectionItem.OnChangeListener() {
+                        @Override
+                        public void onChange() {
+                            String text = String.format("%s - %s", collaborator.getName(), collaborator.getMessage());
+                            titleView.setText(text);
+                            titleView.setTextColor(collaborator.getColor());
+                        }
+                    });
+
+                    body.addView(titleView);
+                }
+
                 for (HashMap.Entry<String, ShopTask> entry : shopList.getTasks().entrySet()) {
                     final ShopTask shopTask = entry.getValue();
                     final TextView titleView = new TextView(getApplicationContext());

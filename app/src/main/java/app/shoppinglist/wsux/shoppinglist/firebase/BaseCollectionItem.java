@@ -5,9 +5,13 @@ import android.util.Log;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+
+import java.util.HashMap;
 
 import javax.annotation.Nullable;
 
@@ -26,6 +30,12 @@ public abstract class BaseCollectionItem implements
 
     BaseCollectionItem(FireBaseManager manager) {
         this.manager = manager;
+    }
+
+    protected Task<Void> updateField(DocumentReference ref, String field, Object data) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put(field, data);
+        return ref.update(params).addOnSuccessListener(this).addOnFailureListener(this);
     }
 
     @Override

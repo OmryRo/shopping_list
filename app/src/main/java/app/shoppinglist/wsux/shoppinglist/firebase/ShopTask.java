@@ -73,25 +73,23 @@ public class ShopTask extends BaseCollectionItem {
         return ready;
     }
 
+    public ShopList getInList() {
+        return inList;
+    }
+
     public void setTitle(String title) {
         this.title = title;
-        this.ref.update(FIRESTORE_FIELD_TITLE, title)
-                .addOnSuccessListener(this)
-                .addOnFailureListener(this);
+        updateField(ref, FIRESTORE_FIELD_TITLE, title);
     }
 
     public void setDescription(String description) {
         this.description = description;
-        this.ref.update(FIRESTORE_FIELD_DESCRIPTION, description)
-                .addOnSuccessListener(this)
-                .addOnFailureListener(this);
+        updateField(ref, FIRESTORE_FIELD_DESCRIPTION, description);
     }
 
     public void setState(int state) {
         this.state = state;
-        this.ref.update(FIRESTORE_FIELD_STATE, state)
-                .addOnSuccessListener(this)
-                .addOnFailureListener(this);
+        updateField(ref, FIRESTORE_FIELD_STATE, state);
     }
 
     static Task<DocumentReference> addNewTask(ShopList inList, String title, String description, UserInfo userInfo) {
