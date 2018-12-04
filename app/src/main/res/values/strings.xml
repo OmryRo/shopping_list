@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Shopping List</string>
     <string name="title_activity_test_firebase">TestFirebaseActivity</string>
-    <string name="share_domain">shopping-list</string>
+    <string name="share_domain">www.shopping-list.com</string>
     <string name="share_url">http://%s/%s/%s</string>
     <string name="share_text">View my shopping list at %s: %s</string>
     <string name="open_share_link">Open shopping list</string>
