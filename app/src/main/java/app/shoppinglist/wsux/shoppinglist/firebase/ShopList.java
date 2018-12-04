@@ -69,7 +69,7 @@ public class ShopList extends BaseCollectionItem {
                 });
     }
 
-    private Task<Void> addToken(String token) {
+    Task<Void> addToken(String token) {
         tokens.add(token);
         return updateField(ref, FIRESTORE_FIELD_TOKENS, tokens);
     }
@@ -84,7 +84,12 @@ public class ShopList extends BaseCollectionItem {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 tokens.remove(token);
-                                updateField(ref, FIRESTORE_FIELD_TOKENS, tokens);
+                                updateField(ref, FIRESTORE_FIELD_TOKENS, tokens).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        userInfo.removeToken(listId);
+                                    }
+                                }).addOnFailureListener(ShopList.this);
                             }
                         }).addOnFailureListener(ShopList.this);
                     }
@@ -147,6 +152,25 @@ public class ShopList extends BaseCollectionItem {
         fields.put(FIRESTORE_FIELD_COLLABORATORS, new ArrayList<>());
         fields.put(FIRESTORE_FIELD_TOKENS, new ArrayList<>());
         return manager.getDb().collection(FIRESTORE_TABLE).add(fields);
+    }
+
+    static void checkListExists(final FireBaseManager manager, String listId, final int reportMessage) {
+        manager.getDb()
+                .collection(FIRESTORE_TABLE)
+                .document(listId)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot document) {
+                        if (document.exists()) {
+                            manager.reportEvent(reportMessage,
+                                    new String[] {
+                                            document.getId(),
+                                            document.getString(FIRESTORE_FIELD_TITLE),
+                                    });
+                        }
+                    }
+                });
     }
 
     DocumentReference getRef() {

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 public class UserInfo {
     private static final String TAG = "USER_INFO";
@@ -26,9 +27,9 @@ public class UserInfo {
     private String userId;
     private String email;
     private String displayName;
-    private HashSet<String> listNames;
+    private List<String> listNames;
     private HashMap<String, ShopList> lists;
-    private HashSet<String> tokens;
+    private HashMap<String, String> tokens;
 
     UserInfo(FireBaseManager manager, FirebaseUser user) {
         this.manager = manager;
@@ -36,9 +37,9 @@ public class UserInfo {
         email = user.getEmail();
         displayName = user.getDisplayName();
 
-        listNames = new HashSet<>();
+        listNames = new ArrayList<>();
         lists = new HashMap<>();
-        tokens = new HashSet<>();
+        tokens = new HashMap<>();
         this.getData();
     }
 
@@ -53,6 +54,8 @@ public class UserInfo {
     public String getDisplayName() {
         return displayName;
     }
+
+    public String getToken(String listId) { return tokens.get(listId); }
 
     public HashMap<String, ShopList> getLists() {
         HashMap<String, ShopList> readyLists = new HashMap<>();
@@ -79,15 +82,19 @@ public class UserInfo {
 
                     if (document.exists()) {
 
+                        listNames = new ArrayList<>();
                         if (document.contains(FIRESTORE_FIELD_LISTS)) {
                             listNames.addAll((List<String>) document.get(FIRESTORE_FIELD_LISTS));
+
                             for (String listId : listNames) {
-                                lists.put(listId, new ShopList(manager, UserInfo.this, listId));
+                                if (!lists.containsKey(listId)) {
+                                    lists.put(listId, new ShopList(manager, UserInfo.this, listId));
+                                }
                             }
                         }
 
                         if (document.contains(FIRESTORE_FIELD_TOKENS)) {
-                            tokens.addAll((List<String>) document.get(FIRESTORE_FIELD_TOKENS));
+                            tokens.putAll((Map<String, String>) document.get(FIRESTORE_FIELD_TOKENS));
                         }
 
                         // in case the list is empty..
@@ -103,30 +110,35 @@ public class UserInfo {
 
     public void addOwnedList(String listId) {
         listNames.add(listId);
-        updateInDB();
+        updateInDB(FIRESTORE_FIELD_LISTS, listNames);
         lists.put(listId, new ShopList(manager, this, listId));
     }
 
     public void removeOwnedList(String listId) {
         listNames.remove(listId);
-        updateInDB();
+        updateInDB(FIRESTORE_FIELD_LISTS, listNames);
         manager.reportEvent(FireBaseManager.ON_LIST_DELETED, lists.get(listId));
         lists.remove(listId);
     }
 
     public void addToken(final String listId, String token) {
-        tokens.add(token);
-        updateInDB().addOnSuccessListener(new OnSuccessListener<Void>() {
+
+        if (token.contains(listId)) {
+            return;
+        }
+
+        tokens.put(listId, token);
+        updateInDB(FIRESTORE_FIELD_TOKENS, tokens).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                addOwnedList(listId);
+                ShopList.checkListExists(manager, listId, FireBaseManager.ON_SHARE_LIST_FOUND);
             }
         });
     }
 
-    public void removeToken(String token) {
-        tokens.remove(token);
-        updateInDB();
+    public void removeToken(String listId) {
+        tokens.remove(listId);
+        updateInDB(FIRESTORE_FIELD_TOKENS, listId);
     }
 
     public void createNewList(String listTitle) {
@@ -159,15 +171,17 @@ public class UserInfo {
     }
 
     private void initInfoInDB() {
-        updateInDB();
+        listNames = new ArrayList<>();
+        tokens = new HashMap<>();
+
+        Map<String, Object> params = new HashMap<>();
+        params.put(FIRESTORE_FIELD_LISTS, listNames);
+        params.put(FIRESTORE_FIELD_TOKENS, tokens);
+        manager.getDb().collection(FIRESTORE_TABLE).document(userId).set(params);
         manager.reportEvent(FireBaseManager.ON_USER_LIST_UPDATED);
     }
 
-    private Task<Void> updateInDB() {
-        HashMap<String, Object> map = new HashMap<>();
-        map.put(FIRESTORE_FIELD_LISTS, new ArrayList<>(listNames));
-        map.put(FIRESTORE_FIELD_TOKENS, new ArrayList<>(tokens));
-
-        return manager.getDb().collection(FIRESTORE_TABLE).document(userId).set(map);
+    private Task<Void> updateInDB(String field, Object object) {
+        return manager.getDb().collection(FIRESTORE_TABLE).document(userId).update(field, object);
     }
 }

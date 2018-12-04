@@ -10,6 +10,7 @@ public class FireBaseManager {
 
     private Context context;
     private LoginManager loginManager;
+    private ShareHandler shareHandler;
     private FireBaseEventsInterface eventsInterface;
     private FirebaseFirestore db;
 
@@ -31,6 +32,7 @@ public class FireBaseManager {
     public static final int ON_COLLABORATOR_UPDATED = 15;
     public static final int ON_COLLABORATOR_FAILURE = 16;
     public static final int ON_COLLABORATOR_DELETED = 17;
+    public static final int ON_SHARE_LIST_FOUND = 18;
 
     public FireBaseManager(Context context, FireBaseEventsInterface eventsInterface) {
         this.context = context;
@@ -42,6 +44,7 @@ public class FireBaseManager {
         this.db.setFirestoreSettings(settings);
 
         this.loginManager = new LoginManager(context, this);
+        this.shareHandler = new ShareHandler(context, this);
     }
 
     public void onCreate() {
@@ -56,6 +59,10 @@ public class FireBaseManager {
         return loginManager;
     }
 
+    public ShareHandler getShareHandler() {
+        return shareHandler;
+    }
+
     FirebaseFirestore getDb() {
         return db;
     }
@@ -68,6 +75,11 @@ public class FireBaseManager {
     void reportEvent(int what, Object data) { reportEvent(what, data, null); }
     void reportEvent(int what, Exception e) { reportEvent(what, null, e); }
     void reportEvent(int what, Object data, Exception e) {
+
+        if (what == ON_SIGN_IN) {
+            shareHandler.checkIncomingShare((UserInfo) data);
+        }
+
         eventsInterface.onEventOccurred(what, data, e);
     }
 

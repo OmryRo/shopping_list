@@ -80,6 +80,10 @@ public class TestFirebaseActivity extends AppCompatActivity implements View.OnCl
                         Toast.makeText(TestFirebaseActivity.this, "list fail: " + message, Toast.LENGTH_SHORT).show();
                         break;
 
+                    case FireBaseManager.ON_SHARE_LIST_FOUND:
+                        String[] shareListInfo = (String[]) data;
+                        onShareListFound(shareListInfo[0], shareListInfo[1]);
+
                     default:
                         Toast.makeText(TestFirebaseActivity.this, "default: " + message, Toast.LENGTH_SHORT).show();
                         break;
@@ -219,6 +223,17 @@ public class TestFirebaseActivity extends AppCompatActivity implements View.OnCl
             }
         });
         header.addView(addMore);
+
+        final Button shareButtonn = new Button(this);
+        shareButtonn.setText("Share");
+        shareButtonn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fireBaseManager.getShareHandler().performShareList(shopList);
+            }
+        });
+        header.addView(shareButtonn);
+
         alertDialog.show();
 
         shopList.setOnChildChangeListener(new BaseCollectionItem.OnChildChangeListener() {
@@ -319,5 +334,23 @@ public class TestFirebaseActivity extends AppCompatActivity implements View.OnCl
                 showCreateListPopUpDialog();
                 break;
         }
+    }
+
+    public void onShareListFound(final String listId, String title) {
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.join_list_message, title))
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        fireBaseManager.getShareHandler().handleJoinList(userInfo, listId);
+                    }
+                })
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+
+                    }
+                }).create().show();
     }
 }
