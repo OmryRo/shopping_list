@@ -65,6 +65,10 @@ public class ShopTask extends BaseCollectionItem {
         return taskId;
     }
 
+    public Collaborator getCreator() {
+        return inList.getCollaborators().get(creator);
+    }
+
     public long getState() {
         return state;
     }
