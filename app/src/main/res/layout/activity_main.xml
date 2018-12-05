@@ -8,7 +8,7 @@
     android:fitsSystemWindows="true"
     tools:openDrawer="start">
 
-    <include
+    <includetv_item_number
         layout="@layout/app_bar_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

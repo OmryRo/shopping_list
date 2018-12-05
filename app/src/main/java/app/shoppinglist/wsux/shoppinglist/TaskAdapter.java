@@ -24,7 +24,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.NumberViewHold
     @Override
     public NumberViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         Context context = viewGroup.getContext();
-        int layoutIdForListItem = R.layout.number_list_item;
+        int layoutIdForListItem = R.layout.task_list_item;
         LayoutInflater inflater = LayoutInflater.from(context);
         boolean shouldAttachToParentImmediately = false;
 
@@ -57,7 +57,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.NumberViewHold
         public NumberViewHolder(View itemView) {
             super(itemView);
 
-            listItemNumberView = (TextView) itemView.findViewById(R.id.tv_item_number);
+            listItemNumberView = (TextView) itemView.findViewById(R.id.tv_item_name);
         }
 
 
