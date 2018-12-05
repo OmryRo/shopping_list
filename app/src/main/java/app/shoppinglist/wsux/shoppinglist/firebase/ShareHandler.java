@@ -78,20 +78,13 @@ public class ShareHandler {
         userInfo.addToken(incomingIntent[0], incomingIntent[1]);
     }
 
-    public void handleJoinList(final UserInfo userInfo, final String listId) {
-        userInfo.addOwnedList(listId);
-        final String token = userInfo.getToken(listId);
-        final ShopList shopList = new ShopList(manager, userInfo, listId);
-        shopList.setOnChangeListener(new BaseCollectionItem.OnChangeListener() {
-            @Override
-            public void onChange() {
-                if (!shopList.isReady()) {
-                    return;
-                }
+    public void handleJoinList(UserInfo userInfo, ShopList shopList) {
+        String token = userInfo.getToken(shopList.getListId());
+        shopList.replaceTokenByCollaborators(token);
+    }
 
-                shopList.setOnChangeListener(null);
-                shopList.replaceTokenByCollaborators(token);
-            }
-        });
+    public void handleCancelJoinList(UserInfo userInfo, ShopList shopList) {
+        userInfo.removeKnownList(shopList.getListId());
+        userInfo.removeToken(shopList.getListId());
     }
 }

@@ -81,8 +81,7 @@ public class TestFirebaseActivity extends AppCompatActivity implements View.OnCl
                         break;
 
                     case FireBaseManager.ON_SHARE_LIST_FOUND:
-                        String[] shareListInfo = (String[]) data;
-                        onShareListFound(shareListInfo[0], shareListInfo[1]);
+                        onShareListFound((ShopList) data);
 
                     default:
                         Toast.makeText(TestFirebaseActivity.this, "default: " + message, Toast.LENGTH_SHORT).show();
@@ -336,20 +335,19 @@ public class TestFirebaseActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
-    public void onShareListFound(final String listId, String title) {
+    public void onShareListFound(final ShopList listFound) {
         new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.join_list_message, title))
+                .setTitle(getString(R.string.join_list_message, listFound.getTitle()))
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        fireBaseManager.getShareHandler().handleJoinList(userInfo, listId);
+                        fireBaseManager.getShareHandler().handleJoinList(userInfo, listFound);
                     }
                 })
                 .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
-
+                        fireBaseManager.getShareHandler().handleCancelJoinList(userInfo, listFound);
                     }
                 }).create().show();
     }

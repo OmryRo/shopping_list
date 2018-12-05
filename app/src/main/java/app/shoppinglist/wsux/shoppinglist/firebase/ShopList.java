@@ -5,13 +5,14 @@ import android.support.annotation.NonNull;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -25,17 +26,23 @@ public class ShopList extends BaseCollectionItem {
     private static final String FIRESTORE_FIELD_TOKENS = "tokens";
     private static final String FIRESTORE_FIELD_COLLABORATORS = "collaborators";
 
+    private static final long TIME_IN_A_WEEK_IN_MILIES_FACTOR = 604800000;
+
     private UserInfo userInfo;
     private String listId;
-    private boolean isReady;
+    private boolean isMember;
     private String title;
     private String author;
     private List<String> tasks;
     private Map<String, ShopTask> shopTasks;
-    private List<String> tokens;
+    private Map<String, Object> tokens;
     private List<String> collaborators;
     private Map<String, Collaborator> collaboratorsData;
     private DocumentReference ref;
+
+
+    private boolean isReportedForShare;
+    private boolean isReportedForReady;
 
 
     ShopList(FireBaseManager manager, UserInfo userInfo, String listId) {
@@ -43,9 +50,12 @@ public class ShopList extends BaseCollectionItem {
 
         this.userInfo = userInfo;
         this.listId = listId;
-        this.isReady = false;
+        this.isMember = false;
         this.shopTasks = new HashMap<>();
         this.collaboratorsData = new HashMap<>();
+
+        this.isReportedForReady = false;
+        this.isReportedForShare = false;
 
         this.ref = manager.getDb().collection(FIRESTORE_TABLE).document(listId);
         this.ref.addSnapshotListener(this);
@@ -70,7 +80,9 @@ public class ShopList extends BaseCollectionItem {
     }
 
     Task<Void> addToken(String token) {
-        tokens.add(token);
+        Date dateInWeek = new Date();
+        dateInWeek.setTime(System.currentTimeMillis() + TIME_IN_A_WEEK_IN_MILIES_FACTOR);
+        tokens.put(token, new Timestamp(dateInWeek));
         return updateField(ref, FIRESTORE_FIELD_TOKENS, tokens);
     }
 
@@ -111,8 +123,8 @@ public class ShopList extends BaseCollectionItem {
         updateField(ref, FIRESTORE_FIELD_TITLE, newTitle);
     }
 
-    public boolean isReady() {
-        return isReady;
+    public boolean isMember() {
+        return isMember;
     }
 
     public String getListId() {
@@ -150,27 +162,8 @@ public class ShopList extends BaseCollectionItem {
         fields.put(FIRESTORE_FIELD_AUTHOR, userInfo.getUserId());
         fields.put(FIRESTORE_FIELD_TITLE, title);
         fields.put(FIRESTORE_FIELD_COLLABORATORS, new ArrayList<>());
-        fields.put(FIRESTORE_FIELD_TOKENS, new ArrayList<>());
+        fields.put(FIRESTORE_FIELD_TOKENS, new HashMap<>());
         return manager.getDb().collection(FIRESTORE_TABLE).add(fields);
-    }
-
-    static void checkListExists(final FireBaseManager manager, String listId, final int reportMessage) {
-        manager.getDb()
-                .collection(FIRESTORE_TABLE)
-                .document(listId)
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot document) {
-                        if (document.exists()) {
-                            manager.reportEvent(reportMessage,
-                                    new String[] {
-                                            document.getId(),
-                                            document.getString(FIRESTORE_FIELD_TITLE),
-                                    });
-                        }
-                    }
-                });
     }
 
     DocumentReference getRef() {
@@ -227,21 +220,41 @@ public class ShopList extends BaseCollectionItem {
             refreshCollaboratorData();
         }
 
-        tokens = new ArrayList<>();
+        tokens = new HashMap<>();
         if (document.contains(FIRESTORE_FIELD_TOKENS)) {
-            tokens.addAll((List<String>) document.get(FIRESTORE_FIELD_TOKENS));
+            tokens.putAll((HashMap<String, Object>) document.get(FIRESTORE_FIELD_TOKENS));
         }
 
-        if (!isReady) {
-            isReady = true;
+        isMember = userInfo.getUserId().equals(author) || collaborators.contains(userInfo.getUserId());
+        setReady();
+
+        reportChanges();
+    }
+
+    private void reportChanges() {
+        if (!isReportedForShare && !isMember) {
+            isReportedForShare = true;
+            manager.reportEvent(FireBaseManager.ON_SHARE_LIST_FOUND, this);
+
+        } else if (!isReportedForReady && isMember) {
+            isReportedForReady = true;
             manager.reportEvent(FireBaseManager.ON_USER_LIST_UPDATED, this);
+
+        } else {
+            manager.reportEvent(FireBaseManager.ON_LIST_UPDATED, this);
         }
 
-        manager.reportEvent(FireBaseManager.ON_LIST_UPDATED, this);
-
+        userInfo.reportChildChange();
         if (onChangeListener != null) {
             onChangeListener.onChange();
         }
+    }
+
+    @Override
+    public void onNotFound(DocumentSnapshot document) {
+        super.onNotFound(document);
+        isMember = false;
+        userInfo.reportChildChange();
     }
 
     @Override

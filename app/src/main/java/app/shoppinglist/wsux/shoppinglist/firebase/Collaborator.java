@@ -23,7 +23,6 @@ public class Collaborator extends BaseCollectionItem {
 
     private DocumentReference ref;
     private ShopList inList;
-    private boolean ready;
 
     private String userId;
     private String name;
@@ -36,7 +35,6 @@ public class Collaborator extends BaseCollectionItem {
         this.inList = inList;
         this.userId = userId;
 
-        ready = false;
         ref = inList.getRef().collection(FIRESTORE_TABLE).document(userId);
         ref.addSnapshotListener(this);
     }
@@ -56,7 +54,7 @@ public class Collaborator extends BaseCollectionItem {
         message = document.getString(FIRESTORE_FIELD_MESSAGE);
         color = COLORS[Math.abs(userId.hashCode()) % COLORS.length];
 
-        ready = true;
+        setReady();
 
         inList.reportChildChange();
         manager.reportEvent(FireBaseManager.ON_COLLABORATOR_UPDATED, this);
@@ -84,10 +82,6 @@ public class Collaborator extends BaseCollectionItem {
 
     public int getColor() {
         return color;
-    }
-
-    public boolean isReady() {
-        return ready;
     }
 
     public void setName(String name) {

@@ -20,7 +20,6 @@ public class ShopTask extends BaseCollectionItem {
 
     private DocumentReference ref;
     private ShopList inList;
-    private boolean ready;
 
     private String taskId;
     private String title;
@@ -44,7 +43,7 @@ public class ShopTask extends BaseCollectionItem {
         creator = document.getString(FIRESTORE_FIELD_CREATOR);
         description = document.getString(FIRESTORE_FIELD_DESCRIPTION);
 
-        ready = true;
+        setReady();
         manager.reportEvent(FireBaseManager.ON_TASK_UPDATED, this);
         inList.reportChildChange();
 
@@ -71,10 +70,6 @@ public class ShopTask extends BaseCollectionItem {
 
     public long getState() {
         return state;
-    }
-
-    boolean isReady() {
-        return ready;
     }
 
     public ShopList getInList() {

@@ -21,6 +21,7 @@ public abstract class BaseCollectionItem implements
         OnFailureListener {
 
     private static final String TAG = "COLLECTION_ITEM";
+    private boolean isReady = false;
     protected OnChangeListener onChangeListener;
     protected OnActionListener onActionListener;
     protected OnChildChangeListener onChildChangeListener;
@@ -38,20 +39,26 @@ public abstract class BaseCollectionItem implements
         return ref.update(params).addOnSuccessListener(this).addOnFailureListener(this);
     }
 
+    public void onQueryError(DocumentSnapshot document, FirebaseFirestoreException e) {
+        Log.e(TAG, "onQueryError: ", e);
+    }
+    public void onNotFound(DocumentSnapshot document) {
+        Log.e(TAG, "onEvent: not exists");
+    }
+
     @Override
     public void onEvent(@Nullable DocumentSnapshot document, @Nullable FirebaseFirestoreException e) {
         if (e != null) {
-            Log.e(TAG, "onEvent: ", e);
+            onQueryError(document, e);
             return;
         }
 
         if (!document.exists()) {
-            Log.e(TAG, "onEvent: not exists");
+            onNotFound(document);
             return;
         }
 
         specificOnEvent(document);
-
     }
 
     abstract void specificOnSuccess();
@@ -94,10 +101,18 @@ public abstract class BaseCollectionItem implements
         }
     }
 
-    public void reportChildChange() {
+    void reportChildChange() {
         if (onChildChangeListener != null) {
             onChildChangeListener.onChange();
         }
+    }
+
+    public boolean isReady() {
+        return isReady;
+    }
+
+    protected void setReady() {
+        isReady = true;
     }
 
     public interface OnChildChangeListener {
