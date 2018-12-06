@@ -2,6 +2,7 @@ package app.shoppinglist.wsux.shoppinglist;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -10,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -242,7 +244,17 @@ public class TestFirebaseActivity extends AppCompatActivity implements View.OnCl
 
                 for (HashMap.Entry<String, Collaborator> entry : shopList.getCollaborators().entrySet()) {
                     final Collaborator collaborator = entry.getValue();
+
+                    LinearLayout layout = new LinearLayout(getApplicationContext());
+
+                    final ImageView imageView = new ImageView(getApplicationContext());
+                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(75, 75);
+                    imageView.setLayoutParams(layoutParams);
+                    imageView.setImageResource(R.drawable.ic_launcher_background);
+                    layout.addView(imageView);
+
                     final TextView titleView = new TextView(getApplicationContext());
+                    layout.addView(titleView);
 
                     collaborator.setOnChangeListener(new BaseCollectionItem.OnChangeListener() {
                         @Override
@@ -250,10 +262,15 @@ public class TestFirebaseActivity extends AppCompatActivity implements View.OnCl
                             String text = String.format("%s - %s", collaborator.getName(), collaborator.getMessage());
                             titleView.setText(text);
                             titleView.setTextColor(collaborator.getColor());
+
+                            Bitmap userImage = collaborator.getPicture();
+                            if (userImage != null) {
+                                imageView.setImageBitmap(userImage);
+                            }
                         }
                     });
 
-                    body.addView(titleView);
+                    body.addView(layout);
                 }
 
                 for (HashMap.Entry<String, ShopTask> entry : shopList.getTasks().entrySet()) {

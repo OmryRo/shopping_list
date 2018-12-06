@@ -6,6 +6,8 @@ import android.content.Intent;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
+import java.io.File;
+
 public class FireBaseManager {
 
     private Context context;
@@ -33,6 +35,8 @@ public class FireBaseManager {
     public static final int ON_COLLABORATOR_FAILURE = 16;
     public static final int ON_COLLABORATOR_DELETED = 17;
     public static final int ON_SHARE_LIST_FOUND = 18;
+
+    private static final String FIREBASE_CACHE_DIR = "firebase";
 
     public FireBaseManager(Context context, FireBaseEventsInterface eventsInterface) {
         this.context = context;
@@ -65,6 +69,16 @@ public class FireBaseManager {
 
     FirebaseFirestore getDb() {
         return db;
+    }
+
+    File getFireBaseCache() {
+        File firebaseCache = new File(context.getCacheDir(), FIREBASE_CACHE_DIR);
+
+        if (!firebaseCache.exists()) {
+            firebaseCache.mkdir();
+        }
+
+        return firebaseCache;
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
