@@ -32,7 +32,6 @@ public class Collaborator extends BaseCollectionItem {
     public static final String FIRESTORE_FIELD_TTL = "ttl";
     public static final String FIRESTORE_FIELD_PICTURE = "picture";
 
-    private static final String PICTURE_FILE_PATH = "user_picture_cache_%s";
     private static final long TIME_IN_A_DAY = 86400000;
     private static final int[] COLORS = {
             0xff224f96, 0xff1f918f, 0xff16a03f, 0xff74a518, 0xffa8a51c, 0xffa8721b,
@@ -93,9 +92,9 @@ public class Collaborator extends BaseCollectionItem {
 
         color = COLORS[Math.abs(userId.hashCode()) % COLORS.length];
 
-        if (!hasStartedPictureDownload) {
+        if (!hasStartedPictureDownload && pictureURL != null) {
             hasStartedPictureDownload = true;
-            new DownloadPicture().execute("");
+            manager.getImageManager().downloadPicture(this, pictureURL);
         }
         setReady();
 
@@ -135,56 +134,8 @@ public class Collaborator extends BaseCollectionItem {
                 .addOnFailureListener(this);
     }
 
-
     public Bitmap getPicture() {
-        File file = getPictureFile();
-
-        if (!file.exists()) {
-            return null;
-        }
-
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-        options.inScaled = false;
-        return BitmapFactory.decodeFile(file.getAbsolutePath(), options);
-    }
-
-    private File getPictureFile() {
-        return new File(manager.getFireBaseCache(), String.format(PICTURE_FILE_PATH, userId));
-    }
-
-    private boolean downloadPicture() {
-
-        if (pictureURL == null) {
-            return false;
-        }
-
-        File file = getPictureFile();
-        if (file.exists()) {
-            return true;
-        }
-
-        try {
-
-            URL url = new URL(pictureURL);
-            URLConnection urlConnection = url.openConnection();
-            InputStream inputStream = urlConnection.getInputStream();
-            FileOutputStream fileOutput = new FileOutputStream(file);
-            byte[] buffer = new byte[1024];
-
-            int bufferLength = 0;
-            while ( (bufferLength = inputStream.read(buffer)) > 0 ) {
-                fileOutput.write(buffer, 0, bufferLength);
-            }
-
-            fileOutput.close();
-            inputStream.close();
-
-        } catch (IOException e) {
-            return false;
-        }
-
-        return true;
+        return manager.getImageManager().getPicture(this);
     }
 
     public String getUserId() {
@@ -229,19 +180,5 @@ public class Collaborator extends BaseCollectionItem {
     @Override
     void specificOnFailure(Exception e) {
         manager.reportEvent(FireBaseManager.ON_COLLABORATOR_FAILURE, this, e);
-    }
-
-    private class DownloadPicture extends AsyncTask<String, Void, String> {
-
-        @Override
-        protected String doInBackground(String... params) {
-            downloadPicture();
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            inList.reportChildChange();
-        }
     }
 }

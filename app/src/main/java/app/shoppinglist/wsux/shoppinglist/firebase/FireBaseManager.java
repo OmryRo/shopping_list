@@ -15,6 +15,7 @@ public class FireBaseManager {
     private ShareHandler shareHandler;
     private FireBaseEventsInterface eventsInterface;
     private FirebaseFirestore db;
+    private ImageManager imageManager;
 
     public static final int ON_SIGN_IN = 0;
     public static final int ON_SIGN_OUT = 1;
@@ -36,8 +37,6 @@ public class FireBaseManager {
     public static final int ON_COLLABORATOR_DELETED = 17;
     public static final int ON_SHARE_LIST_FOUND = 18;
 
-    private static final String FIREBASE_CACHE_DIR = "firebase";
-
     public FireBaseManager(Context context, FireBaseEventsInterface eventsInterface) {
         this.context = context;
         this.eventsInterface = eventsInterface;
@@ -49,6 +48,7 @@ public class FireBaseManager {
 
         this.loginManager = new LoginManager(context, this);
         this.shareHandler = new ShareHandler(context, this);
+        this.imageManager = new ImageManager(context, this);
     }
 
     public void onCreate() {
@@ -67,18 +67,10 @@ public class FireBaseManager {
         return shareHandler;
     }
 
+    public ImageManager getImageManager() { return imageManager; }
+
     FirebaseFirestore getDb() {
         return db;
-    }
-
-    File getFireBaseCache() {
-        File firebaseCache = new File(context.getCacheDir(), FIREBASE_CACHE_DIR);
-
-        if (!firebaseCache.exists()) {
-            firebaseCache.mkdir();
-        }
-
-        return firebaseCache;
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

@@ -115,6 +115,8 @@ public abstract class BaseCollectionItem implements
         isReady = true;
     }
 
+    void onDoneImageDownload() {}
+
     public interface OnChildChangeListener {
         void onChange();
     }
