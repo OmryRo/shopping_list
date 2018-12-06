@@ -22,6 +22,7 @@ public class UserInfo extends BaseCollectionItem {
     private String userId;
     private String email;
     private String displayName;
+    private String pictureURL;
     private List<String> listNames;
     private HashMap<String, ShopList> lists;
     private HashMap<String, String> tokens;
@@ -32,6 +33,7 @@ public class UserInfo extends BaseCollectionItem {
         userId = user.getUid();
         email = user.getEmail();
         displayName = user.getDisplayName();
+        pictureURL = user.getPhotoUrl().toString();
 
         listNames = new ArrayList<>();
         lists = new HashMap<>();
@@ -51,6 +53,10 @@ public class UserInfo extends BaseCollectionItem {
 
     public String getDisplayName() {
         return displayName;
+    }
+
+    public String getPictureURL() {
+        return pictureURL;
     }
 
     public String getToken(String listId) { return tokens.get(listId); }
