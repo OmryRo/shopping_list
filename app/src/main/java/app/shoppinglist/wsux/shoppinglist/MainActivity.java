@@ -11,13 +11,17 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    private static final int NUM_LIST_ITEMS = 100;
-    private RecyclerView mNumbersList;
-    private TaskAdapter mAdapter;
+    private RecyclerView recyclerView;
+    private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private EditText newItem;
+//    private ArrayAdapter<String> adapter;
+    private String[] mDataset;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,17 +29,21 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
+        newItem = (EditText) findViewById(R.id.add_item);
+        String itemName = newItem.getText().toString();
+        mDataset=new String[100];
+        recyclerView = (RecyclerView) findViewById(R.id.shopping_list_view);
 
-        mNumbersList = (RecyclerView) findViewById(R.id.rv_numbers) ;
 
-        mNumbersList.setHasFixedSize(true);
+        recyclerView.setHasFixedSize(true);
 
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(this);
-        mNumbersList.setLayoutManager(mLayoutManager);
+        recyclerView.setLayoutManager(mLayoutManager);
 
-        mAdapter = new TaskAdapter(NUM_LIST_ITEMS);
-        mNumbersList.setAdapter(mAdapter);
+        mAdapter = new TaskAdapter(mDataset);
+        recyclerView.setAdapter(mAdapter);
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(

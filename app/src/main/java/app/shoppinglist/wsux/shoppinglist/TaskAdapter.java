@@ -2,62 +2,58 @@
 package app.shoppinglist.wsux.shoppinglist;
 
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.NumberViewHolder>
-{
+public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ItemViewHolder> {
 
     private static final String TAG = TaskAdapter.class.getSimpleName();
 
-    private int mNumberItems;
+    private String[] mDataset;
 
-    public TaskAdapter(int numberOfItems) {
-        mNumberItems = numberOfItems;
+
+    public TaskAdapter(String[] myDataset) {
+        mDataset = myDataset;
     }
 
     @Override
-    public NumberViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        Context context = viewGroup.getContext();
-        int layoutIdForListItem = R.layout.task_list_item;
-        LayoutInflater inflater = LayoutInflater.from(context);
-        boolean shouldAttachToParentImmediately = false;
+    public TaskAdapter.ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        View view = inflater.inflate(layoutIdForListItem, viewGroup, shouldAttachToParentImmediately);
-        NumberViewHolder viewHolder = new NumberViewHolder(view);
+        TextView view = (TextView) LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.task_list_item, parent, false);
+
+        ItemViewHolder viewHolder = new ItemViewHolder(view);
 
         return viewHolder;
     }
 
 
     @Override
-    public void onBindViewHolder(NumberViewHolder holder, int position) {
+    public void onBindViewHolder(ItemViewHolder holder, int position) {
         Log.d(TAG, "#" + position);
-        holder.bind(position);
+        holder.listItemNumberView.setText(mDataset[position]);
     }
 
 
     @Override
     public int getItemCount() {
-        return mNumberItems;
+        Log.d(TAG, "#" );
+        return mDataset.length;
     }
 
 
-    class NumberViewHolder extends RecyclerView.ViewHolder
-    {
+    class ItemViewHolder extends RecyclerView.ViewHolder {
 
         // Will display the position in the list, ie 0 through getItemCount() - 1
-        TextView listItemNumberView;
+        public TextView listItemNumberView;
 
-        public NumberViewHolder(View itemView) {
+        public ItemViewHolder(TextView itemView) {
             super(itemView);
 
-            listItemNumberView = (TextView) itemView.findViewById(R.id.tv_item_name);
+            listItemNumberView = itemView;
         }
 
 
