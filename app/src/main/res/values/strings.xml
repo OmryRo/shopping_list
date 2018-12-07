@@ -8,4 +8,11 @@
     <string name="join_list_message">Do you want to join the list %s?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="title_activity_main">Shopping List</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
 </resources>
