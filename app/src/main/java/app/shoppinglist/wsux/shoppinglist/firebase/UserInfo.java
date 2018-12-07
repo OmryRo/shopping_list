@@ -1,5 +1,6 @@
 package app.shoppinglist.wsux.shoppinglist.firebase;
 
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -60,6 +61,10 @@ public class UserInfo extends BaseCollectionItem {
     }
 
     public String getToken(String listId) { return tokens.get(listId); }
+
+    public Bitmap getPicture() {
+        return manager.getImageManager().getPicture(this);
+    }
 
     public HashMap<String, ShopList> getLists() {
         HashMap<String, ShopList> readyLists = new HashMap<>();

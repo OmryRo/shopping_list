@@ -16,14 +16,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import app.shoppinglist.wsux.shoppinglist.firebase.FireBaseManager;
+import app.shoppinglist.wsux.shoppinglist.firebase.UserInfo;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,
-        FireBaseManager.FireBaseEventsInterface {
+        implements FireBaseManager.FireBaseEventsInterface {
 
+    // objects
     private FireBaseManager fireBaseManager;
+    private MainDrawer mainDrawer;
+
+    // layouts
     private LinearLayout loginScreenWrapper;
 
     @Override
@@ -40,11 +45,8 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(topToolBar);
 
         setShopListView();
-        setDrawer(topToolBar);
+        mainDrawer = new MainDrawer(this, topToolBar);
 
-
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
     }
 
     private void setLoginScreen() {
@@ -79,14 +81,6 @@ public class MainActivity extends AppCompatActivity
         recyclerView.setAdapter(mAdapter);
     }
 
-    private void setDrawer(Toolbar toolbar) {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-    }
-
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -119,41 +113,16 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
-        }
-
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-    }
-
     @Override
     public void onEventOccurred(int what, Object data, Exception e) {
         switch (what) {
             case FireBaseManager.ON_SIGN_IN:
-                hideLoginScreen();
+                onLogin((UserInfo) data);
                 break;
 
             case FireBaseManager.ON_SIGN_OUT:
             case FireBaseManager.ON_SIGN_ERR:
-                showLoginScreen();
+                onLogout();
                 break;
         }
 
@@ -165,6 +134,16 @@ public class MainActivity extends AppCompatActivity
                         e != null ? e.getMessage() : "null"
                         )
         );
+    }
+
+    private void onLogin(UserInfo userInfo) {
+        mainDrawer.setUserInfo(userInfo);
+        hideLoginScreen();
+    }
+
+    private void onLogout() {
+        mainDrawer.setUserInfo(null);
+        showLoginScreen();
     }
 
     @Override

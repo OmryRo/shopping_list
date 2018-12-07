@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.ImageReader;
 import android.os.AsyncTask;
+import android.util.DisplayMetrics;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,7 +17,7 @@ import java.net.URLConnection;
 public class ImageManager {
 
     private static final String FIREBASE_CACHE_DIR = "firebase";
-    private static final String COLLABORATOR_FILE_PATH = "user_picture_cache_%s";
+    private static final String COLLABORATOR_FILE_PATH = "nodpi_user_picture_cache_%s";
 
     private Context context;
     private FireBaseManager fireBaseManager;
@@ -46,6 +47,7 @@ public class ImageManager {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
         options.inScaled = false;
+        options.inDensity = DisplayMetrics.DENSITY_DEFAULT;
         return BitmapFactory.decodeFile(file.getAbsolutePath(), options);
     }
 
@@ -56,6 +58,10 @@ public class ImageManager {
     private File getPictureFile(BaseCollectionItem item) {
         if (item.getClass() == Collaborator.class) {
             return getPictureFile((Collaborator) item);
+
+        } else if (item.getClass() == UserInfo.class) {
+            return getPictureFile((UserInfo) item);
+
         } else {
             return null;
         }
@@ -63,6 +69,10 @@ public class ImageManager {
 
     private File getPictureFile(Collaborator collaborator) {
         return new File(getFireBaseCache(), String.format(COLLABORATOR_FILE_PATH, collaborator.getUserId()));
+    }
+
+    private File getPictureFile(UserInfo userInfo) {
+        return new File(getFireBaseCache(), String.format(COLLABORATOR_FILE_PATH, userInfo.getUserId()));
     }
 
     class DownloadPicture extends AsyncTask<String, Void, String> {
