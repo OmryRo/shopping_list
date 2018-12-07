@@ -15,7 +15,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 
@@ -31,14 +30,12 @@ public class TestFirebaseActivity extends AppCompatActivity implements View.OnCl
     private final static String TAG = "TEST_FIREBASE_ACTIVITY";
 
     private FireBaseManager fireBaseManager;
-    private FirebaseFirestore db;
     private UserInfo userInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test_firebase);
-        db = FirebaseFirestore.getInstance();
 
         fireBaseManager = new FireBaseManager(this, new FireBaseManager.FireBaseEventsInterface() {
 
