@@ -67,6 +67,9 @@ public class ImageManager {
 
     class DownloadPicture extends AsyncTask<String, Void, String> {
 
+        private static final String RES_OK = "OK";
+        private static final String RES_FAIL = null;
+        
         private BaseCollectionItem item;
         private String pictureUrl;
         private File file;
@@ -78,16 +81,8 @@ public class ImageManager {
 
             file = getPictureFile(item);
         }
-
-        @Override
-        protected String doInBackground(String... params) {
-
-            if (file.exists()) {
-                return null;
-            }
-
-            try {
-
+        
+        private void downloadFile() throws IOException {
                 URL url = new URL(pictureUrl);
                 URLConnection urlConnection = url.openConnection();
                 InputStream inputStream = urlConnection.getInputStream();
@@ -101,12 +96,22 @@ public class ImageManager {
 
                 fileOutput.close();
                 inputStream.close();
+        }
 
-            } catch (IOException e) {
-                return null;
+        @Override
+        protected String doInBackground(String... params) {
+
+            if (file.exists()) {
+                return RES_FAIL;
             }
 
-            return null;
+            try {
+                downloadFile();
+            } catch (IOException e) {
+                return RES_FAIL;
+            }
+
+            return RES_OK;
         }
 
         @Override
