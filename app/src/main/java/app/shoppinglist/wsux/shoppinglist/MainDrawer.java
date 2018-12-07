@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import app.shoppinglist.wsux.shoppinglist.firebase.FireBaseManager;
 import app.shoppinglist.wsux.shoppinglist.firebase.ShopList;
@@ -28,13 +29,21 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
     private NavigationView navigationView;
     private UserInfo userInfo;
 
+    private MenuItem addItemMenuRef;
+    private Map<MenuItem, ShopList> shopListMenuRef;
+    private ShopList choosenShopList;
+    private MainDrawerInterface mainDrawerInterface;
+
     // layouts
     private DrawerLayout drawer;
     private TextView userNameTv;
     private TextView userEmailTv;
     private ImageView userPictureIv;
 
-    MainDrawer(Activity context, Toolbar toolbar)  {
+    MainDrawer(Activity context, Toolbar toolbar, MainDrawerInterface mainDrawerInterface)  {
+
+        shopListMenuRef = new HashMap<>();
+        this.mainDrawerInterface = mainDrawerInterface;
 
         drawer = context.findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -94,15 +103,25 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
         }
 
         Menu navigationViewMenu = navigationView.getMenu();
-        MenuItem addListItem = navigationViewMenu.add(R.string.create_new_list);
-        addListItem.setIcon(R.drawable.ic_menu_add_box);
+        addItemMenuRef = navigationViewMenu.add(R.string.create_new_list);
+
+        addItemMenuRef.setIcon(R.drawable.ic_menu_add_box);
 
         SubMenu listSubMenu = navigationViewMenu.addSubMenu(R.string.menu_sublist_lists);
 
         HashMap<String, ShopList> lists = userInfo.getLists();
         for (HashMap.Entry<String, ShopList> entry : lists.entrySet()) {
-            MenuItem item = listSubMenu.add(entry.getValue().getTitle());
+            ShopList shopList = entry.getValue();
+            MenuItem item = listSubMenu.add(shopList.getTitle());
             item.setIcon(R.drawable.ic_menu_assignment);
+            shopListMenuRef.put(item, shopList);
+
+            if (choosenShopList == shopList) {
+                item.setChecked(true);
+            } else {
+                item.setChecked(false);
+            }
+
         }
 
 
@@ -115,24 +134,26 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
-        int id = item.getItemId();
 
-//        if (id == R.id.nav_camera) {
-//            // Handle the camera action
-//        } else if (id == R.id.nav_gallery) {
-//
-//        } else if (id == R.id.nav_slideshow) {
-//
-//        } else if (id == R.id.nav_manage) {
-//
-//        } else if (id == R.id.nav_share) {
-//
-//        } else if (id == R.id.nav_send) {
-//
-//        }
+        if (item == addItemMenuRef) {
+            mainDrawerInterface.addNewListPressed();
+
+        } else {
+            ShopList choosen = shopListMenuRef.get(item);
+            if (choosen != null) {
+                item.setChecked(true);
+                choosenShopList = choosen;
+                mainDrawerInterface.selectedList(choosen);
+            }
+        }
 
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    interface MainDrawerInterface {
+        void addNewListPressed();
+        void selectedList(ShopList shopList);
     }
 
 }

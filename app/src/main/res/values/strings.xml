@@ -21,4 +21,6 @@
 
     <string name="pre_sign_in_message">Hello!\nPlease sign in using your Google account to start using this application.
     </string>
+    <string name="list_title">List title</string>
+    <string name="create">Create</string>
 </resources>

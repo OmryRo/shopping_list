@@ -7,6 +7,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,20 +16,25 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import app.shoppinglist.wsux.shoppinglist.firebase.FireBaseManager;
+import app.shoppinglist.wsux.shoppinglist.firebase.ShopList;
 import app.shoppinglist.wsux.shoppinglist.firebase.UserInfo;
 
 public class MainActivity extends AppCompatActivity
-        implements FireBaseManager.FireBaseEventsInterface, View.OnClickListener {
+        implements FireBaseManager.FireBaseEventsInterface,
+        View.OnClickListener, MainDrawer.MainDrawerInterface {
 
     private static final String TAG = "MAIN_ACTIVITY";
 
     // objects
     private FireBaseManager fireBaseManager;
     private MainDrawer mainDrawer;
+    private UserInfo userInfo;
 
     // layouts
     private LinearLayout loginScreenWrapper;
@@ -47,7 +53,7 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(topToolBar);
 
         setShopListView();
-        mainDrawer = new MainDrawer(this, topToolBar);
+        mainDrawer = new MainDrawer(this, topToolBar, this);
 
         findViewById(R.id.drawer_sign_out).setOnClickListener(this);
     }
@@ -143,12 +149,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void onLogin(UserInfo userInfo) {
+        this.userInfo = userInfo;
         mainDrawer.setUserInfo(userInfo);
         hideLoginScreen();
     }
 
     private void onLogout() {
-        mainDrawer.setUserInfo(null);
+        userInfo = null;
+        mainDrawer.setUserInfo(userInfo);
         mainDrawer.close();
         showLoginScreen();
     }
@@ -166,5 +174,36 @@ public class MainActivity extends AppCompatActivity
                 fireBaseManager.getLoginManager().requestLogout();
                 break;
         }
+    }
+
+    @Override
+    public void addNewListPressed() {
+
+        View popupLayout = getLayoutInflater().inflate(R.layout.add_new_list_popup_layout, null);
+        final EditText titleEt = popupLayout.findViewById(R.id.new_list_popup_title);
+        final AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(popupLayout)
+                .create();
+
+        popupLayout.findViewById(R.id.new_list_popup_create).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String title = titleEt.getText().toString();
+                dialog.dismiss();
+
+                if (userInfo == null) {
+                    return;
+                }
+
+                userInfo.createNewList(title);
+            }
+        });
+
+        dialog.show();
+    }
+
+    @Override
+    public void selectedList(ShopList shopList) {
+
     }
 }
