@@ -67,8 +67,8 @@ public class ImageManager {
 
     class DownloadPicture extends AsyncTask<String, Void, String> {
 
-        private static final String RES_OK = "OK";
-        private static final String RES_FAIL = null;
+        private final String RES_OK = "OK";
+        private final String RES_FAIL = null;
         
         private BaseCollectionItem item;
         private String pictureUrl;

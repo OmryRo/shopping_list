@@ -31,14 +31,15 @@ public class ShareHandler {
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
 
-        String shareMessage = getShareMessage(shopList, token)
-        sendIntent.putExtra(Intent.EXTRA_TEXT, shareString);
-        sendIntent.setType("text/plain");        
+        String shareMessage = getShareMessage(shopList, token);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
+        sendIntent.setType("text/plain");
+        return sendIntent;
     }
     
     private String generateShareToken(ShopList shopList) {
         String stringValue = String.format("%s_%s", shopList.getListId(), System.currentTimeMillis());
-        String hashValue = stringValue.hashCode();
+        int hashValue = stringValue.hashCode();
         return String.valueOf(Math.abs(hashValue));
     }
     
@@ -79,7 +80,7 @@ public class ShareHandler {
         return new String[] {listId, token};
     }
     
-    private bool isIntentDataHostValid(Uri data) {
+    private boolean isIntentDataHostValid(Uri data) {
         return (data.getHost() == null ||
                 !data.getHost().equals(context.getString(R.string.share_domain)));
     }
