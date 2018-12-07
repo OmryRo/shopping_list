@@ -8,17 +8,19 @@
     android:padding="10dp">
 
     <ImageView
-        android:id="@+id/thumbanil"
-        android:layout_width="80dp"
+        android:id="@+id/task_thumbnail"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="80dp" />
 
     <LinearLayout
-        android:layout_width="205dp"
+        android:layout_width="0dp"
         android:layout_height="80dp"
+        android:layout_weight="3"
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/tv_item_name"
+            android:id="@+id/task_name_tv"
             style="@style/TextAppearance.AppCompat.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -28,7 +30,7 @@
             tools:text="Milk" />
 
         <TextView
-            android:id="@+id/tv_item_note"
+            android:id="@+id/task_note_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|start"
@@ -38,13 +40,13 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="80dp"
+        android:layout_width="0dp"
         android:layout_height="80dp"
         android:layout_weight="1"
         android:gravity="center">
 
         <CheckBox
-            android:id="@+id/rv_buy"
+            android:id="@+id/task_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             />
