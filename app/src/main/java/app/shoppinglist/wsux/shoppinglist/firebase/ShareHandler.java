@@ -20,20 +20,33 @@ public class ShareHandler {
     }
 
     public void performShareList(ShopList shopList) {
-        String token = String.valueOf(
-                Math.abs(String.format("%s_%s", shopList.getListId(), System.currentTimeMillis())
-                        .hashCode()));
+        String token = generateShareToken(shopList);
         shopList.addToken(token);
 
+        Intent sendIntent = generateShareIntent(shopList, token);
+        context.startActivity(sendIntent);
+    }
+    
+    private Intent generateShareIntent(ShopList shopList, String token) {
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
+
+        String shareMessage = getShareMessage(shopList, token)
+        sendIntent.putExtra(Intent.EXTRA_TEXT, shareString);
+        sendIntent.setType("text/plain");        
+    }
+    
+    private String generateShareToken(ShopList shopList) {
+        String stringValue = String.format("%s_%s", shopList.getListId(), System.currentTimeMillis());
+        String hashValue = stringValue.hashCode();
+        return String.valueOf(Math.abs(hashValue));
+    }
+    
+    private String getShareMessage(ShopList shopList, String token) {
         String shareDomain = context.getString(R.string.share_domain);
         String url = context.getString(R.string.share_url, shareDomain, shopList.getListId(), token);
         String appName = context.getString(R.string.app_name);
-        String shareString = context.getString(R.string.share_text, appName, url);
-        sendIntent.putExtra(Intent.EXTRA_TEXT, shareString);
-        sendIntent.setType("text/plain");
-        context.startActivity(sendIntent);
+        return context.getString(R.string.share_text, appName, url);
     }
 
     private String[] checkForIncomingIntent() {
@@ -46,9 +59,7 @@ public class ShareHandler {
         String action = startIntent.getAction();
         Uri data = startIntent.getData();
 
-        if (data == null ||
-                data.getHost() == null ||
-                !data.getHost().equals(context.getString(R.string.share_domain))) {
+        if (data == null || isIntentDataHostValid(data)) {
             return null;
         }
 
@@ -66,6 +77,11 @@ public class ShareHandler {
         String token = splittedPath[2];
 
         return new String[] {listId, token};
+    }
+    
+    private bool isIntentDataHostValid(Uri data) {
+        return (data.getHost() == null ||
+                !data.getHost().equals(context.getString(R.string.share_domain)));
     }
 
     public void checkIncomingShare(UserInfo userInfo) {
