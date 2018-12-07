@@ -22,5 +22,18 @@
         app:headerLayout="@layout/nav_header_main"
         app:menu="@menu/activity_main_drawer" />
 
+    <LinearLayout
+        android:id="@+id/login_screen_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#ffffff"
+        android:orientation="horizontal">
+        <fragment
+            android:name="app.shoppinglist.wsux.shoppinglist.LoginScreen"
+            android:id="@+id/login_screen_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </LinearLayout>
+
 
 </android.support.v4.widget.DrawerLayout>
