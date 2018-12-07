@@ -77,7 +77,7 @@ public class FireBaseManager {
         loginManager.onActivityResult(requestCode, resultCode, data);
     }
 
-    void reportEvent(int what) { reportEvent(what, null, null);}
+    public void reportEvent(int what) { reportEvent(what, null, null);}
     void reportEvent(int what, Object data) { reportEvent(what, data, null); }
     void reportEvent(int what, Exception e) { reportEvent(what, null, e); }
     void reportEvent(int what, Object data, Exception e) {

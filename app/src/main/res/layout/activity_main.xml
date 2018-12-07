@@ -13,6 +13,22 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+
+    <LinearLayout
+        android:id="@+id/login_screen_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#ffffff"
+        android:orientation="horizontal"
+        android:clickable="true">
+        <fragment
+            android:name="app.shoppinglist.wsux.shoppinglist.LoginScreen"
+            android:id="@+id/login_screen_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </LinearLayout>
+
+
     <android.support.design.widget.NavigationView
         android:id="@+id/nav_view"
         android:layout_width="wrap_content"
@@ -20,20 +36,38 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_main"
-        app:menu="@menu/activity_main_drawer" />
+        >
 
-    <LinearLayout
-        android:id="@+id/login_screen_wrapper"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#ffffff"
-        android:orientation="horizontal">
-        <fragment
-            android:name="app.shoppinglist.wsux.shoppinglist.LoginScreen"
-            android:id="@+id/login_screen_fragment"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-    </LinearLayout>
+            android:layout_height="48dp"
+            android:clickable="true"
+            android:layout_gravity="bottom">
+            <LinearLayout
+                android:id="@+id/drawer_sign_out"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:orientation="horizontal"
+                android:clickable="true"
+                android:layout_gravity="center"
+                android:gravity="center">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_menu_exit_to_app"
+                    android:layout_marginEnd="10dp"
+                    />
+                <TextView
+                    android:id="@+id/footer_item_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:gravity="center"
+                    android:text="Sign out" />
+            </LinearLayout>
+        </RelativeLayout>
+
+    </android.support.design.widget.NavigationView>
 
 
 </android.support.v4.widget.DrawerLayout>

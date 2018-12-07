@@ -22,7 +22,9 @@ import app.shoppinglist.wsux.shoppinglist.firebase.FireBaseManager;
 import app.shoppinglist.wsux.shoppinglist.firebase.UserInfo;
 
 public class MainActivity extends AppCompatActivity
-        implements FireBaseManager.FireBaseEventsInterface {
+        implements FireBaseManager.FireBaseEventsInterface, View.OnClickListener {
+
+    private static final String TAG = "MAIN_ACTIVITY";
 
     // objects
     private FireBaseManager fireBaseManager;
@@ -47,6 +49,7 @@ public class MainActivity extends AppCompatActivity
         setShopListView();
         mainDrawer = new MainDrawer(this, topToolBar);
 
+        findViewById(R.id.drawer_sign_out).setOnClickListener(this);
     }
 
     private void setLoginScreen() {
@@ -124,6 +127,9 @@ public class MainActivity extends AppCompatActivity
             case FireBaseManager.ON_SIGN_ERR:
                 onLogout();
                 break;
+            case FireBaseManager.ON_USER_LIST_UPDATED:
+                mainDrawer.reportListChange();
+                break;
         }
 
         Log.d("FIREBASE_EVENTS",
@@ -143,6 +149,7 @@ public class MainActivity extends AppCompatActivity
 
     private void onLogout() {
         mainDrawer.setUserInfo(null);
+        mainDrawer.close();
         showLoginScreen();
     }
 
@@ -150,5 +157,14 @@ public class MainActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         fireBaseManager.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.drawer_sign_out:
+                fireBaseManager.getLoginManager().requestLogout();
+                break;
+        }
     }
 }
