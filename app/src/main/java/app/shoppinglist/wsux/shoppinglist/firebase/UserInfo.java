@@ -24,6 +24,7 @@ public class UserInfo extends BaseCollectionItem {
     private String email;
     private String displayName;
     private String pictureURL;
+    private boolean hasStartedPictureDownload;
     private List<String> listNames;
     private HashMap<String, ShopList> lists;
     private HashMap<String, String> tokens;
@@ -36,6 +37,7 @@ public class UserInfo extends BaseCollectionItem {
         displayName = user.getDisplayName();
         pictureURL = user.getPhotoUrl().toString();
 
+        hasStartedPictureDownload = false;
         listNames = new ArrayList<>();
         lists = new HashMap<>();
         tokens = new HashMap<>();
@@ -84,7 +86,7 @@ public class UserInfo extends BaseCollectionItem {
 
     @Override
     void specificOnEvent(DocumentSnapshot document) {
-        listNames = new ArrayList<>();
+        ArrayList<String> listNames = new ArrayList<>();
         if (document.contains(FIRESTORE_FIELD_LISTS)) {
             listNames.addAll((List<String>) document.get(FIRESTORE_FIELD_LISTS));
 
@@ -94,9 +96,17 @@ public class UserInfo extends BaseCollectionItem {
                 }
             }
         }
+        this.listNames = listNames;
 
         if (document.contains(FIRESTORE_FIELD_TOKENS)) {
             tokens.putAll((Map<String, String>) document.get(FIRESTORE_FIELD_TOKENS));
+        }
+
+        setReady();
+
+        if (!hasStartedPictureDownload && pictureURL != null) {
+            hasStartedPictureDownload = true;
+            manager.getImageManager().downloadPicture(this, pictureURL);
         }
 
         // in case the list is empty..

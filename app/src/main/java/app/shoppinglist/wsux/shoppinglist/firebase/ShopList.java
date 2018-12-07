@@ -208,11 +208,12 @@ public class ShopList extends BaseCollectionItem {
         title = document.getString(FIRESTORE_FIELD_TITLE);
         author = document.getString(FIRESTORE_FIELD_AUTHOR);
 
-        tasks = new ArrayList<>();
+        ArrayList<String> tasks = new ArrayList<>();
         if (document.contains(FIRESTORE_FIELD_TASKS)) {
             tasks.addAll((List<String>) document.get(FIRESTORE_FIELD_TASKS));
             refreshShopTaskData();
         }
+        this.tasks = tasks;
 
         collaborators = new ArrayList<>();
         if (document.contains(FIRESTORE_FIELD_COLLABORATORS)) {
@@ -220,10 +221,11 @@ public class ShopList extends BaseCollectionItem {
             refreshCollaboratorData();
         }
 
-        tokens = new HashMap<>();
+        HashMap<String, Object> tokens = new HashMap<>();
         if (document.contains(FIRESTORE_FIELD_TOKENS)) {
             tokens.putAll((HashMap<String, Object>) document.get(FIRESTORE_FIELD_TOKENS));
         }
+        this.tokens = tokens;
 
         isMember = userInfo.getUserId().equals(author) || collaborators.contains(userInfo.getUserId());
         setReady();
