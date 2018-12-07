@@ -44,7 +44,12 @@ public class ShopTask extends BaseCollectionItem {
         description = document.getString(FIRESTORE_FIELD_DESCRIPTION);
 
         setReady();
+        reportOnChangeEvent();
+    }
+    
+    private void reportOnChangeEvent() {
         manager.reportEvent(FireBaseManager.ON_TASK_UPDATED, this);
+        
         inList.reportChildChange();
 
         if (onChangeListener != null) {
