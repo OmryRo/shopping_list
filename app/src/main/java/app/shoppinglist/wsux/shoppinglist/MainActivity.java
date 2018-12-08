@@ -134,7 +134,6 @@ public class MainActivity extends AppCompatActivity
                 onLogout();
                 break;
             case FireBaseManager.ON_USER_LIST_UPDATED:
-                mainDrawer.reportListChange();
                 break;
         }
 
@@ -157,7 +156,7 @@ public class MainActivity extends AppCompatActivity
     private void onLogout() {
         userInfo = null;
         mainDrawer.setUserInfo(userInfo);
-        mainDrawer.close();
+        mainDrawer.closeDrawer();
         showLoginScreen();
     }
 

@@ -17,24 +17,28 @@ import android.widget.TextView;
 import java.util.HashMap;
 import java.util.Map;
 
+import app.shoppinglist.wsux.shoppinglist.firebase.BaseCollectionItem;
 import app.shoppinglist.wsux.shoppinglist.firebase.FireBaseManager;
 import app.shoppinglist.wsux.shoppinglist.firebase.ShopList;
 import app.shoppinglist.wsux.shoppinglist.firebase.UserInfo;
 
-public class MainDrawer implements NavigationView.OnNavigationItemSelectedListener {
+public class MainDrawer implements NavigationView.OnNavigationItemSelectedListener,
+        BaseCollectionItem.OnChildChangeListener, BaseCollectionItem.OnMediaDownload,
+        BaseCollectionItem.OnChangeListener {
 
     private final static int HEADER_VIEW_INDEX = 0;
 
-
-    private NavigationView navigationView;
     private UserInfo userInfo;
-
     private MenuItem addItemMenuRef;
     private Map<MenuItem, ShopList> shopListMenuRef;
     private ShopList choosenShopList;
     private MainDrawerInterface mainDrawerInterface;
 
+    // default values
+    private String defaultText;
+
     // layouts
+    private NavigationView navigationView;
     private DrawerLayout drawer;
     private TextView userNameTv;
     private TextView userEmailTv;
@@ -44,6 +48,7 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
 
         shopListMenuRef = new HashMap<>();
         this.mainDrawerInterface = mainDrawerInterface;
+        this.defaultText = context.getString(R.string.not_available);
 
         drawer = context.findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -70,17 +75,8 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
             return;
         }
 
+        setUserInfoListeners(userInfo);
         this.userInfo = userInfo;
-
-        if (userInfo == null) {
-            return;
-        }
-
-        userNameTv.setText(userInfo.getDisplayName());
-        userEmailTv.setText(userInfo.getEmail());
-        userPictureIv.setImageBitmap(userInfo.getPicture());
-
-        updateMenuItems();
     }
 
     private void toggeLockDrawer(UserInfo userInfo) {
@@ -88,10 +84,6 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
                 DrawerLayout.LOCK_MODE_LOCKED_CLOSED :
                 DrawerLayout.LOCK_MODE_UNLOCKED
         );
-    }
-
-    public void reportListChange() {
-        updateMenuItems();
     }
 
     private void updateMenuItems() {
@@ -127,7 +119,19 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
 
     }
 
-    public void close() {
+    private void setUserInfoListeners(UserInfo newUserInfo) {
+        if (userInfo != newUserInfo && userInfo != null) {
+            userInfo.removeAllListeners();
+        }
+
+        MainDrawer listener = newUserInfo != null ? this : null;
+
+        newUserInfo.setOnChangeListener(listener);
+        newUserInfo.setOnChildChangeListener(listener);
+        newUserInfo.setOnMediaDownload(listener);
+    }
+
+    public void closeDrawer() {
         drawer.closeDrawer(GravityCompat.START);
     }
 
@@ -149,6 +153,34 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
 
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onChildChange() {
+        updateMenuItems();
+    }
+
+    @Override
+    public void onMediaDownload() {
+        if (userInfo != null) {
+            userPictureIv.setImageBitmap(userInfo.getPicture());
+        } else {
+            userPictureIv.setImageResource(R.mipmap.ic_launcher);
+        }
+    }
+
+    @Override
+    public void onChange() {
+        String userName = defaultText;
+        String userEmail = defaultText;
+
+        if (userInfo != null) {
+            userName = userInfo.getDisplayName();
+            userEmail = userInfo.getEmail();
+        }
+
+        userNameTv.setText(userName);
+        userEmailTv.setText(userEmail);
     }
 
     interface MainDrawerInterface {

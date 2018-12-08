@@ -18,6 +18,7 @@
     <string name="create_new_list">Create new list</string>
     <string name="sign_out">Sign out</string>
     <string name="menu_sublist_lists">Lists</string>
+    <string name="not_available">N/A</string>
 
     <string name="pre_sign_in_message">Hello!\nPlease sign in using your Google account to start using this application.
     </string>

@@ -236,7 +236,7 @@ public class TestFirebaseActivity extends AppCompatActivity implements View.OnCl
 
         shopList.setOnChildChangeListener(new BaseCollectionItem.OnChildChangeListener() {
             @Override
-            public void onChange() {
+            public void onChildChange() {
                 body.removeAllViews();
 
                 for (HashMap.Entry<String, Collaborator> entry : shopList.getCollaborators().entrySet()) {

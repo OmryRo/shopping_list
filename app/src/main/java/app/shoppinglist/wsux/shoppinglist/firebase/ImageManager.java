@@ -126,7 +126,7 @@ public class ImageManager {
 
         @Override
         protected void onPostExecute(String result) {
-            item.reportChildChange();
+            item.reportMediaDownloaded();
         }
     }
 

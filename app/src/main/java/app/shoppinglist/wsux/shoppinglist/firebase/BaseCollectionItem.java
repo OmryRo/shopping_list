@@ -25,6 +25,7 @@ public abstract class BaseCollectionItem implements
     protected OnChangeListener onChangeListener;
     protected OnActionListener onActionListener;
     protected OnChildChangeListener onChildChangeListener;
+    protected OnMediaDownload onMediaDownload;
     protected FireBaseManager manager;
 
     abstract void specificOnEvent(DocumentSnapshot document);
@@ -83,6 +84,13 @@ public abstract class BaseCollectionItem implements
         }
     }
 
+    public void setOnMediaDownload(OnMediaDownload onMediaDownload) {
+        this.onMediaDownload = onMediaDownload;
+        if (onMediaDownload != null) {
+            onMediaDownload.onMediaDownload();
+        }
+    }
+
     public void setOnActionListener(OnActionListener onActionListener) {
         this.onActionListener = onActionListener;
     }
@@ -97,13 +105,32 @@ public abstract class BaseCollectionItem implements
     public void setOnChildChangeListener(OnChildChangeListener onChildChangeListener) {
         this.onChildChangeListener = onChildChangeListener;
         if (onChildChangeListener != null) {
-            onChildChangeListener.onChange();
+            onChildChangeListener.onChildChange();
+        }
+    }
+
+    public void removeAllListeners() {
+        onMediaDownload = null;
+        onActionListener = null;
+        onChangeListener = null;
+        onChildChangeListener = null;
+    }
+
+    protected void reportOnChange() {
+        if (onChangeListener != null) {
+            onChangeListener.onChange();
         }
     }
 
     void reportChildChange() {
         if (onChildChangeListener != null) {
-            onChildChangeListener.onChange();
+            onChildChangeListener.onChildChange();
+        }
+    }
+
+    void reportMediaDownloaded() {
+        if (onMediaDownload != null) {
+            onMediaDownload.onMediaDownload();
         }
     }
 
@@ -113,12 +140,11 @@ public abstract class BaseCollectionItem implements
 
     protected void setReady() {
         isReady = true;
+        reportOnChange();
     }
 
-    void onDoneImageDownload() {}
-
     public interface OnChildChangeListener {
-        void onChange();
+        void onChildChange();
     }
 
     public interface OnChangeListener {
@@ -128,5 +154,9 @@ public abstract class BaseCollectionItem implements
     public interface OnActionListener {
         void onActionSuccess();
         void onActionFailed();
+    }
+
+    public interface OnMediaDownload {
+        void onMediaDownload();
     }
 }
