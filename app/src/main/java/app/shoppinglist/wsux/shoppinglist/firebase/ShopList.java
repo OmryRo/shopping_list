@@ -253,6 +253,16 @@ public class ShopList extends BaseCollectionItem {
     }
 
     @Override
+    protected void setReady() {
+
+        if (!isReady() && listId.equals(userInfo.getLastList())) {
+            manager.reportEvent(FireBaseManager.ON_LAST_LIST_DOWNLOADED, this);
+        }
+
+        super.setReady();
+    }
+
+    @Override
     public void onNotFound(DocumentSnapshot document) {
         super.onNotFound(document);
         isMember = false;

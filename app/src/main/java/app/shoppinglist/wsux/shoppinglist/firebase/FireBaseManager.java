@@ -36,6 +36,7 @@ public class FireBaseManager {
     public static final int ON_COLLABORATOR_FAILURE = 16;
     public static final int ON_COLLABORATOR_DELETED = 17;
     public static final int ON_SHARE_LIST_FOUND = 18;
+    public static final int ON_LAST_LIST_DOWNLOADED = 19;
 
     public FireBaseManager(Context context, FireBaseEventsInterface eventsInterface) {
         this.context = context;

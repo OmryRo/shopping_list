@@ -2,6 +2,7 @@ package app.shoppinglist.wsux.shoppinglist.firebase;
 
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -19,11 +20,13 @@ public class UserInfo extends BaseCollectionItem {
     public static final String FIRESTORE_TABLE = "users";
     private static final String FIRESTORE_FIELD_LISTS = "lists";
     private static final String FIRESTORE_FIELD_TOKENS = "tokens";
+    private static final String FIRESTORE_FIELD_LAST_LIST = "last_list";
 
     private String userId;
     private String email;
     private String displayName;
     private String pictureURL;
+    private String lastList;
     private boolean hasStartedPictureDownload;
     private List<String> listNames;
     private HashMap<String, ShopList> lists;
@@ -87,6 +90,11 @@ public class UserInfo extends BaseCollectionItem {
     @Override
     void specificOnEvent(DocumentSnapshot document) {
         ArrayList<String> listNames = new ArrayList<>();
+
+        if (document.contains(FIRESTORE_FIELD_LAST_LIST)) {
+            lastList = document.getString(FIRESTORE_FIELD_LAST_LIST);
+        }
+
         if (document.contains(FIRESTORE_FIELD_LISTS)) {
             listNames.addAll((List<String>) document.get(FIRESTORE_FIELD_LISTS));
 
@@ -131,6 +139,15 @@ public class UserInfo extends BaseCollectionItem {
         updateField(ref, FIRESTORE_FIELD_LISTS, listNames);
         manager.reportEvent(FireBaseManager.ON_LIST_DELETED, lists.get(listId));
         lists.remove(listId);
+    }
+
+    public void setLastList(ShopList shopList) {
+        lastList = shopList.getListId();
+        updateField(ref, FIRESTORE_FIELD_LAST_LIST, lastList);
+    }
+
+    public String getLastList() {
+        return  lastList;
     }
 
     public void addToken(final String listId, String token) {

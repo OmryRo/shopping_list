@@ -1,12 +1,12 @@
 package app.shoppinglist.wsux.shoppinglist;
 
 import android.app.Activity;
-import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import app.shoppinglist.wsux.shoppinglist.firebase.BaseCollectionItem;
-import app.shoppinglist.wsux.shoppinglist.firebase.FireBaseManager;
 import app.shoppinglist.wsux.shoppinglist.firebase.ShopList;
 import app.shoppinglist.wsux.shoppinglist.firebase.UserInfo;
 
@@ -26,12 +25,14 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
         BaseCollectionItem.OnChildChangeListener, BaseCollectionItem.OnMediaDownload,
         BaseCollectionItem.OnChangeListener {
 
+    private final static String TAG = "MAIN_DRAWER";
+
     private final static int HEADER_VIEW_INDEX = 0;
 
     private UserInfo userInfo;
     private MenuItem addItemMenuRef;
     private Map<MenuItem, ShopList> shopListMenuRef;
-    private ShopList choosenShopList;
+    private ShopList selectedList;
     private MainDrawerInterface mainDrawerInterface;
 
     // default values
@@ -111,13 +112,21 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
 
             shopListMenuRef.put(menuItem, shopList);
 
-            if (choosenShopList == shopList) {
-                navigationView.setCheckedItem(menuItem);
+            if (selectedList == null && shopList.getListId().equals(userInfo.getLastList())) {
+                selectedList = shopList;
             }
+
+            boolean isSelected = selectedList == shopList;
+            menuItem.setChecked(isSelected);
 
         }
 
 
+    }
+
+    public void setSelectedList(ShopList shopList) {
+        selectedList = shopList;
+        updateMenuItems();
     }
 
     private void setUserInfoListeners(UserInfo newUserInfo) {
@@ -129,11 +138,9 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
             return;
         }
 
-        MainDrawer listener = newUserInfo != null ? this : null;
-
-        newUserInfo.setOnChangeListener(listener);
-        newUserInfo.setOnChildChangeListener(listener);
-        newUserInfo.setOnMediaDownload(listener);
+        newUserInfo.setOnChangeListener(this);
+        newUserInfo.setOnChildChangeListener(this);
+        newUserInfo.setOnMediaDownload(this);
     }
 
     public void closeDrawer() {
@@ -142,17 +149,18 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
 
     @Override
     public boolean onNavigationItemSelected(MenuItem menuItem) {
-        // Handle navigation view item clicks here.
 
         if (menuItem == addItemMenuRef) {
             mainDrawerInterface.addNewListPressed();
 
         } else {
-            ShopList choosen = shopListMenuRef.get(menuItem);
-            if (choosen != null) {
+            ShopList selected = shopListMenuRef.get(menuItem);
+            if (selected != null) {
                 menuItem.setChecked(true);
-                choosenShopList = choosen;
+                selectedList = selected;
                 navigationView.setCheckedItem(menuItem);
+                userInfo.setLastList(selected);
+                mainDrawerInterface.selectedList(selected);
             }
         }
 

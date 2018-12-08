@@ -133,7 +133,8 @@ public class MainActivity extends AppCompatActivity
             case FireBaseManager.ON_SIGN_ERR:
                 onLogout();
                 break;
-            case FireBaseManager.ON_USER_LIST_UPDATED:
+            case FireBaseManager.ON_LAST_LIST_DOWNLOADED:
+                mainDrawer.setSelectedList((ShopList) data);
                 break;
         }
 
