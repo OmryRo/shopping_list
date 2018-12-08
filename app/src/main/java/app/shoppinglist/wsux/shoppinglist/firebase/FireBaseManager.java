@@ -58,6 +58,11 @@ public class FireBaseManager {
 
     public void onStart() {
         loginManager.onStart();
+
+        UserInfo currentUser = loginManager.getCurrentUserInfo();
+        if (currentUser != null) {
+            shareHandler.checkIncomingShare(currentUser);
+        }
     }
 
     public LoginManager getLoginManager() {

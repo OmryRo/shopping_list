@@ -3,6 +3,7 @@ package app.shoppinglist.wsux.shoppinglist.firebase;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.util.Pair;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -31,6 +32,7 @@ public class UserInfo extends BaseCollectionItem {
     private List<String> listNames;
     private HashMap<String, ShopList> lists;
     private HashMap<String, String> tokens;
+    private Pair<String, String> waitingToken;
     private DocumentReference ref;
 
     UserInfo(FireBaseManager manager, FirebaseUser user) {
@@ -89,12 +91,12 @@ public class UserInfo extends BaseCollectionItem {
 
     @Override
     void specificOnEvent(DocumentSnapshot document) {
-        ArrayList<String> listNames = new ArrayList<>();
 
         if (document.contains(FIRESTORE_FIELD_LAST_LIST)) {
             lastList = document.getString(FIRESTORE_FIELD_LAST_LIST);
         }
 
+        ArrayList<String> listNames = new ArrayList<>();
         if (document.contains(FIRESTORE_FIELD_LISTS)) {
             listNames.addAll((List<String>) document.get(FIRESTORE_FIELD_LISTS));
 
@@ -121,6 +123,15 @@ public class UserInfo extends BaseCollectionItem {
         reportChildChange();
     }
 
+    protected void setReady() {
+        super.setReady();
+
+        if (waitingToken != null) {
+            addToken(waitingToken.first, waitingToken.second);
+            waitingToken = null;
+        }
+    }
+
     @Override
     void reportChildChange() {
         manager.reportEvent(FireBaseManager.ON_USER_LIST_UPDATED);
@@ -130,7 +141,6 @@ public class UserInfo extends BaseCollectionItem {
     public void addKnownList(String listId) {
         listNames.add(listId);
         updateField(ref, FIRESTORE_FIELD_LISTS, listNames);
-        lists.put(listId, new ShopList(manager, this, listId));
         reportChildChange();
     }
 
@@ -153,6 +163,11 @@ public class UserInfo extends BaseCollectionItem {
     public void addToken(final String listId, String token) {
 
         if (token.contains(listId) || (lists.containsKey(listId) && lists.get(listId).isMember())) {
+            return;
+        }
+
+        if (!isReady()) {
+            waitingToken = new Pair<>(listId, token);
             return;
         }
 

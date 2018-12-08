@@ -1,6 +1,7 @@
 package app.shoppinglist.wsux.shoppinglist.firebase;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
