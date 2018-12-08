@@ -143,8 +143,12 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
         newUserInfo.setOnMediaDownload(this);
     }
 
-    public void closeDrawer() {
-        drawer.closeDrawer(GravityCompat.START);
+    public boolean closeDrawer() {
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+            return true;
+        }
+        return false;
     }
 
     @Override

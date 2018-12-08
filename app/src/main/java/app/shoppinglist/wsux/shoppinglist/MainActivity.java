@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity
     // objects
     private FireBaseManager fireBaseManager;
     private MainDrawer mainDrawer;
+    private ShopListView shopListView;
     private UserInfo userInfo;
 
     // layouts
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar topToolBar = findViewById(R.id.toolbar);
         setSupportActionBar(topToolBar);
 
-        setShopListView();
+        shopListView = new ShopListView(this, topToolBar);
         mainDrawer = new MainDrawer(this, topToolBar, this);
 
         findViewById(R.id.drawer_sign_out).setOnClickListener(this);
@@ -80,22 +81,9 @@ public class MainActivity extends AppCompatActivity
         fireBaseManager.onStart();
     }
 
-    private void setShopListView() {
-        RecyclerView recyclerView =  findViewById(R.id.shopping_list_view);
-        recyclerView.setHasFixedSize(true);
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(mLayoutManager);
-
-        TaskAdapter mAdapter = new TaskAdapter(null);
-        recyclerView.setAdapter(mAdapter);
-    }
-
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
+        if (!mainDrawer.closeDrawer()) {
             super.onBackPressed();
         }
     }
@@ -134,7 +122,7 @@ public class MainActivity extends AppCompatActivity
                 onLogout();
                 break;
             case FireBaseManager.ON_LAST_LIST_DOWNLOADED:
-                mainDrawer.setSelectedList((ShopList) data);
+                onLastListDownloaded((ShopList) data);
                 break;
         }
 
@@ -159,6 +147,11 @@ public class MainActivity extends AppCompatActivity
         mainDrawer.setUserInfo(userInfo);
         mainDrawer.closeDrawer();
         showLoginScreen();
+    }
+
+    private void onLastListDownloaded(ShopList shopList) {
+        mainDrawer.setSelectedList((ShopList) shopList);
+        selectedList(shopList);
     }
 
     @Override
@@ -203,7 +196,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void selectedList(ShopList shopList) {
-
+    public void selectedList(final ShopList shopList) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                shopListView.setShopList(shopList);
+            }
+        });
     }
 }

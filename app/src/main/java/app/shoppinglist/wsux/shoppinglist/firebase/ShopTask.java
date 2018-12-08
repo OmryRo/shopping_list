@@ -96,6 +96,16 @@ public class ShopTask extends BaseCollectionItem {
         updateField(ref, FIRESTORE_FIELD_STATE, state);
     }
 
+    @Override
+    protected void setReady() {
+
+        if (!isReady()) {
+            inList.reportChildChange();
+        }
+
+        super.setReady();
+    }
+
     static Task<DocumentReference> addNewTask(ShopList inList, String title, String description, UserInfo userInfo) {
         HashMap<String, Object> fields = new HashMap<>();
         fields.put(FIRESTORE_FIELD_CREATOR, userInfo.getUserId());

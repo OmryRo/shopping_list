@@ -2,6 +2,7 @@
 package app.shoppinglist.wsux.shoppinglist;
 
 
+import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,19 +12,47 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder> {
+import java.util.ArrayList;
 
-    private static final String TAG = TaskAdapter.class.getSimpleName();
+import app.shoppinglist.wsux.shoppinglist.firebase.BaseCollectionItem;
+import app.shoppinglist.wsux.shoppinglist.firebase.ShopList;
+import app.shoppinglist.wsux.shoppinglist.firebase.ShopTask;
 
-    private String[] mDataset;
+public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder>
+        implements BaseCollectionItem.OnChildChangeListener {
 
+    private static final String TAG = "TASK_ADAPTER";
 
-    public TaskAdapter(String[] myDataset) {
-        mDataset = myDataset;
+    private ShopList currentShopList;
+    private ArrayList<ShopTask> shopTasks;
+
+    public TaskAdapter() {
+        shopTasks = new ArrayList<>();
+
+    }
+
+    public void setList(ShopList shopList) {
+
+        if (shopList == currentShopList) {
+            return;
+        } else if (currentShopList != null) {
+            currentShopList.removeAllListeners();
+        }
+
+        currentShopList = shopList;
+        currentShopList.setOnChildChangeListener(this);
+    }
+
+    public void resetDataset() {
+        shopTasks.clear();
+        if (currentShopList != null) {
+            shopTasks.addAll(currentShopList.getTasks().values());
+            notifyDataSetChanged();
+        }
     }
 
     @Override
-    public TaskAdapter.TaskViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public TaskViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         LinearLayout view = (LinearLayout) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.task_list_item, parent, false);
@@ -33,30 +62,32 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         return viewHolder;
     }
 
-
     @Override
     public void onBindViewHolder(TaskViewHolder holder, int position) {
         holder.updateView(position);
     }
 
+    @Override
+    public void onChildChange() {
+        resetDataset();
+    }
 
     @Override
     public int getItemCount() {
-        return 100;
+        return shopTasks.size();
     }
 
+    class TaskViewHolder extends RecyclerView.ViewHolder
+            implements BaseCollectionItem.OnChangeListener {
 
-    class TaskViewHolder extends RecyclerView.ViewHolder {
-
-        private LinearLayout listItemNumberView;
         private TextView taskNameTv;
         private TextView taskNoteTv;
         private CheckBox statusCb;
         private ImageView thumbnailIv;
+        private ShopTask task;
 
         private TaskViewHolder(LinearLayout itemView) {
             super(itemView);
-            listItemNumberView = itemView;
             taskNameTv = itemView.findViewById(R.id.task_name_tv);
             taskNoteTv = itemView.findViewById(R.id.task_note_tv);
             statusCb = itemView.findViewById(R.id.task_status);
@@ -64,8 +95,40 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         }
 
         private void updateView(int position) {
-            taskNameTv.setText(String.valueOf(position));
+
+            task = shopTasks.get(position);
+
+            if (task == null) {
+                return;
+            }
+
+            task.setOnChangeListener(this);
         }
 
+        @Override
+        public void onChange() {
+
+            if (task == null) {
+                return;
+            }
+
+            if (taskNameTv != null) {
+                taskNameTv.setText(task.getTitle());
+                Log.d(TAG, "taskNameTv: " + task.getTitle());
+            }
+
+            if (taskNoteTv != null) {
+                taskNoteTv.setText(task.getDescription());
+                Log.d(TAG, "taskNoteTv: " + task.getDescription());
+            }
+
+            if (statusCb != null) {
+                statusCb.setChecked(task.getState() == ShopTask.SHOP_TASK_DONE);
+            }
+
+            if (thumbnailIv != null) {
+                thumbnailIv.setImageResource(R.mipmap.ic_launcher);
+            }
+        }
     }
 }

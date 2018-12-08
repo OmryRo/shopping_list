@@ -24,4 +24,6 @@
     </string>
     <string name="list_title">List title</string>
     <string name="create">Create</string>
+    <string name="add">Add</string>
+    <string name="add_task">what to add?</string>
 </resources>

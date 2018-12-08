@@ -211,15 +211,16 @@ public class ShopList extends BaseCollectionItem {
         ArrayList<String> tasks = new ArrayList<>();
         if (document.contains(FIRESTORE_FIELD_TASKS)) {
             tasks.addAll((List<String>) document.get(FIRESTORE_FIELD_TASKS));
-            refreshShopTaskData();
         }
         this.tasks = tasks;
+        refreshShopTaskData();
 
-        collaborators = new ArrayList<>();
+        ArrayList collaborators = new ArrayList<>();
         if (document.contains(FIRESTORE_FIELD_COLLABORATORS)) {
             collaborators.addAll((List<String>) document.get(FIRESTORE_FIELD_COLLABORATORS));
-            refreshCollaboratorData();
         }
+        this.collaborators = collaborators;
+        refreshCollaboratorData();
 
         HashMap<String, Object> tokens = new HashMap<>();
         if (document.contains(FIRESTORE_FIELD_TOKENS)) {
