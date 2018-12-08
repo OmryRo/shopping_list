@@ -1,6 +1,9 @@
 package app.shoppinglist.wsux.shoppinglist;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -18,11 +21,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.HashMap;
+
+import app.shoppinglist.wsux.shoppinglist.firebase.BaseCollectionItem;
+import app.shoppinglist.wsux.shoppinglist.firebase.Collaborator;
 import app.shoppinglist.wsux.shoppinglist.firebase.FireBaseManager;
 import app.shoppinglist.wsux.shoppinglist.firebase.ShopList;
+import app.shoppinglist.wsux.shoppinglist.firebase.ShopTask;
 import app.shoppinglist.wsux.shoppinglist.firebase.UserInfo;
 
 public class MainActivity extends AppCompatActivity
@@ -36,6 +45,7 @@ public class MainActivity extends AppCompatActivity
     private MainDrawer mainDrawer;
     private ShopListView shopListView;
     private UserInfo userInfo;
+    private ShopList currentShopList;
 
     // layouts
     private LinearLayout loginScreenWrapper;
@@ -102,7 +112,14 @@ public class MainActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
+        switch (id) {
+            case R.id.action_settings:
+                return true;
+            case R.id.nav_share:
+                showShared();
+                break;
+        }
+
         if (id == R.id.action_settings) {
             return true;
         }
@@ -123,6 +140,9 @@ public class MainActivity extends AppCompatActivity
                 break;
             case FireBaseManager.ON_LAST_LIST_DOWNLOADED:
                 onLastListDownloaded((ShopList) data);
+                break;
+            case FireBaseManager.ON_SHARE_LIST_FOUND:
+                onShareListFound((ShopList) data);
                 break;
         }
 
@@ -197,10 +217,105 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void selectedList(final ShopList shopList) {
-        runOnUiThread(new Runnable() {
+        currentShopList = shopList;
+        shopListView.setShopList(shopList);
+    }
+
+    public void onShareListFound(final ShopList listFound) {
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.join_list_message, listFound.getTitle()))
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        fireBaseManager.getShareHandler().handleJoinList(userInfo, listFound);
+                    }
+                })
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        fireBaseManager.getShareHandler().handleCancelJoinList(userInfo, listFound);
+                    }
+                }).create().show();
+    }
+
+    public void showShared() {
+
+        if (currentShopList == null) {
+            return;
+        }
+
+        final LinearLayout wrapper = new LinearLayout(this);
+        wrapper.setOrientation(LinearLayout.VERTICAL);
+
+        final LinearLayout header = new LinearLayout(this);
+        header.setOrientation(LinearLayout.HORIZONTAL);
+        wrapper.addView(header);
+
+        final LinearLayout body = new LinearLayout(this);
+        body.setOrientation(LinearLayout.VERTICAL);
+        wrapper.addView(body);
+
+        final AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setView(wrapper)
+                .create();
+
+        Button dismiss = new Button(this);
+        dismiss.setText("X");
+        dismiss.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void run() {
-                shopListView.setShopList(shopList);
+            public void onClick(View v) {
+                alertDialog.dismiss();
+            }
+        });
+        header.addView(dismiss);
+
+        final Button shareButtonn = new Button(this);
+        shareButtonn.setText("Share");
+        shareButtonn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fireBaseManager.getShareHandler().performShareList(currentShopList);
+            }
+        });
+        header.addView(shareButtonn);
+
+        alertDialog.show();
+
+        currentShopList.setOnChildChangeListener(new BaseCollectionItem.OnChildChangeListener() {
+            @Override
+            public void onChildChange() {
+                body.removeAllViews();
+
+                for (HashMap.Entry<String, Collaborator> entry : currentShopList.getCollaborators().entrySet()) {
+                    final Collaborator collaborator = entry.getValue();
+
+                    LinearLayout layout = new LinearLayout(getApplicationContext());
+
+                    final ImageView imageView = new ImageView(getApplicationContext());
+                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(75, 75);
+                    imageView.setLayoutParams(layoutParams);
+                    imageView.setImageResource(R.drawable.ic_launcher_background);
+                    layout.addView(imageView);
+
+                    final TextView titleView = new TextView(getApplicationContext());
+                    layout.addView(titleView);
+
+                    collaborator.setOnChangeListener(new BaseCollectionItem.OnChangeListener() {
+                        @Override
+                        public void onChange() {
+                            String text = String.format("%s - %s", collaborator.getName(), collaborator.getMessage());
+                            titleView.setText(text);
+                            titleView.setTextColor(collaborator.getColor());
+
+                            Bitmap userImage = collaborator.getPicture();
+                            if (userImage != null) {
+                                imageView.setImageBitmap(userImage);
+                            }
+                        }
+                    });
+
+                    body.addView(layout);
+                }
             }
         });
     }
