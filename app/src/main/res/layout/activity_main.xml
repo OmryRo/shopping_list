@@ -38,6 +38,7 @@
         app:headerLayout="@layout/nav_header_main"
         android:clipToPadding="false"
         android:paddingBottom="50dp"
+        app:theme="@style/AppTheme.Drawer"
         >
 
         <RelativeLayout

@@ -104,14 +104,15 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
         HashMap<String, ShopList> lists = userInfo.getLists();
         for (HashMap.Entry<String, ShopList> entry : lists.entrySet()) {
             ShopList shopList = entry.getValue();
-            MenuItem item = listSubMenu.add(shopList.getTitle());
-            item.setIcon(R.drawable.ic_menu_assignment);
-            shopListMenuRef.put(item, shopList);
+            MenuItem menuItem = listSubMenu.add(shopList.getTitle());
+            menuItem.setIcon(R.drawable.ic_menu_assignment);
+            menuItem.setCheckable(true);
+
+
+            shopListMenuRef.put(menuItem, shopList);
 
             if (choosenShopList == shopList) {
-                item.setChecked(true);
-            } else {
-                item.setChecked(false);
+                navigationView.setCheckedItem(menuItem);
             }
 
         }
@@ -136,18 +137,18 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
     }
 
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(MenuItem menuItem) {
         // Handle navigation view item clicks here.
 
-        if (item == addItemMenuRef) {
+        if (menuItem == addItemMenuRef) {
             mainDrawerInterface.addNewListPressed();
 
         } else {
-            ShopList choosen = shopListMenuRef.get(item);
+            ShopList choosen = shopListMenuRef.get(menuItem);
             if (choosen != null) {
-                item.setChecked(true);
+                menuItem.setChecked(true);
                 choosenShopList = choosen;
-                mainDrawerInterface.selectedList(choosen);
+                navigationView.setCheckedItem(menuItem);
             }
         }
 
