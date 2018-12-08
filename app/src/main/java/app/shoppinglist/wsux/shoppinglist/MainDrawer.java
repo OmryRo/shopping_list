@@ -125,6 +125,10 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
             userInfo.removeAllListeners();
         }
 
+        if (newUserInfo == null) {
+            return;
+        }
+
         MainDrawer listener = newUserInfo != null ? this : null;
 
         newUserInfo.setOnChangeListener(listener);
