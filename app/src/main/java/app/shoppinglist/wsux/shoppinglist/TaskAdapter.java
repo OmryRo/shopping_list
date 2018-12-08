@@ -8,8 +8,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -78,7 +80,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     }
 
     class TaskViewHolder extends RecyclerView.ViewHolder
-            implements BaseCollectionItem.OnChangeListener {
+            implements BaseCollectionItem.OnChangeListener,
+            CompoundButton.OnCheckedChangeListener {
 
         private TextView taskNameTv;
         private TextView taskNoteTv;
@@ -124,10 +127,18 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
             if (statusCb != null) {
                 statusCb.setChecked(task.getState() == ShopTask.SHOP_TASK_DONE);
+                statusCb.setOnCheckedChangeListener(this);
             }
 
             if (thumbnailIv != null) {
                 thumbnailIv.setImageResource(R.mipmap.ic_launcher);
+            }
+        }
+
+        @Override
+        public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
+            if (task != null) {
+                task.setState(checked ? ShopTask.SHOP_TASK_DONE : ShopTask.SHOP_TASK_NOT_DONE);
             }
         }
     }
