@@ -111,6 +111,10 @@ public class ShopList extends BaseCollectionItem {
     }
 
     public void removeCollaborators(String userId) {
+        if (!collaborators.contains(userId)) {
+            return;
+        }
+
         collaborators.remove(userId);
         updateField(ref, FIRESTORE_FIELD_COLLABORATORS, collaborators);
     }
@@ -120,6 +124,11 @@ public class ShopList extends BaseCollectionItem {
     }
 
     public void setTitle(String newTitle) {
+
+        if (newTitle == null || newTitle.equals(title)) {
+            return;
+        }
+
         title = newTitle;
         updateField(ref, FIRESTORE_FIELD_TITLE, newTitle);
     }
