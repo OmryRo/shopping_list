@@ -1,6 +1,9 @@
 package app.shoppinglist.wsux.shoppinglist.firebase;
 
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
+import android.util.Log;
+import android.util.Pair;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -18,14 +21,18 @@ public class UserInfo extends BaseCollectionItem {
     public static final String FIRESTORE_TABLE = "users";
     private static final String FIRESTORE_FIELD_LISTS = "lists";
     private static final String FIRESTORE_FIELD_TOKENS = "tokens";
+    private static final String FIRESTORE_FIELD_LAST_LIST = "last_list";
 
     private String userId;
     private String email;
     private String displayName;
     private String pictureURL;
+    private String lastList;
+    private boolean hasStartedPictureDownload;
     private List<String> listNames;
     private HashMap<String, ShopList> lists;
     private HashMap<String, String> tokens;
+    private Pair<String, String> waitingToken;
     private DocumentReference ref;
 
     UserInfo(FireBaseManager manager, FirebaseUser user) {
@@ -35,6 +42,7 @@ public class UserInfo extends BaseCollectionItem {
         displayName = user.getDisplayName();
         pictureURL = user.getPhotoUrl().toString();
 
+        hasStartedPictureDownload = false;
         listNames = new ArrayList<>();
         lists = new HashMap<>();
         tokens = new HashMap<>();
@@ -61,6 +69,10 @@ public class UserInfo extends BaseCollectionItem {
 
     public String getToken(String listId) { return tokens.get(listId); }
 
+    public Bitmap getPicture() {
+        return manager.getImageManager().getPicture(this);
+    }
+
     public HashMap<String, ShopList> getLists() {
         HashMap<String, ShopList> readyLists = new HashMap<>();
         for (HashMap.Entry<String, ShopList> entry: lists.entrySet()) {
@@ -79,7 +91,12 @@ public class UserInfo extends BaseCollectionItem {
 
     @Override
     void specificOnEvent(DocumentSnapshot document) {
-        listNames = new ArrayList<>();
+
+        if (document.contains(FIRESTORE_FIELD_LAST_LIST)) {
+            lastList = document.getString(FIRESTORE_FIELD_LAST_LIST);
+        }
+
+        ArrayList<String> listNames = new ArrayList<>();
         if (document.contains(FIRESTORE_FIELD_LISTS)) {
             listNames.addAll((List<String>) document.get(FIRESTORE_FIELD_LISTS));
 
@@ -89,13 +106,30 @@ public class UserInfo extends BaseCollectionItem {
                 }
             }
         }
+        this.listNames = listNames;
 
         if (document.contains(FIRESTORE_FIELD_TOKENS)) {
             tokens.putAll((Map<String, String>) document.get(FIRESTORE_FIELD_TOKENS));
         }
 
+        setReady();
+
+        if (!hasStartedPictureDownload && pictureURL != null) {
+            hasStartedPictureDownload = true;
+            manager.getImageManager().downloadPicture(this, pictureURL);
+        }
+
         // in case the list is empty..
         reportChildChange();
+    }
+
+    protected void setReady() {
+        super.setReady();
+
+        if (waitingToken != null) {
+            addToken(waitingToken.first, waitingToken.second);
+            waitingToken = null;
+        }
     }
 
     @Override
@@ -107,7 +141,6 @@ public class UserInfo extends BaseCollectionItem {
     public void addKnownList(String listId) {
         listNames.add(listId);
         updateField(ref, FIRESTORE_FIELD_LISTS, listNames);
-        lists.put(listId, new ShopList(manager, this, listId));
         reportChildChange();
     }
 
@@ -118,9 +151,23 @@ public class UserInfo extends BaseCollectionItem {
         lists.remove(listId);
     }
 
+    public void setLastList(ShopList shopList) {
+        lastList = shopList.getListId();
+        updateField(ref, FIRESTORE_FIELD_LAST_LIST, lastList);
+    }
+
+    public String getLastList() {
+        return  lastList;
+    }
+
     public void addToken(final String listId, String token) {
 
         if (token.contains(listId) || (lists.containsKey(listId) && lists.get(listId).isMember())) {
+            return;
+        }
+
+        if (!isReady()) {
+            waitingToken = new Pair<>(listId, token);
             return;
         }
 

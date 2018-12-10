@@ -13,6 +13,7 @@ public class ShareHandler {
 
     private Context context;
     private FireBaseManager manager;
+    private Intent handledIntent;
 
     ShareHandler(Context context, FireBaseManager manager) {
         this.context = context;
@@ -53,9 +54,11 @@ public class ShareHandler {
     private String[] checkForIncomingIntent() {
         Intent startIntent = ((Activity) context).getIntent();
 
-        if (startIntent == null) {
+        if (startIntent == null || startIntent == handledIntent) {
             return null;
         }
+
+        handledIntent = startIntent;
 
         String action = startIntent.getAction();
         Uri data = startIntent.getData();

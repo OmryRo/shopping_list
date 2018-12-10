@@ -1,3 +1,4 @@
+
 <resources>
 
     <!-- Base application theme. -->
@@ -6,6 +7,15 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorControlHighlight">@color/colorAccent</item>
+    </style>
+
+    <style name="AppTheme.Drawer" parent="AppTheme.PopupOverlay">
+        <item name="colorControlHighlight">@color/colorPrimary</item>
+    </style>
+
+    <style name="AppTheme.BottomToolbar" parent="AppTheme.PopupOverlay">
+
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -14,7 +24,24 @@
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="AppTheme.AppBarAction" parent="ThemeOverlay.AppCompat.ActionBar" />
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+
+    <style name="ToolbarIconsColors" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:textColorSecondary">@android:color/white</item>
+        <item name="actionMenuTextColor">@android:color/white</item>
+        <item name="colorControlHighlight">@android:color/white</item>
+    </style>
+
+    <style name="AppTheme.TopBar" parent="AppTheme.PopupOverlay">
+        <item name="colorPrimaryDark">@android:color/white</item>
+        <item name="android:textColorSecondary">@android:color/white</item>
+        <item name="colorAccent">@android:color/white</item>
+        <item name="drawerArrowStyle">@android:color/white</item>
+        <item name="android:tint">@android:color/white</item>
+        <item name="actionMenuTextColor">@android:color/white</item>
+        <item name="android:actionMenuTextColor">@android:color/white</item>
+    </style>
 
 </resources>
