@@ -58,13 +58,14 @@ public class ImageManager {
     private File getPictureFile(BaseCollectionItem item) {
         if (item.getClass() == Collaborator.class) {
             return getPictureFile((Collaborator) item);
-
-        } else if (item.getClass() == UserInfo.class) {
-            return getPictureFile((UserInfo) item);
-
-        } else {
-            return null;
         }
+        
+        if (item.getClass() == UserInfo.class) {
+            return getPictureFile((UserInfo) item);
+        }
+        
+        return null;
+        
     }
 
     private File getPictureFile(Collaborator collaborator) {
