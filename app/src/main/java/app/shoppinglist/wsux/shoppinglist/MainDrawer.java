@@ -56,8 +56,7 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
                 context, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-
-        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        toggeLockDrawer(null);
 
         navigationView = context.findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
