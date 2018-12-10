@@ -72,7 +72,9 @@ public class ShopListView implements View.OnClickListener, BaseCollectionItem.On
     public void setShopList(ShopList shopList) {
         if (currentShopList == shopList) {
             return;
-        } else if (currentShopList != null) {
+        } 
+        
+        if (currentShopList != null) {
             currentShopList.removeAllListeners();
         }
 
