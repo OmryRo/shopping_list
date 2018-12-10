@@ -37,7 +37,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
         if (shopList == currentShopList) {
             return;
-        } else if (currentShopList != null) {
+        }
+       
+        if (currentShopList != null) {
             currentShopList.removeAllListeners();
         }
 
