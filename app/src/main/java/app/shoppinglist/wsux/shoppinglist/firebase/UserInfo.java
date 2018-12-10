@@ -152,7 +152,17 @@ public class UserInfo extends BaseCollectionItem {
     }
 
     public void setLastList(ShopList shopList) {
-        lastList = shopList.getListId();
+
+        if (shopList == null) {
+            return;
+        }
+
+        String lastList = shopList.getListId();
+
+        if (lastList == null || lastList.equals(this.lastList)) {
+            return;
+        }
+
         updateField(ref, FIRESTORE_FIELD_LAST_LIST, lastList);
     }
 
@@ -177,6 +187,11 @@ public class UserInfo extends BaseCollectionItem {
     }
 
     public void removeToken(String listId) {
+
+        if (!tokens.containsKey(listId)) {
+            return;
+        }
+
         tokens.remove(listId);
         updateField(ref, FIRESTORE_FIELD_TOKENS, tokens);
     }

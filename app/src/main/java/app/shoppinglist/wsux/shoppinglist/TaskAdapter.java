@@ -128,6 +128,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             }
 
             if (statusCb != null) {
+                statusCb.setOnCheckedChangeListener(null);
                 statusCb.setChecked(task.getState() == ShopTask.SHOP_TASK_DONE);
                 statusCb.setOnCheckedChangeListener(this);
             }

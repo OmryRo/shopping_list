@@ -159,11 +159,19 @@ public class Collaborator extends BaseCollectionItem {
     }
 
     public void setName(String name) {
+        if (name == null || name.equals(this.name)) {
+            return;
+        }
+
         this.name = name;
         updateField(ref, FIRESTORE_FIELD_NAME, name);
     }
 
     public void setMessage(String message) {
+        if (message == null || message.equals(this.message)) {
+            return;
+        }
+
         this.message = message;
         updateField(ref, FIRESTORE_FIELD_MESSAGE, message);
     }

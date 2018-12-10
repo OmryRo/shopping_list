@@ -82,16 +82,31 @@ public class ShopTask extends BaseCollectionItem {
     }
 
     public void setTitle(String title) {
+
+        if (title == null || title.equals(this.title)) {
+            return;
+        }
+
         this.title = title;
         updateField(ref, FIRESTORE_FIELD_TITLE, title);
     }
 
     public void setDescription(String description) {
+
+        if (description == null || description.equals(this.description)) {
+            return;
+        }
+
         this.description = description;
         updateField(ref, FIRESTORE_FIELD_DESCRIPTION, description);
     }
 
     public void setState(int state) {
+
+        if (this.state == state) {
+            return;
+        }
+
         this.state = state;
         updateField(ref, FIRESTORE_FIELD_STATE, state);
     }
