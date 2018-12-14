@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -83,7 +84,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
     class TaskViewHolder extends RecyclerView.ViewHolder
             implements BaseCollectionItem.OnChangeListener,
-            CompoundButton.OnCheckedChangeListener {
+            CompoundButton.OnCheckedChangeListener, View.OnLongClickListener {
 
         private TextView taskNameTv;
         private TextView taskNoteTv;
@@ -97,6 +98,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             taskNoteTv = itemView.findViewById(R.id.task_note_tv);
             statusCb = itemView.findViewById(R.id.task_status);
             thumbnailIv = itemView.findViewById(R.id.task_thumbnail);
+            itemView.setOnLongClickListener(this);
         }
 
         private void updateView(int position) {
@@ -143,6 +145,12 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             if (task != null) {
                 task.setState(checked ? ShopTask.SHOP_TASK_DONE : ShopTask.SHOP_TASK_NOT_DONE);
             }
+        }
+
+        @Override
+        public boolean onLongClick(View view) {
+            new TaskEditDialog(view.getContext()).show();
+            return false;
         }
     }
 }
