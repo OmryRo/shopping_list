@@ -3,10 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="400dp"
+    android:layout_height="match_parent"
     android:background="#ffff00"
     android:fillViewport="true"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    app:layout_behavior="com.evs.demo.layout.FixedScrollingViewBehavior"
     tools:context=".TaskEditDialog"
     tools:showIn="@layout/task_edit_dialog">
 
@@ -16,7 +16,8 @@
         android:layout_height="wrap_content"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:orientation="vertical">
+        android:fillViewport="true"
+        android:orientation="horizontal">
 
         <EditText
             android:id="@+id/task_edit_name_tv"
