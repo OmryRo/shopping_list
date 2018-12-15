@@ -6,7 +6,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
@@ -15,8 +14,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import app.shoppinglist.wsux.shoppinglist.firebase.BaseCollectionItem;
@@ -49,7 +46,7 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
 
     MainDrawer(Activity context, Toolbar toolbar, MainDrawerInterface mainDrawerInterface) {
 
-        shopListMenuRef = new LinkedHashMap<>();
+        shopListMenuRef = new HashMap<>();
         this.mainDrawerInterface = mainDrawerInterface;
         this.defaultText = context.getString(R.string.not_available);
 
@@ -205,16 +202,7 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
 
     interface MainDrawerInterface {
         void addNewListPressed();
-
         void selectedList(ShopList shopList);
     }
 
-    private MenuItem getLastEnteredShoplist() {
-        Iterator<Map.Entry<MenuItem, ShopList>> iterator = shopListMenuRef.entrySet().iterator();
-        MenuItem item = null;
-        while (iterator.hasNext()) {
-            item = iterator.next().getKey();
-        }
-        return item;
-    }
 }

@@ -141,6 +141,7 @@ public class UserInfo extends BaseCollectionItem {
     public void addKnownList(String listId) {
         listNames.add(listId);
         updateField(ref, FIRESTORE_FIELD_LISTS, listNames);
+        updateField(ref, FIRESTORE_FIELD_LAST_LIST, listId);
         reportChildChange();
     }
 
