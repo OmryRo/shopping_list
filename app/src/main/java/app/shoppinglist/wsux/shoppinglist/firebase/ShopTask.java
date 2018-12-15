@@ -1,5 +1,7 @@
 package app.shoppinglist.wsux.shoppinglist.firebase;
 
+import android.graphics.Bitmap;
+
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -14,6 +16,7 @@ public class ShopTask extends BaseCollectionItem {
     public static final String FIRESTORE_FIELD_CREATOR = "creator";
     public static final String FIRESTORE_FIELD_STATE = "state";
     public static final String FIRESTORE_FIELD_DESCRIPTION = "description";
+    public static final String FIRESTORE_FIELD_IMAGE_URL = "image_url";
 
     public static final int SHOP_TASK_NOT_DONE = 0;
     public static final int SHOP_TASK_DONE = 1;
@@ -26,6 +29,9 @@ public class ShopTask extends BaseCollectionItem {
     private long state;
     private String creator;
     private String description;
+    private String imageUrl;
+
+    private String downloadedImage;
 
     ShopTask(FireBaseManager manager, ShopList inList, String taskId) {
         super(manager);
@@ -42,6 +48,16 @@ public class ShopTask extends BaseCollectionItem {
         state = document.getLong(FIRESTORE_FIELD_STATE);
         creator = document.getString(FIRESTORE_FIELD_CREATOR);
         description = document.getString(FIRESTORE_FIELD_DESCRIPTION);
+
+        if (document.contains(FIRESTORE_FIELD_IMAGE_URL)) {
+            imageUrl = document.getString(FIRESTORE_FIELD_IMAGE_URL);
+
+            if (imageUrl != null && imageUrl.length() > 0 && !imageUrl.equals(downloadedImage)) {
+                downloadedImage = imageUrl;
+                manager.getImageManager().downloadPicture(this, imageUrl);
+            }
+
+        }
 
         setReady();
         reportOnChangeEvent();
@@ -67,6 +83,16 @@ public class ShopTask extends BaseCollectionItem {
 
     public String getTaskId() {
         return taskId;
+    }
+
+    public Bitmap getPicture() {
+        return manager.getImageManager().getPicture(this);
+    }
+
+    String getPictureUrl() { return imageUrl; }
+
+    public boolean hasPicture() {
+        return imageUrl != null && imageUrl.length() > 0;
     }
 
     public Collaborator getCreator() {
@@ -119,6 +145,19 @@ public class ShopTask extends BaseCollectionItem {
         }
 
         super.setReady();
+    }
+
+    void setImageUrl(String imageUrl) {
+
+        if (this.imageUrl == imageUrl) {
+            return;
+        }
+
+        if (imageUrl == null) {
+            imageUrl = "";
+        }
+
+        updateField(ref, FIRESTORE_FIELD_IMAGE_URL, imageUrl);
     }
 
     static Task<DocumentReference> addNewTask(ShopList inList, String title, String description, UserInfo userInfo) {

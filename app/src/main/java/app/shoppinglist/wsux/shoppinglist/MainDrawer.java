@@ -19,6 +19,7 @@ import java.util.Map;
 
 import app.shoppinglist.wsux.shoppinglist.firebase.BaseCollectionItem;
 import app.shoppinglist.wsux.shoppinglist.firebase.ShopList;
+import app.shoppinglist.wsux.shoppinglist.firebase.UploadManager;
 import app.shoppinglist.wsux.shoppinglist.firebase.UserInfo;
 
 public class MainDrawer implements NavigationView.OnNavigationItemSelectedListener,
