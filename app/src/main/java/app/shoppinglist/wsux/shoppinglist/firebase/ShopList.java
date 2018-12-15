@@ -133,8 +133,57 @@ public class ShopList extends BaseCollectionItem {
         }
     }
 
-    public void remove() {
+    public boolean remove() {
+        return removeListAsAuthor() || quitListAsAuthor() || quitListAsCollaborator();
+    }
 
+    private boolean removeListAsAuthor() {
+        if (!userInfo.getUserId().equals(author) || collaborators.size() != 0) {
+            return false;
+        }
+
+        ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                setNotReady();
+                removeAllListeners();
+                userInfo.removeKnownList(listId);
+                userInfo.reportChildChange();
+            }
+        }).addOnFailureListener(this);
+
+        return true;
+    }
+
+    private boolean quitListAsAuthor() {
+        if (!userInfo.getUserId().equals(author) || collaborators.size() == 0) {
+            return false;
+        }
+
+        String firstCollaboratorFound = collaborators.get(0);
+        removeCollaborators(firstCollaboratorFound);
+
+        if (author.equals(firstCollaboratorFound)) {
+            return remove();
+        }
+
+        setAuthor(author);
+        removeAllListeners();
+        userInfo.removeKnownList(listId);
+
+        return true;
+    }
+
+    private boolean quitListAsCollaborator() {
+        if (!collaborators.contains(userInfo.getUserId())) {
+            return false;
+        }
+
+        removeCollaborators(userInfo.getUserId());
+        removeAllListeners();
+        userInfo.removeKnownList(listId);
+
+        return true;
     }
 
     public void setTitle(String newTitle) {
@@ -145,6 +194,16 @@ public class ShopList extends BaseCollectionItem {
 
         title = newTitle;
         updateField(ref, FIRESTORE_FIELD_TITLE, newTitle);
+    }
+
+    private void setAuthor(String author) {
+
+        if (author == null || author.equals(this.author)) {
+            return;
+        }
+
+        this.author = author;
+        updateField(ref, FIRESTORE_FIELD_AUTHOR, author);
     }
 
     public boolean isMember() {
