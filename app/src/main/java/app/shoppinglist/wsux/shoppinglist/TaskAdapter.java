@@ -151,6 +151,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         }
 
         @Override
+
         public void onMediaDownload() {
             if (thumbnailIv != null && task.hasPicture()) {
                 Bitmap thumbnail = task.getPicture();
