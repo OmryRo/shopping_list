@@ -3,6 +3,7 @@ package app.shoppinglist.wsux.shoppinglist;
 
 
 import android.app.Activity;
+import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -83,7 +84,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
     class TaskViewHolder extends RecyclerView.ViewHolder
             implements BaseCollectionItem.OnChangeListener,
-            CompoundButton.OnCheckedChangeListener {
+            CompoundButton.OnCheckedChangeListener, BaseCollectionItem.OnMediaDownload {
 
         private TextView taskNameTv;
         private TextView taskNoteTv;
@@ -108,6 +109,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             }
 
             task.setOnChangeListener(this);
+            task.setOnMediaDownload(this);
         }
 
         @Override
@@ -133,15 +135,26 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
                 statusCb.setOnCheckedChangeListener(this);
             }
 
-            if (thumbnailIv != null) {
-                thumbnailIv.setImageResource(R.mipmap.ic_launcher);
-            }
+            onMediaDownload();
         }
 
         @Override
         public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
             if (task != null) {
                 task.setState(checked ? ShopTask.SHOP_TASK_DONE : ShopTask.SHOP_TASK_NOT_DONE);
+            }
+        }
+
+        @Override
+        public void onMediaDownload() {
+            if (thumbnailIv != null && task.hasPicture()) {
+                Bitmap thumbnail = task.getPicture();
+
+                if (thumbnail == null) {
+                    thumbnailIv.setImageResource(R.mipmap.ic_launcher);
+                } else {
+                    thumbnailIv.setImageBitmap(thumbnail);
+                }
             }
         }
     }

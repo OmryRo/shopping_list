@@ -1,5 +1,6 @@
 package app.shoppinglist.wsux.shoppinglist.firebase;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -18,11 +19,12 @@ public class ImageManager {
 
     private static final String FIREBASE_CACHE_DIR = "firebase";
     private static final String COLLABORATOR_FILE_PATH = "nodpi_user_picture_cache_%s";
+    private static final String TASK_FILE_PATH = "nodpi_item_cache_%s_%s_%s";
 
-    private Context context;
+    private Activity context;
     private FireBaseManager fireBaseManager;
 
-    ImageManager(Context context, FireBaseManager fireBaseManager) {
+    ImageManager(Activity context, FireBaseManager fireBaseManager) {
         this.context = context;
         this.fireBaseManager = fireBaseManager;
     }
@@ -40,7 +42,7 @@ public class ImageManager {
     public Bitmap getPicture(BaseCollectionItem item) {
         File file = getPictureFile(item);
 
-        if (!file.exists()) {
+        if (file == null || !file.exists()) {
             return null;
         }
 
@@ -56,12 +58,16 @@ public class ImageManager {
     }
 
     private File getPictureFile(BaseCollectionItem item) {
-        if (item.getClass() == Collaborator.class) {
+        if (item instanceof Collaborator) {
             return getPictureFile((Collaborator) item);
         }
         
-        if (item.getClass() == UserInfo.class) {
+        if (item instanceof UserInfo) {
             return getPictureFile((UserInfo) item);
+        }
+
+        if (item instanceof ShopTask) {
+            return getPictureFile((ShopTask) item);
         }
         
         return null;
@@ -74,6 +80,22 @@ public class ImageManager {
 
     private File getPictureFile(UserInfo userInfo) {
         return new File(getFireBaseCache(), String.format(COLLABORATOR_FILE_PATH, userInfo.getUserId()));
+    }
+
+    private File getPictureFile(ShopTask shopTask) {
+
+        if (!shopTask.hasPicture()) {
+            return null;
+        }
+
+        return new File(getFireBaseCache(),
+                String.format(
+                        TASK_FILE_PATH,
+                        shopTask.getInList().getListId(),
+                        shopTask.getTaskId(),
+                        shopTask.getPictureUrl().hashCode()
+                )
+        );
     }
 
     class DownloadPicture extends AsyncTask<String, Void, String> {
