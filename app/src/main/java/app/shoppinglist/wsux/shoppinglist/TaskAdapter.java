@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -18,6 +19,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import app.shoppinglist.wsux.shoppinglist.firebase.BaseCollectionItem;
+import app.shoppinglist.wsux.shoppinglist.firebase.FireBaseManager;
 import app.shoppinglist.wsux.shoppinglist.firebase.ShopList;
 import app.shoppinglist.wsux.shoppinglist.firebase.ShopTask;
 
@@ -28,10 +30,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
     private ShopList currentShopList;
     private ArrayList<ShopTask> shopTasks;
+    private FireBaseManager fireBaseManager;
 
-    public TaskAdapter() {
+    public TaskAdapter(FireBaseManager fireBaseManager) {
         shopTasks = new ArrayList<>();
-
+        this.fireBaseManager = fireBaseManager;
     }
 
     public void setList(ShopList shopList) {
@@ -84,7 +87,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
     class TaskViewHolder extends RecyclerView.ViewHolder
             implements BaseCollectionItem.OnChangeListener,
-            CompoundButton.OnCheckedChangeListener, BaseCollectionItem.OnMediaDownload {
+            CompoundButton.OnCheckedChangeListener, BaseCollectionItem.OnMediaDownload,
+                View.OnLongClickListener {
 
         private TextView taskNameTv;
         private TextView taskNoteTv;
@@ -98,6 +102,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             taskNoteTv = itemView.findViewById(R.id.task_note_tv);
             statusCb = itemView.findViewById(R.id.task_status);
             thumbnailIv = itemView.findViewById(R.id.task_thumbnail);
+            itemView.setOnLongClickListener(this);
         }
 
         private void updateView(int position) {
@@ -146,6 +151,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         }
 
         @Override
+
         public void onMediaDownload() {
             if (thumbnailIv != null && task.hasPicture()) {
                 Bitmap thumbnail = task.getPicture();
@@ -156,6 +162,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
                     thumbnailIv.setImageBitmap(thumbnail);
                 }
             }
+        }
+
+        public boolean onLongClick(View view) {
+            new TaskEditDialog(view.getContext(), task, fireBaseManager).show();
+            return false;
         }
     }
 }

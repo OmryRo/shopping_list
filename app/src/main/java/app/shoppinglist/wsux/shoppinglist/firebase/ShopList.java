@@ -119,6 +119,20 @@ public class ShopList extends BaseCollectionItem {
         updateField(ref, FIRESTORE_FIELD_COLLABORATORS, collaborators);
     }
 
+    /**
+     * this function doesn't remove the task from the collection!
+     * call shopTask.remove() instead.
+     */
+    void removeTaskFromList(final ShopTask shopTask) {
+        tasks.remove(shopTask.getTaskId());
+        updateField(ref, FIRESTORE_FIELD_TASKS, tasks);
+        shopTasks.remove(shopTask.getTaskId());
+
+        if (onChildChangeListener != null) {
+            onChildChangeListener.onChildChange();
+        }
+    }
+
     public void remove() {
 
     }

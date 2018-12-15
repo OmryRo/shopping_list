@@ -12,26 +12,30 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import app.shoppinglist.wsux.shoppinglist.firebase.BaseCollectionItem;
+import app.shoppinglist.wsux.shoppinglist.firebase.FireBaseManager;
 import app.shoppinglist.wsux.shoppinglist.firebase.ShopList;
 
 public class ShopListView implements View.OnClickListener, BaseCollectionItem.OnChildChangeListener {
 
     private Activity context;
     private TaskAdapter adapter;
-    private RecyclerView recyclerView;
-    private Toolbar topToolbar;
-    private View addTaskContainer;
     private ShopList currentShopList;
+    private FireBaseManager fireBaseManager;
 
     // views
     private EditText addTextEt;
+    private View addTaskContainer;
+    private RecyclerView recyclerView;
+    private Toolbar topToolbar;
 
-    ShopListView(Activity context, Toolbar topToolbar) {
+    ShopListView(Activity context, Toolbar topToolbar, FireBaseManager fireBaseManager) {
         this.context = context;
         this.topToolbar = topToolbar;
+        this.fireBaseManager = fireBaseManager;
 
         setMainView();
         setBottomToolbar();
+
     }
 
     private void setMainView() {
@@ -40,7 +44,7 @@ public class ShopListView implements View.OnClickListener, BaseCollectionItem.On
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(mLayoutManager);
 
-        adapter = new TaskAdapter();
+        adapter = new TaskAdapter(fireBaseManager);
         recyclerView.setAdapter(adapter);
     }
 

@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar topToolBar = findViewById(R.id.toolbar);
         setSupportActionBar(topToolBar);
 
-        shopListView = new ShopListView(this, topToolBar);
+        shopListView = new ShopListView(this, topToolBar, fireBaseManager);
         mainDrawer = new MainDrawer(this, topToolBar, this);
 
         findViewById(R.id.drawer_sign_out).setOnClickListener(this);

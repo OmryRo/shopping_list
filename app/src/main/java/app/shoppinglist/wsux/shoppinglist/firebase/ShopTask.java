@@ -1,7 +1,8 @@
 package app.shoppinglist.wsux.shoppinglist.firebase;
 
-import android.graphics.Bitmap;
 
+import android.graphics.Bitmap;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -167,6 +168,15 @@ public class ShopTask extends BaseCollectionItem {
         fields.put(FIRESTORE_FIELD_DESCRIPTION, description);
         fields.put(FIRESTORE_FIELD_STATE, SHOP_TASK_NOT_DONE);
         return inList.getRef().collection(FIRESTORE_TABLE).add(fields);
+    }
+
+    public void remove() {
+        ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                inList.removeTaskFromList(ShopTask.this);
+            }
+        });
     }
 
     @Override

@@ -211,17 +211,17 @@ public class UploadManager {
 
             final StorageReference ref = getStorageReference(shopTask);
             ref.putBytes(imageBytes).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    shopTask.setImageUrl(uri.toString());
-                                    listener.onUploadSuccess(uri.toString());
-                                }
-                            });
+                        public void onSuccess(Uri uri) {
+                            shopTask.setImageUrl(uri.toString());
+                            listener.onUploadSuccess(uri.toString());
                         }
-                    })
+                    });
+                }
+            })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
