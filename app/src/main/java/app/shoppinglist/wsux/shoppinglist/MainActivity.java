@@ -1,5 +1,6 @@
 package app.shoppinglist.wsux.shoppinglist;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -20,6 +21,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -213,6 +215,8 @@ public class MainActivity extends AppCompatActivity
     public void renameListPressed() {
         View popupLayout = getLayoutInflater().inflate(R.layout.rename_list_popup_layout, null);
         final EditText titleEt = popupLayout.findViewById(R.id.rename_list_popup_title);
+        titleEt.setText(currentShopList.getTitle());
+
         final AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(popupLayout)
                 .create();
@@ -221,6 +225,12 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 String title = titleEt.getText().toString();
+
+                // TODO: add more validations
+                if (title.length() == 0) {
+                    return;
+                }
+
                 dialog.dismiss();
                 currentShopList.setTitle(title);
             }
