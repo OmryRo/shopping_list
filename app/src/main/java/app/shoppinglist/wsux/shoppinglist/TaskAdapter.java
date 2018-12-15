@@ -162,7 +162,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         }
 
         public boolean onLongClick(View view) {
-            new TaskEditDialog(view.getContext()).show();
+            new TaskEditDialog(view.getContext(), task).show();
             return false;
         }
     }

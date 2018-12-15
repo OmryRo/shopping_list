@@ -1,73 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="400dp"
-    android:background="#ff0f00"
-    android:fitsSystemWindows="true"
-    tools:context=".TaskEditDialog">
+    android:layout_height="wrap_content">
 
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/app_bar"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/app_bar_height"
-        android:fitsSystemWindows="true"
-        tools:showIn="@layout/task_edit_dialog">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-        <android.support.design.widget.CollapsingToolbarLayout
-            android:id="@+id/toolbar_layout"
+        <ImageView
+            android:id="@+id/task_image_iv"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fitsSystemWindows="true"
-            app:contentScrim="?attr/colorPrimary"
-            app:toolbarId="@+id/toolbar">
+            android:layout_height="180dp" />
 
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:layout_collapseMode="pin" />
+        <EditText
+            android:id="@+id/task_edit_name_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:maxLines="1"
+            android:text="@string/add" />
 
-        </android.support.design.widget.CollapsingToolbarLayout>
-    </android.support.design.widget.AppBarLayout>
+        <EditText
+            android:id="@+id/task_edit_note_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:text="@string/Note" />
 
-    <include layout="@layout/task_edit_scrolling" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:orientation="horizontal">
 
+            <ImageButton
+                android:id="@+id/task_delete_ib"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_edit_delete_item" />
 
+            <ImageButton
+                android:id="@+id/task_open_gallery_ib"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_menu_camera" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/task_edit_attach_fac"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/fab_margin"
-        android:tint="@color/common_google_signin_btn_text_dark"
-        app:backgroundTint="@color/colorAccent"
-        app:layout_anchor="@id/app_bar"
-        app:layout_anchorGravity="bottom|end"
-        app:srcCompat="@drawable/ic_attach_file" />
+            <ImageButton
+                android:id="@+id/task_open_camera_ib"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_menu_gallery" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/task_edit_delete_fac"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/fab_margin"
-        android:tint="@color/common_google_signin_btn_text_dark"
-        app:backgroundTint="@color/colorAccent"
-        app:layout_anchor="@id/app_bar"
-        app:layout_anchorGravity="top|end"
-        app:srcCompat="@drawable/ic_edit_delete_item" />
+            <ImageButton
+                android:id="@+id/task_edit_done_ib"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_edit_done" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/task_edit_done_fac"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/fab_margin"
-        android:tint="@color/common_google_signin_btn_text_dark"
-        app:backgroundTint="@color/colorAccent"
-        app:layout_anchor="@id/app_bar"
-        app:layout_anchorGravity="top|left"
-        app:srcCompat="@drawable/ic_edit_done" />
+        </LinearLayout>
 
+    </LinearLayout>
 
-</android.support.design.widget.CoordinatorLayout>
+</RelativeLayout>
