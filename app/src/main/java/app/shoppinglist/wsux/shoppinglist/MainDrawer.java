@@ -37,7 +37,7 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
     private MainDrawerInterface mainDrawerInterface;
 
     // default values
-    private final String defaultText = "N\\A";
+    private String defaultText;
 
     // layouts
     private NavigationView navigationView;
@@ -51,6 +51,7 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
 
         shopListMenuRef = new HashMap<>();
         this.mainDrawerInterface = mainDrawerInterface;
+        this.defaultText = context.getString(R.string.not_available);
 
         initialDrawer(context, toolbar);
         initialNavigationAndHeaderViews(context);
