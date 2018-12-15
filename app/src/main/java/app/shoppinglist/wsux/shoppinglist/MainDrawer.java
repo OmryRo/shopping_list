@@ -15,6 +15,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import app.shoppinglist.wsux.shoppinglist.firebase.BaseCollectionItem;
@@ -45,9 +47,9 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
     private TextView userEmailTv;
     private ImageView userPictureIv;
 
-    MainDrawer(Activity context, Toolbar toolbar, MainDrawerInterface mainDrawerInterface)  {
+    MainDrawer(Activity context, Toolbar toolbar, MainDrawerInterface mainDrawerInterface) {
 
-        shopListMenuRef = new HashMap<>();
+        shopListMenuRef = new LinkedHashMap<>();
         this.mainDrawerInterface = mainDrawerInterface;
         this.defaultText = context.getString(R.string.not_available);
 
@@ -152,23 +154,25 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
 
     @Override
     public boolean onNavigationItemSelected(MenuItem menuItem) {
-
         if (menuItem == addItemMenuRef) {
             mainDrawerInterface.addNewListPressed();
-
         } else {
-            ShopList selected = shopListMenuRef.get(menuItem);
-            if (selected != null) {
-                menuItem.setChecked(true);
-                selectedList = selected;
-                navigationView.setCheckedItem(menuItem);
-                userInfo.setLastList(selected);
-                mainDrawerInterface.selectedList(selected);
-            }
+            defineCurrentShoplist(menuItem);
         }
-
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void defineCurrentShoplist(MenuItem menuItem) {
+        ShopList selected = shopListMenuRef.get(menuItem);
+        if (selected == null) {
+            return;
+        }
+        menuItem.setChecked(true);
+        selectedList = selected;
+        navigationView.setCheckedItem(menuItem);
+        userInfo.setLastList(selected);
+        mainDrawerInterface.selectedList(selected);
     }
 
     @Override
@@ -201,7 +205,16 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
 
     interface MainDrawerInterface {
         void addNewListPressed();
+
         void selectedList(ShopList shopList);
     }
 
+    private MenuItem getLastEnteredShoplist() {
+        Iterator<Map.Entry<MenuItem, ShopList>> iterator = shopListMenuRef.entrySet().iterator();
+        MenuItem item = null;
+        while (iterator.hasNext()) {
+            item = iterator.next().getKey();
+        }
+        return item;
+    }
 }
