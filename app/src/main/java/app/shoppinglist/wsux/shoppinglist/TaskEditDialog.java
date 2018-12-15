@@ -54,7 +54,11 @@ public class TaskEditDialog extends Dialog implements View.OnClickListener {
     }
 
     private void delete() {
-        // todo: implement
+
+        // todo: we need to make sure it's not a misclick.
+
+        shopTask.remove();
+        this.dismiss();
     }
 
     private void openCamera() {
