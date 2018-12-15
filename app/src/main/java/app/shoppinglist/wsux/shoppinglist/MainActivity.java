@@ -38,7 +38,7 @@ import app.shoppinglist.wsux.shoppinglist.firebase.UserInfo;
 
 public class MainActivity extends AppCompatActivity
         implements FireBaseManager.FireBaseEventsInterface,
-        View.OnClickListener, MainDrawer.MainDrawerInterface {
+        View.OnClickListener, MainDrawer.MainDrawerInterface, View.OnLongClickListener {
 
     private static final String TAG = "MAIN_ACTIVITY";
 
@@ -69,6 +69,8 @@ public class MainActivity extends AppCompatActivity
         mainDrawer = new MainDrawer(this, topToolBar, this);
 
         findViewById(R.id.drawer_sign_out).setOnClickListener(this);
+        topToolBar.setOnLongClickListener(this);
+
     }
 
     private void setLoginScreen() {
@@ -198,7 +200,36 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void addNewListPressed() {
+    public boolean onLongClick(View v) {
+        switch (v.getId()) {
+            case R.id.toolbar:
+                renameListPressed();
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void renameListPressed() {
+        View popupLayout = getLayoutInflater().inflate(R.layout.rename_list_popup_layout, null);
+        final EditText titleEt = popupLayout.findViewById(R.id.rename_list_popup_title);
+        final AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(popupLayout)
+                .create();
+
+        popupLayout.findViewById(R.id.rename_list_popup_change).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String title = titleEt.getText().toString();
+                dialog.dismiss();
+                currentShopList.setTitle(title);
+            }
+        });
+        dialog.show();
+    }
+
+    @Override
+    public void addNewListPressed(){
 
         View popupLayout = getLayoutInflater().inflate(R.layout.add_new_list_popup_layout, null);
         final EditText titleEt = popupLayout.findViewById(R.id.new_list_popup_title);

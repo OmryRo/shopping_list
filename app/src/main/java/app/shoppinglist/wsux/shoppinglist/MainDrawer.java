@@ -42,27 +42,37 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
     // layouts
     private NavigationView navigationView;
     private DrawerLayout drawer;
+    private Toolbar toolbar;
     private TextView userNameTv;
     private TextView userEmailTv;
     private ImageView userPictureIv;
 
-    MainDrawer(Activity context, Toolbar toolbar, MainDrawerInterface mainDrawerInterface)  {
+    MainDrawer(Activity context, Toolbar toolbar, MainDrawerInterface mainDrawerInterface) {
 
         shopListMenuRef = new HashMap<>();
         this.mainDrawerInterface = mainDrawerInterface;
         this.defaultText = context.getString(R.string.not_available);
 
+        initialDrawer(context, toolbar);
+        initialNavigationAndHeaderViews(context);
+
+    }
+
+    private void initialDrawer(Activity context, Toolbar toolbar) {
         drawer = context.findViewById(R.id.drawer_layout);
+        this.toolbar = toolbar;
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 context, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         toggeLockDrawer(null);
+    }
 
+    private void initialNavigationAndHeaderViews(Activity context) {
         navigationView = context.findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        View headerView = navigationView.getHeaderView(HEADER_VIEW_INDEX);
 
+        View headerView = navigationView.getHeaderView(HEADER_VIEW_INDEX);
         userNameTv = headerView.findViewById(R.id.drawer_user_name);
         userEmailTv = headerView.findViewById(R.id.drawer_user_mail);
         userPictureIv = headerView.findViewById(R.id.drawer_user_picture);
@@ -88,20 +98,22 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
     }
 
     private void updateMenuItems() {
-
         navigationView.getMenu().clear();
-
         if (userInfo == null) {
             return;
         }
+        SubMenu listSubMenu = updateSubMenu();
+        updateLists(listSubMenu);
+    }
 
+    private SubMenu updateSubMenu() {
         Menu navigationViewMenu = navigationView.getMenu();
         addItemMenuRef = navigationViewMenu.add(R.string.create_new_list);
-
         addItemMenuRef.setIcon(R.drawable.ic_menu_add_box);
+        return navigationViewMenu.addSubMenu(R.string.menu_sublist_lists);
+    }
 
-        SubMenu listSubMenu = navigationViewMenu.addSubMenu(R.string.menu_sublist_lists);
-
+    private void updateLists(SubMenu listSubMenu) {
         HashMap<String, ShopList> lists = userInfo.getLists();
         for (HashMap.Entry<String, ShopList> entry : lists.entrySet()) {
             ShopList shopList = entry.getValue();
@@ -109,20 +121,16 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
             menuItem.setIcon(R.drawable.ic_menu_assignment);
             menuItem.setCheckable(true);
 
-
             shopListMenuRef.put(menuItem, shopList);
 
             if (selectedList == null && shopList.getListId().equals(userInfo.getLastList())) {
                 selectedList = shopList;
             }
 
-            boolean isSelected = selectedList == shopList;
-            menuItem.setChecked(isSelected);
-
+            menuItem.setChecked(selectedList == shopList);
         }
-
-
     }
+
 
     public void setSelectedList(ShopList shopList) {
         selectedList = shopList;
@@ -153,23 +161,25 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
 
     @Override
     public boolean onNavigationItemSelected(MenuItem menuItem) {
-
         if (menuItem == addItemMenuRef) {
             mainDrawerInterface.addNewListPressed();
-
         } else {
-            ShopList selected = shopListMenuRef.get(menuItem);
-            if (selected != null) {
-                menuItem.setChecked(true);
-                selectedList = selected;
-                navigationView.setCheckedItem(menuItem);
-                userInfo.setLastList(selected);
-                mainDrawerInterface.selectedList(selected);
-            }
+            defineCurrentShoplist(menuItem);
         }
-
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void defineCurrentShoplist(MenuItem menuItem) {
+        ShopList selected = shopListMenuRef.get(menuItem);
+        if (selected == null) {
+            return;
+        }
+        menuItem.setChecked(true);
+        selectedList = selected;
+        navigationView.setCheckedItem(menuItem);
+        userInfo.setLastList(selected);
+        mainDrawerInterface.selectedList(selected);
     }
 
     @Override
@@ -202,6 +212,9 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
 
     interface MainDrawerInterface {
         void addNewListPressed();
+
+        void renameListPressed();
+
         void selectedList(ShopList shopList);
     }
 
