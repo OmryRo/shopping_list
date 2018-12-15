@@ -223,11 +223,6 @@ public class MainActivity extends AppCompatActivity
                 String title = titleEt.getText().toString();
                 dialog.dismiss();
                 currentShopList.setTitle(title);
-
-                userInfo.setLastList(currentShopList);
-                mainDrawer.setSelectedList(currentShopList);
-                shopListView.setShopList(currentShopList);
-
             }
         });
         dialog.show();
