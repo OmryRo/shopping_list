@@ -19,6 +19,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import app.shoppinglist.wsux.shoppinglist.firebase.BaseCollectionItem;
+import app.shoppinglist.wsux.shoppinglist.firebase.FireBaseManager;
 import app.shoppinglist.wsux.shoppinglist.firebase.ShopList;
 import app.shoppinglist.wsux.shoppinglist.firebase.ShopTask;
 
@@ -29,10 +30,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
     private ShopList currentShopList;
     private ArrayList<ShopTask> shopTasks;
+    private FireBaseManager fireBaseManager;
 
-    public TaskAdapter() {
+    public TaskAdapter(FireBaseManager fireBaseManager) {
         shopTasks = new ArrayList<>();
-
+        this.fireBaseManager = fireBaseManager;
     }
 
     public void setList(ShopList shopList) {
@@ -162,7 +164,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         }
 
         public boolean onLongClick(View view) {
-            new TaskEditDialog(view.getContext(), task).show();
+            new TaskEditDialog(view.getContext(), task, fireBaseManager).show();
             return false;
         }
     }

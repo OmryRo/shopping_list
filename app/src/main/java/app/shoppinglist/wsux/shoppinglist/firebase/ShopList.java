@@ -127,7 +127,10 @@ public class ShopList extends BaseCollectionItem {
         tasks.remove(shopTask.getTaskId());
         updateField(ref, FIRESTORE_FIELD_TASKS, tasks);
         shopTasks.remove(shopTask.getTaskId());
-        onChildChangeListener.onChildChange();
+
+        if (onChildChangeListener != null) {
+            onChildChangeListener.onChildChange();
+        }
     }
 
     public void remove() {

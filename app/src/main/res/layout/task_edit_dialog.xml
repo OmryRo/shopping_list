@@ -46,14 +46,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:src="@drawable/ic_menu_camera" />
+                android:src="@drawable/ic_menu_gallery" />
 
             <ImageButton
                 android:id="@+id/task_open_camera_ib"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:src="@drawable/ic_menu_gallery" />
+                android:src="@drawable/ic_menu_camera" />
 
             <ImageButton
                 android:id="@+id/task_edit_done_ib"
