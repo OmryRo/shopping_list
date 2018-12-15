@@ -29,4 +29,5 @@
     <string name="add_task">what to add?</string>
     <string name="request_picture">Choose Picture</string>
     <string name="request_camera">Take a Picture</string>
+    <string name="rename">rename</string>
 </resources>
