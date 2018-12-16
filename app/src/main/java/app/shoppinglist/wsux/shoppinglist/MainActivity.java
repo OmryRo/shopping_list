@@ -119,15 +119,15 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         switch (id) {
-            case R.id.action_settings:
-                return true;
+            case R.id.action_change_list_name:
+                renameListPressed();
+                break;
+            case R.id.action_quit_list:
+                onQuitListClicked();
+                break;
             case R.id.nav_share:
                 showShared();
                 break;
-        }
-
-        if (id == R.id.action_settings) {
-            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -283,6 +283,27 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         fireBaseManager.getShareHandler().handleCancelJoinList(userInfo, listFound);
+                    }
+                }).create().show();
+    }
+
+    private void onQuitListClicked() {
+        if (currentShopList == null) {
+            return;
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.verify_before_quit, currentShopList.getTitle()))
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        currentShopList.remove();
+                    }
+                })
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // nothing...
                     }
                 }).create().show();
     }

@@ -143,6 +143,10 @@ public abstract class BaseCollectionItem implements
         reportOnChange();
     }
 
+    protected void setNotReady() {
+        isReady = false;
+    }
+
     public interface OnChildChangeListener {
         void onChildChange();
     }
