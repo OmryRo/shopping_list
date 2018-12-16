@@ -114,7 +114,6 @@ public class ShopTask extends BaseCollectionItem {
             return;
         }
 
-        this.title = title;
         updateField(ref, FIRESTORE_FIELD_TITLE, title);
     }
 
@@ -124,7 +123,6 @@ public class ShopTask extends BaseCollectionItem {
             return;
         }
 
-        this.description = description;
         updateField(ref, FIRESTORE_FIELD_DESCRIPTION, description);
     }
 
@@ -134,7 +132,6 @@ public class ShopTask extends BaseCollectionItem {
             return;
         }
 
-        this.state = state;
         updateField(ref, FIRESTORE_FIELD_STATE, state);
     }
 

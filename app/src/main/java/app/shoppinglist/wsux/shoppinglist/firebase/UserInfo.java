@@ -139,26 +139,18 @@ public class UserInfo extends BaseCollectionItem {
     }
 
     public void addKnownList(String listId) {
-        listNames.add(listId);
-        updateField(ref, FIRESTORE_FIELD_LISTS, listNames);
-        updateField(ref, FIRESTORE_FIELD_LAST_LIST, listId);
+        setLastList(listId);
+        appendToList(ref, FIRESTORE_FIELD_LISTS, listId);
         reportChildChange();
     }
 
     public void removeKnownList(String listId) {
-        listNames.remove(listId);
-        updateField(ref, FIRESTORE_FIELD_LISTS, listNames);
+        removeFromList(ref, FIRESTORE_FIELD_LISTS, listId);
         manager.reportEvent(FireBaseManager.ON_LIST_DELETED, lists.get(listId));
         lists.remove(listId);
     }
 
-    public void setLastList(ShopList shopList) {
-
-        if (shopList == null) {
-            return;
-        }
-
-        String lastList = shopList.getListId();
+    public void setLastList(String lastList) {
 
         if (lastList == null || lastList.equals(this.lastList)) {
             return;
@@ -182,9 +174,12 @@ public class UserInfo extends BaseCollectionItem {
             return;
         }
 
-        tokens.put(listId, token);
-        updateField(ref, FIRESTORE_FIELD_TOKENS, tokens);
-        addKnownList(listId);
+        addToMap(ref, FIRESTORE_FIELD_TOKENS, listId, token).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                addKnownList(listId);
+            }
+        });
     }
 
     public void removeToken(String listId) {
@@ -193,8 +188,7 @@ public class UserInfo extends BaseCollectionItem {
             return;
         }
 
-        tokens.remove(listId);
-        updateField(ref, FIRESTORE_FIELD_TOKENS, tokens);
+        removeFromMap(ref, FIRESTORE_FIELD_TOKENS, listId);
     }
 
     public void createNewList(String listTitle) {
