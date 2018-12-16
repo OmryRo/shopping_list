@@ -14,6 +14,9 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -98,25 +101,27 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
     }
 
     private void updateMenuItems() {
-        navigationView.getMenu().clear();
+
+        Menu navigationViewMenu = navigationView.getMenu();
+        navigationViewMenu.clear();
+
         if (userInfo == null) {
             return;
         }
-        SubMenu listSubMenu = updateSubMenu();
-        updateLists(listSubMenu);
+
+        addAddItemIntoMenu(navigationViewMenu);
+        addListOfListsSubMenu(navigationViewMenu);
     }
 
-    private SubMenu updateSubMenu() {
-        Menu navigationViewMenu = navigationView.getMenu();
+    private void addAddItemIntoMenu(Menu navigationViewMenu) {
         addItemMenuRef = navigationViewMenu.add(R.string.create_new_list);
         addItemMenuRef.setIcon(R.drawable.ic_menu_add_box);
-        return navigationViewMenu.addSubMenu(R.string.menu_sublist_lists);
     }
 
-    private void updateLists(SubMenu listSubMenu) {
-        HashMap<String, ShopList> lists = userInfo.getLists();
-        for (HashMap.Entry<String, ShopList> entry : lists.entrySet()) {
-            ShopList shopList = entry.getValue();
+    private void addListOfListsSubMenu(Menu navigationViewMenu) {
+        SubMenu listSubMenu = navigationViewMenu.addSubMenu(R.string.menu_sublist_lists);
+
+        for (ShopList shopList: getOrderedListOfLists()) {
             MenuItem menuItem = listSubMenu.add(shopList.getTitle());
             menuItem.setIcon(R.drawable.ic_menu_assignment);
             menuItem.setCheckable(true);
@@ -129,6 +134,17 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
 
             menuItem.setChecked(selectedList == shopList);
         }
+    }
+
+    private ArrayList<ShopList> getOrderedListOfLists() {
+        ArrayList<ShopList> listOfLists = new ArrayList<>(userInfo.getLists().values());
+        Collections.sort(listOfLists, new Comparator<ShopList>() {
+            @Override
+            public int compare(ShopList o1, ShopList o2) {
+                return o1.getTitle().compareTo(o2.getTitle());
+            }
+        });
+        return listOfLists;
     }
 
 
