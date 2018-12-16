@@ -148,7 +148,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             boolean isChecked = task.getState() == ShopTask.SHOP_TASK_DONE;
 
             if (itemView != null) {
-                itemView.setBackgroundColor(isChecked ? BACKGROUND_NORMAL : BACKGROUND_CHECKED);
+                itemView.setBackgroundColor(isChecked ? BACKGROUND_CHECKED : BACKGROUND_NORMAL);
             }
 
             if (taskNameTv != null) {
