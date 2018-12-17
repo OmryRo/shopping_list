@@ -79,11 +79,11 @@ public abstract class BaseCollectionItem implements
     }
 
     public void onQueryError(DocumentSnapshot document, FirebaseFirestoreException e) {
-        Log.e(TAG, "onQueryError: ", e);
+        Log.e(TAG, String.format("onQueryError: %s", this) , e);
     }
 
     public void onNotFound(DocumentSnapshot document) {
-        Log.e(TAG, "onEvent: not exists");
+        Log.e(TAG, String.format("onEvent: not exists: %s", this));
     }
 
     @Override

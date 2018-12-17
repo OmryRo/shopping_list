@@ -239,4 +239,9 @@ public class UserInfo extends BaseCollectionItem {
     void specificOnFailure(Exception e) {
         manager.reportEvent(FireBaseManager.ON_USER_UPDATE_FAILED, e);
     }
+
+    @Override
+    public String toString() {
+        return String.format("UserInfo: %s", userId);
+    }
 }

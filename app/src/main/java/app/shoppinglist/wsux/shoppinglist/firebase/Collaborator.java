@@ -191,4 +191,9 @@ public class Collaborator extends BaseCollectionItem {
     void remove() {
         ref.delete();
     }
+
+    @Override
+    public String toString() {
+        return String.format("Collaborator: %s", userId);
+    }
 }

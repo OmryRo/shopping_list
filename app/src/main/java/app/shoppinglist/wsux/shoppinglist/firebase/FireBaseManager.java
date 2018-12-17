@@ -31,6 +31,7 @@ public class FireBaseManager {
     public static final int ON_LIST_UPDATED = 0x3001;
     public static final int ON_LIST_FAILURE = 0x3002;
     public static final int ON_LIST_DELETED = 0x3003;
+    public static final int ON_LIST_REMOVED_FROM = 0x3004;
     public static final int ON_TASK_CREATED = 0x4000;
     public static final int ON_TASK_UPDATED = 0x4001;
     public static final int ON_TASK_FAILURE = 0x4002;

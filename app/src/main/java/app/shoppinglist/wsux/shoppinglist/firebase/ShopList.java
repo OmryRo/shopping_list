@@ -10,6 +10,7 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -378,7 +379,17 @@ public class ShopList extends BaseCollectionItem {
     public void onNotFound(DocumentSnapshot document) {
         super.onNotFound(document);
         isMember = false;
-        userInfo.reportChildChange();
+        userInfo.removeKnownList(listId);
+    }
+
+
+    public void onQueryError(DocumentSnapshot document, FirebaseFirestoreException e) {
+        super.onQueryError(document, e);
+
+        if (e.getCode() == FirebaseFirestoreException.Code.PERMISSION_DENIED) {
+            manager.reportEvent(FireBaseManager.ON_LIST_REMOVED_FROM, this, e);
+            userInfo.removeKnownList(listId);
+        }
     }
 
     @Override
@@ -390,4 +401,10 @@ public class ShopList extends BaseCollectionItem {
     void specificOnFailure(Exception e) {
         manager.reportEvent(FireBaseManager.ON_LIST_FAILURE, this, e);
     }
+
+    @Override
+    public String toString() {
+        return String.format("ShopList: %s", listId);
+    }
+
 }

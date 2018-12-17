@@ -187,4 +187,9 @@ public class ShopTask extends BaseCollectionItem {
     void specificOnFailure(Exception e) {
         manager.reportEvent(FireBaseManager.ON_TASK_FAILURE, this, e);
     }
+
+    @Override
+    public String toString() {
+        return String.format("ShopTask: %s", taskId);
+    }
 }
