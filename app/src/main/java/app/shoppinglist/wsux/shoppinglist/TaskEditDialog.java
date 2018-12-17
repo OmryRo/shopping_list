@@ -86,10 +86,6 @@ public class TaskEditDialog extends Dialog implements View.OnClickListener,
 
         if (imageUpload != null) {
             imageUpload.uploadFile(shopTask, this);
-
-            // todo: add progress start instead of this toast.
-            Toast.makeText(getContext(), "uploading...", Toast.LENGTH_SHORT).show();
-            return;
         }
 
         this.dismiss();

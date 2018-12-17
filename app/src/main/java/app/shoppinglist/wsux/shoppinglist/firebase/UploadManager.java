@@ -46,12 +46,14 @@ public class UploadManager {
     private static final String CAMERA_INTENT_EXTRA_DATA = "data";
 
     private Activity context;
+    private FireBaseManager manager;
     private FirebaseStorage storage;
 
     private OnChooseMediaResultListener resultListener;
 
     UploadManager(Activity context, FireBaseManager manager) {
         this.context = context;
+        this.manager = manager;
         this.storage = FirebaseStorage.getInstance();
     }
 
@@ -200,6 +202,8 @@ public class UploadManager {
         }
 
         public void uploadFile(final ShopTask shopTask, final OnUploadMediaResultListener listener) {
+
+            manager.reportEvent(FireBaseManager.ON_PICTURE_UPLOAD_STARTED, shopTask);
 
             Bitmap bitmap = getImagePreview();
             if (bitmap == null) {

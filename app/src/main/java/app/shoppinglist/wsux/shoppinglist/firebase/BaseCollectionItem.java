@@ -37,6 +37,8 @@ public abstract class BaseCollectionItem implements
     }
 
     protected Task<Void> updateField(DocumentReference ref, String field, Object data) {
+        manager.reportEvent(FireBaseManager.ON_PROGRESS_START_UPDATE);
+
         HashMap<String, Object> params = new HashMap<>();
         params.put(field, data);
         return ref.update(params)
@@ -45,24 +47,32 @@ public abstract class BaseCollectionItem implements
     }
 
     protected Task<Void> appendToList(DocumentReference ref, String field, Object data) {
+        manager.reportEvent(FireBaseManager.ON_PROGRESS_START_UPDATE);
+
         return ref.update(field, FieldValue.arrayUnion(data))
                 .addOnSuccessListener(this)
                 .addOnFailureListener(this);
     }
 
     protected Task<Void> removeFromList(DocumentReference ref, String field, Object data) {
+        manager.reportEvent(FireBaseManager.ON_PROGRESS_START_UPDATE);
+
         return ref.update(field, FieldValue.arrayRemove(data))
                 .addOnSuccessListener(this)
                 .addOnFailureListener(this);
     }
 
     protected Task<Void> addToMap(DocumentReference ref, String field, String key, Object data) {
+        manager.reportEvent(FireBaseManager.ON_PROGRESS_START_UPDATE);
+
         return ref.update(String.format("%s.%s", field, key), data)
                 .addOnSuccessListener(this)
                 .addOnFailureListener(this);
     }
 
     protected Task<Void> removeFromMap(DocumentReference ref, String field, String key) {
+        manager.reportEvent(FireBaseManager.ON_PROGRESS_START_UPDATE);
+
         return ref.update(String.format("%s.%s", field, key), FieldValue.delete())
                 .addOnSuccessListener(this)
                 .addOnFailureListener(this);
@@ -71,6 +81,7 @@ public abstract class BaseCollectionItem implements
     public void onQueryError(DocumentSnapshot document, FirebaseFirestoreException e) {
         Log.e(TAG, "onQueryError: ", e);
     }
+
     public void onNotFound(DocumentSnapshot document) {
         Log.e(TAG, "onEvent: not exists");
     }

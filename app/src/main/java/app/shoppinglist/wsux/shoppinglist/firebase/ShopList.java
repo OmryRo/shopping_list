@@ -146,6 +146,8 @@ public class ShopList extends BaseCollectionItem {
             return false;
         }
 
+        manager.reportEvent(FireBaseManager.ON_PROGRESS_START_DELETE);
+
         removeAllTasks();
         removeCollaboratorData(userInfo.getUserId());
 
@@ -167,6 +169,8 @@ public class ShopList extends BaseCollectionItem {
             return false;
         }
 
+        manager.reportEvent(FireBaseManager.ON_PROGRESS_START_QUIT);
+
         String firstCollaboratorFound = collaborators.get(0);
         removeCollaborators(firstCollaboratorFound);
         removeCollaboratorData(userInfo.getUserId());
@@ -186,6 +190,8 @@ public class ShopList extends BaseCollectionItem {
         if (!collaborators.contains(userInfo.getUserId())) {
             return false;
         }
+
+        manager.reportEvent(FireBaseManager.ON_PROGRESS_START_QUIT);
 
         removeCollaboratorData(userInfo.getUserId());
         removeCollaborators(userInfo.getUserId());
@@ -262,6 +268,7 @@ public class ShopList extends BaseCollectionItem {
     }
 
     static Task<DocumentReference> createNewList(FireBaseManager manager, UserInfo userInfo, String title) {
+        manager.reportEvent(FireBaseManager.ON_PROGRESS_START_CREATE);
         HashMap<String, Object> fields = new HashMap<>();
         fields.put(FIRESTORE_FIELD_AUTHOR, userInfo.getUserId());
         fields.put(FIRESTORE_FIELD_TITLE, title);

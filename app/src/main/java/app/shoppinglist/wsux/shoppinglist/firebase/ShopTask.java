@@ -159,6 +159,7 @@ public class ShopTask extends BaseCollectionItem {
     }
 
     static Task<DocumentReference> addNewTask(ShopList inList, String title, String description, UserInfo userInfo) {
+        inList.manager.reportEvent(FireBaseManager.ON_PROGRESS_START_CREATE);
         HashMap<String, Object> fields = new HashMap<>();
         fields.put(FIRESTORE_FIELD_CREATOR, userInfo.getUserId());
         fields.put(FIRESTORE_FIELD_TITLE, title);
@@ -168,6 +169,7 @@ public class ShopTask extends BaseCollectionItem {
     }
 
     public void remove() {
+        manager.reportEvent(FireBaseManager.ON_PROGRESS_START_DELETE);
         ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
