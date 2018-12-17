@@ -9,7 +9,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.HashMap;
 
@@ -35,16 +37,53 @@ public abstract class BaseCollectionItem implements
     }
 
     protected Task<Void> updateField(DocumentReference ref, String field, Object data) {
+        manager.reportEvent(FireBaseManager.ON_PROGRESS_START_UPDATE);
+
         HashMap<String, Object> params = new HashMap<>();
         params.put(field, data);
-        return ref.update(params).addOnSuccessListener(this).addOnFailureListener(this);
+        return ref.update(params)
+                .addOnSuccessListener(this)
+                .addOnFailureListener(this);
+    }
+
+    protected Task<Void> appendToList(DocumentReference ref, String field, Object data) {
+        manager.reportEvent(FireBaseManager.ON_PROGRESS_START_UPDATE);
+
+        return ref.update(field, FieldValue.arrayUnion(data))
+                .addOnSuccessListener(this)
+                .addOnFailureListener(this);
+    }
+
+    protected Task<Void> removeFromList(DocumentReference ref, String field, Object data) {
+        manager.reportEvent(FireBaseManager.ON_PROGRESS_START_UPDATE);
+
+        return ref.update(field, FieldValue.arrayRemove(data))
+                .addOnSuccessListener(this)
+                .addOnFailureListener(this);
+    }
+
+    protected Task<Void> addToMap(DocumentReference ref, String field, String key, Object data) {
+        manager.reportEvent(FireBaseManager.ON_PROGRESS_START_UPDATE);
+
+        return ref.update(String.format("%s.%s", field, key), data)
+                .addOnSuccessListener(this)
+                .addOnFailureListener(this);
+    }
+
+    protected Task<Void> removeFromMap(DocumentReference ref, String field, String key) {
+        manager.reportEvent(FireBaseManager.ON_PROGRESS_START_UPDATE);
+
+        return ref.update(String.format("%s.%s", field, key), FieldValue.delete())
+                .addOnSuccessListener(this)
+                .addOnFailureListener(this);
     }
 
     public void onQueryError(DocumentSnapshot document, FirebaseFirestoreException e) {
-        Log.e(TAG, "onQueryError: ", e);
+        Log.e(TAG, String.format("onQueryError: %s", this) , e);
     }
+
     public void onNotFound(DocumentSnapshot document) {
-        Log.e(TAG, "onEvent: not exists");
+        Log.e(TAG, String.format("onEvent: not exists: %s", this));
     }
 
     @Override

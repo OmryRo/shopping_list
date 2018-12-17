@@ -50,19 +50,20 @@ public class MainActivity extends AppCompatActivity
     private ShopListView shopListView;
     private UserInfo userInfo;
     private ShopList currentShopList;
-
-    // layouts
-    private LinearLayout loginScreenWrapper;
+    private LoginScreen loginScreen;
+    private EventReporter eventReporter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-         fireBaseManager = new FireBaseManager(this, this);
-         fireBaseManager.onCreate();
+        fireBaseManager = new FireBaseManager(this, this);
+        fireBaseManager.onCreate();
 
         setContentView(R.layout.activity_main);
         setLoginScreen();
+
+        eventReporter = new EventReporter(this);
 
         Toolbar topToolBar = findViewById(R.id.toolbar);
         setSupportActionBar(topToolBar);
@@ -76,19 +77,17 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setLoginScreen() {
-        LoginScreen loginScreen = (LoginScreen) getSupportFragmentManager()
+        loginScreen = (LoginScreen) getSupportFragmentManager()
                 .findFragmentById(R.id.login_screen_fragment);
         loginScreen.setFirebaseManager(fireBaseManager);
-
-        loginScreenWrapper = findViewById(R.id.login_screen_wrapper);
     }
 
     private void hideLoginScreen() {
-        loginScreenWrapper.setVisibility(View.GONE);
+        loginScreen.hide();
     }
 
     private void showLoginScreen() {
-        loginScreenWrapper.setVisibility(View.VISIBLE);
+        loginScreen.show();
     }
 
     @Override
@@ -135,6 +134,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onEventOccurred(int what, Object data, Exception e) {
+        eventReporter.onEventOccurred(what, data, e);
         switch (what) {
             case FireBaseManager.ON_SIGN_IN:
                 onLogin((UserInfo) data);

@@ -62,11 +62,13 @@ public class LoginManager {
     }
 
     public void requestLogin() {
+        manager.reportEvent(FireBaseManager.ON_SIGN_IN_START);
         Intent signInIntent = googleSignInClient.getSignInIntent();
         context.startActivityForResult(signInIntent, FireBaseManager.RC_SIGN_IN);
     }
 
     public void requestLogout() {
+        manager.reportEvent(FireBaseManager.ON_SIGN_OUT_START);
         setCurrentUser(null);
         firebaseAuth.signOut();
         googleSignInClient.signOut().addOnCompleteListener((Activity) context, new LogoutCompleteListener());

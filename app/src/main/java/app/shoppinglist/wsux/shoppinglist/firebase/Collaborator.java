@@ -163,7 +163,6 @@ public class Collaborator extends BaseCollectionItem {
             return;
         }
 
-        this.name = name;
         updateField(ref, FIRESTORE_FIELD_NAME, name);
     }
 
@@ -172,7 +171,6 @@ public class Collaborator extends BaseCollectionItem {
             return;
         }
 
-        this.message = message;
         updateField(ref, FIRESTORE_FIELD_MESSAGE, message);
     }
 
@@ -188,5 +186,14 @@ public class Collaborator extends BaseCollectionItem {
     @Override
     void specificOnFailure(Exception e) {
         manager.reportEvent(FireBaseManager.ON_COLLABORATOR_FAILURE, this, e);
+    }
+
+    void remove() {
+        ref.delete();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Collaborator: %s", userId);
     }
 }

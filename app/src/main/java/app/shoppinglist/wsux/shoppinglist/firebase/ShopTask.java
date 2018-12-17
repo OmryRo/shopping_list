@@ -114,7 +114,6 @@ public class ShopTask extends BaseCollectionItem {
             return;
         }
 
-        this.title = title;
         updateField(ref, FIRESTORE_FIELD_TITLE, title);
     }
 
@@ -124,7 +123,6 @@ public class ShopTask extends BaseCollectionItem {
             return;
         }
 
-        this.description = description;
         updateField(ref, FIRESTORE_FIELD_DESCRIPTION, description);
     }
 
@@ -134,7 +132,6 @@ public class ShopTask extends BaseCollectionItem {
             return;
         }
 
-        this.state = state;
         updateField(ref, FIRESTORE_FIELD_STATE, state);
     }
 
@@ -162,6 +159,7 @@ public class ShopTask extends BaseCollectionItem {
     }
 
     static Task<DocumentReference> addNewTask(ShopList inList, String title, String description, UserInfo userInfo) {
+        inList.manager.reportEvent(FireBaseManager.ON_PROGRESS_START_CREATE);
         HashMap<String, Object> fields = new HashMap<>();
         fields.put(FIRESTORE_FIELD_CREATOR, userInfo.getUserId());
         fields.put(FIRESTORE_FIELD_TITLE, title);
@@ -171,6 +169,7 @@ public class ShopTask extends BaseCollectionItem {
     }
 
     public void remove() {
+        manager.reportEvent(FireBaseManager.ON_PROGRESS_START_DELETE);
         ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -187,5 +186,10 @@ public class ShopTask extends BaseCollectionItem {
     @Override
     void specificOnFailure(Exception e) {
         manager.reportEvent(FireBaseManager.ON_TASK_FAILURE, this, e);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("ShopTask: %s", taskId);
     }
 }

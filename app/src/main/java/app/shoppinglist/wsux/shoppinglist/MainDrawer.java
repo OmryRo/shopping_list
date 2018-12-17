@@ -194,7 +194,7 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
         menuItem.setChecked(true);
         selectedList = selected;
         navigationView.setCheckedItem(menuItem);
-        userInfo.setLastList(selected);
+        userInfo.setLastList(selected.getListId());
         mainDrawerInterface.selectedList(selected);
     }
 

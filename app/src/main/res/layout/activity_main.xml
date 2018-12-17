@@ -14,20 +14,17 @@
         android:layout_height="match_parent" />
 
 
-    <LinearLayout
-        android:id="@+id/login_screen_wrapper"
+    <fragment
+        android:name="app.shoppinglist.wsux.shoppinglist.LoginScreen"
+        android:id="@+id/login_screen_fragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#ffffff"
-        android:orientation="horizontal"
-        android:clickable="true">
-        <fragment
-            android:name="app.shoppinglist.wsux.shoppinglist.LoginScreen"
-            android:id="@+id/login_screen_fragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-    </LinearLayout>
+        android:layout_height="match_parent"/>
 
+    <fragment
+        android:name="app.shoppinglist.wsux.shoppinglist.ProgressFragment"
+        android:id="@+id/progress_bar_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
     <android.support.design.widget.NavigationView
         android:id="@+id/nav_view"
