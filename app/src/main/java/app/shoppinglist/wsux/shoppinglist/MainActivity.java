@@ -238,9 +238,20 @@ public class MainActivity extends AppCompatActivity
                 }).create().show();
     }
 
+
     public void showShared() {
 
         if (currentShopList == null) {
+            return;
+        }
+        final AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setView(R.layout.share_layout)
+                .create();
+        ShareDialog shareDialog = new ShareDialog(this, currentShopList,
+                fireBaseManager);
+        shareDialog.show();
+
+        if (true) {
             return;
         }
 
@@ -254,10 +265,10 @@ public class MainActivity extends AppCompatActivity
         final LinearLayout body = new LinearLayout(this);
         body.setOrientation(LinearLayout.VERTICAL);
         wrapper.addView(body);
-
-        final AlertDialog alertDialog = new AlertDialog.Builder(this)
-                .setView(wrapper)
-                .create();
+//
+//        final AlertDialog alertDialog = new AlertDialog.Builder(this)
+//                .setView(wrapper)
+//                .create();
 
         Button dismiss = new Button(this);
         dismiss.setText("X");
