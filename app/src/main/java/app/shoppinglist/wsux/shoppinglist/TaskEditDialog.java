@@ -114,6 +114,8 @@ public class TaskEditDialog extends Dialog implements View.OnClickListener,
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
+            case R.id.task_edit_image_iv:
+
             case R.id.task_delete_ib:
                 delete();
                 break;

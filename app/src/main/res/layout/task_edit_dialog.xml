@@ -9,9 +9,12 @@
         android:orientation="vertical">
 
         <ImageView
-            android:id="@+id/task_image_iv"
+            android:id="@+id/task_edit_image_iv"
             android:layout_width="match_parent"
-            android:layout_height="180dp" />
+            android:layout_height="180dp"
+            android:src="@mipmap/ic_launcher"
+            android:clickable="true"
+            android:focusable="true" />
 
         <EditText
             android:id="@+id/task_edit_name_tv"
@@ -41,19 +44,6 @@
                 android:layout_weight="1"
                 android:src="@drawable/ic_edit_delete_item" />
 
-            <ImageButton
-                android:id="@+id/task_open_gallery_ib"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:src="@drawable/ic_menu_gallery" />
-
-            <ImageButton
-                android:id="@+id/task_open_camera_ib"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:src="@drawable/ic_menu_camera" />
 
             <ImageButton
                 android:id="@+id/task_edit_done_ib"
