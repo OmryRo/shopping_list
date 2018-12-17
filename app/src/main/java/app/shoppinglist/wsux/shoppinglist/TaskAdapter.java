@@ -72,7 +72,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
                     return o1.getTitle().compareTo(o2.getTitle());
                 }
 
-                return (int) (o2.getState() - o1.getState());
+                return (int) (o1.getState() - o2.getState());
             }
         });
         return listOfLists;
@@ -148,7 +148,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             boolean isChecked = task.getState() == ShopTask.SHOP_TASK_DONE;
 
             if (itemView != null) {
-                itemView.setBackgroundColor(isChecked ? BACKGROUND_NORMAL : BACKGROUND_CHECKED);
+                itemView.setBackgroundColor(isChecked ? BACKGROUND_CHECKED : BACKGROUND_NORMAL);
             }
 
             if (taskNameTv != null) {
@@ -178,14 +178,16 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         @Override
 
         public void onMediaDownload() {
-            if (thumbnailIv != null && task.hasPicture()) {
-                Bitmap thumbnail = task.getPicture();
 
-                if (thumbnail == null) {
-                    thumbnailIv.setImageResource(R.mipmap.ic_launcher);
-                } else {
-                    thumbnailIv.setImageBitmap(thumbnail);
-                }
+            Bitmap thumbnail = null;
+            if (thumbnailIv != null && task.hasPicture()) {
+                thumbnail = task.getPicture();
+            }
+
+            if (thumbnail == null) {
+                thumbnailIv.setImageResource(R.mipmap.ic_launcher);
+            } else {
+                thumbnailIv.setImageBitmap(thumbnail);
             }
         }
 
