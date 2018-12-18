@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import app.shoppinglist.wsux.shoppinglist.firebase.FireBaseManager;
@@ -16,7 +17,7 @@ import app.shoppinglist.wsux.shoppinglist.firebase.ShopTask;
 import app.shoppinglist.wsux.shoppinglist.firebase.UploadManager;
 
 public class TaskEditDialog extends Dialog implements View.OnClickListener,
-        UploadManager.OnChooseMediaResultListener, UploadManager.OnUploadMediaResultListener{
+        UploadManager.OnChooseMediaResultListener, UploadManager.OnUploadMediaResultListener {
 
     private static final String TAG = "TASK_EDIT_DIALOG";
 
@@ -26,7 +27,7 @@ public class TaskEditDialog extends Dialog implements View.OnClickListener,
     private ShopTask shopTask;
     private FireBaseManager fireBaseManager;
     private UploadManager.ImageUpload imageUpload;
-
+    private LinearLayout linearLayout;
 
     TaskEditDialog(Context context, ShopTask shopTask, FireBaseManager fireBaseManager) {
         super(context);
@@ -43,7 +44,7 @@ public class TaskEditDialog extends Dialog implements View.OnClickListener,
 
         editNameEt = findViewById(R.id.task_edit_name_tv);
         editNoteEt = findViewById(R.id.task_edit_note_tv);
-        editThumbnailIv = findViewById(R.id.task_image_iv);
+        editThumbnailIv = findViewById(R.id.task_edit_image_iv);
 
         findViewById(R.id.task_delete_ib).setOnClickListener(this);
         findViewById(R.id.task_edit_done_ib).setOnClickListener(this);
@@ -101,21 +102,29 @@ public class TaskEditDialog extends Dialog implements View.OnClickListener,
 
     private void openCamera() {
         fireBaseManager.getUploadManager().requestCamera(this);
+        hideImageMenu();
     }
 
     private void openGallery() {
         fireBaseManager.getUploadManager().requestChoosePicture(this);
+        hideImageMenu();
     }
 
     @Override
     public void onClick(View view) {
+        linearLayout = findViewById(R.id.task_edit_image_menu);
         switch (view.getId()) {
-
+            case R.id.task_delete_image_ib:
+                deleteImage();
+                break;
             case R.id.task_delete_ib:
                 delete();
                 break;
             case R.id.task_edit_done_ib:
                 update();
+                break;
+            case R.id.task_edit_image_menu:
+                showImageMenu();
                 break;
             case R.id.task_open_camera_ib:
                 openCamera();
@@ -124,6 +133,19 @@ public class TaskEditDialog extends Dialog implements View.OnClickListener,
                 openGallery();
                 break;
         }
+    }
+
+    private void deleteImage() {
+        editThumbnailIv.setImageResource(R.drawable.luncher_icon);
+        hideImageMenu();
+    }
+
+    private void showImageMenu() {
+        linearLayout.setVisibility(View.VISIBLE);
+    }
+
+    private void hideImageMenu() {
+        linearLayout.setVisibility(View.GONE);
     }
 
     @Override
