@@ -27,6 +27,7 @@
     <string name="add">Add</string>
     <string name="Note">NOTE</string>
     <string name="add_task">what to add?</string>
+    <string name="shared_with">shared with</string>
     <string name="request_picture">Choose Picture</string>
     <string name="request_camera">Take a Picture</string>
     <string name="rename">rename</string>
