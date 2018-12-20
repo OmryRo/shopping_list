@@ -244,90 +244,9 @@ public class MainActivity extends AppCompatActivity
         if (currentShopList == null) {
             return;
         }
-        final AlertDialog alertDialog = new AlertDialog.Builder(this)
-                .setView(R.layout.share_layout)
-                .create();
+
         ShareDialog shareDialog = new ShareDialog(this, currentShopList,
                 fireBaseManager);
         shareDialog.show();
-
-        if (true) {
-            return;
-        }
-
-        final LinearLayout wrapper = new LinearLayout(this);
-        wrapper.setOrientation(LinearLayout.VERTICAL);
-
-        final LinearLayout header = new LinearLayout(this);
-        header.setOrientation(LinearLayout.HORIZONTAL);
-        wrapper.addView(header);
-
-        final LinearLayout body = new LinearLayout(this);
-        body.setOrientation(LinearLayout.VERTICAL);
-        wrapper.addView(body);
-//
-//        final AlertDialog alertDialog = new AlertDialog.Builder(this)
-//                .setView(wrapper)
-//                .create();
-
-        Button dismiss = new Button(this);
-        dismiss.setText("X");
-        dismiss.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                alertDialog.dismiss();
-            }
-        });
-        header.addView(dismiss);
-
-        final Button shareButtonn = new Button(this);
-        shareButtonn.setText("Share");
-        shareButtonn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                fireBaseManager.getShareHandler().performShareList(currentShopList);
-            }
-        });
-        header.addView(shareButtonn);
-
-        alertDialog.show();
-
-        currentShopList.setOnChildChangeListener(new BaseCollectionItem.OnChildChangeListener() {
-            @Override
-            public void onChildChange() {
-                body.removeAllViews();
-
-                for (HashMap.Entry<String, Collaborator> entry : currentShopList.getCollaborators().entrySet()) {
-                    final Collaborator collaborator = entry.getValue();
-
-                    LinearLayout layout = new LinearLayout(getApplicationContext());
-
-                    final ImageView imageView = new ImageView(getApplicationContext());
-                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(75, 75);
-                    imageView.setLayoutParams(layoutParams);
-                    imageView.setImageResource(R.drawable.ic_launcher_background);
-                    layout.addView(imageView);
-
-                    final TextView titleView = new TextView(getApplicationContext());
-                    layout.addView(titleView);
-
-                    collaborator.setOnChangeListener(new BaseCollectionItem.OnChangeListener() {
-                        @Override
-                        public void onChange() {
-                            String text = String.format("%s - %s", collaborator.getName(), collaborator.getMessage());
-                            titleView.setText(text);
-                            titleView.setTextColor(collaborator.getColor());
-
-                            Bitmap userImage = collaborator.getPicture();
-                            if (userImage != null) {
-                                imageView.setImageBitmap(userImage);
-                            }
-                        }
-                    });
-
-                    body.addView(layout);
-                }
-            }
-        });
     }
 }
