@@ -22,10 +22,9 @@ import app.shoppinglist.wsux.shoppinglist.R;
 
 public class LoginManager {
 
-    private final static int RC_SIGN_IN = 999;
     private final static String TAG = "FIRE_BASE_LOGIN_MANAGER";
 
-    private Context context;
+    private Activity context;
     private GoogleSignInClient googleSignInClient;
     private FirebaseAuth firebaseAuth;
     private FirebaseUser currentUser;
@@ -33,7 +32,7 @@ public class LoginManager {
     private FireBaseManager manager;
 
 
-    LoginManager(Context context, FireBaseManager manager) {
+    LoginManager(Activity context, FireBaseManager manager) {
         this.context = context;
         this.manager = manager;
     }
@@ -63,25 +62,21 @@ public class LoginManager {
     }
 
     public void requestLogin() {
+        manager.reportEvent(FireBaseManager.ON_SIGN_IN_START);
         Intent signInIntent = googleSignInClient.getSignInIntent();
-        ((Activity) context).startActivityForResult(signInIntent, RC_SIGN_IN);
+        context.startActivityForResult(signInIntent, FireBaseManager.RC_SIGN_IN);
     }
 
     public void requestLogout() {
+        manager.reportEvent(FireBaseManager.ON_SIGN_OUT_START);
         setCurrentUser(null);
         firebaseAuth.signOut();
         googleSignInClient.signOut().addOnCompleteListener((Activity) context, new LogoutCompleteListener());
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        switch (requestCode) {
-            case RC_SIGN_IN:
-                Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-                handleSignInResult(task);
-                break;
-        }
-
+    public void onSignInIntentReceived(Intent data) {
+        Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+        handleSignInResult(task);
     }
 
     private void fireBaseAuthWithGoogle(GoogleSignInAccount account) {

@@ -159,12 +159,18 @@ public class Collaborator extends BaseCollectionItem {
     }
 
     public void setName(String name) {
-        this.name = name;
+        if (name == null || name.equals(this.name)) {
+            return;
+        }
+
         updateField(ref, FIRESTORE_FIELD_NAME, name);
     }
 
     public void setMessage(String message) {
-        this.message = message;
+        if (message == null || message.equals(this.message)) {
+            return;
+        }
+
         updateField(ref, FIRESTORE_FIELD_MESSAGE, message);
     }
 
@@ -180,5 +186,14 @@ public class Collaborator extends BaseCollectionItem {
     @Override
     void specificOnFailure(Exception e) {
         manager.reportEvent(FireBaseManager.ON_COLLABORATOR_FAILURE, this, e);
+    }
+
+    void remove() {
+        ref.delete();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Collaborator: %s", userId);
     }
 }

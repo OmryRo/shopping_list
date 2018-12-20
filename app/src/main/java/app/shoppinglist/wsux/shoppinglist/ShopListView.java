@@ -12,35 +12,39 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import app.shoppinglist.wsux.shoppinglist.firebase.BaseCollectionItem;
+import app.shoppinglist.wsux.shoppinglist.firebase.FireBaseManager;
 import app.shoppinglist.wsux.shoppinglist.firebase.ShopList;
 
-public class ShopListView implements View.OnClickListener, BaseCollectionItem.OnChildChangeListener {
-
+public class ShopListView implements View.OnClickListener, BaseCollectionItem.OnChildChangeListener,
+        BaseCollectionItem.OnChangeListener {
     private Activity context;
     private TaskAdapter adapter;
-    private RecyclerView recyclerView;
-    private Toolbar topToolbar;
-    private View addTaskContainer;
     private ShopList currentShopList;
+    private FireBaseManager fireBaseManager;
 
     // views
     private EditText addTextEt;
+    private View addTaskContainer;
+    private RecyclerView recyclerView;
+    private Toolbar topToolbar;
 
-    ShopListView(Activity context, Toolbar topToolbar) {
+    ShopListView(Activity context, Toolbar topToolbar, FireBaseManager fireBaseManager) {
         this.context = context;
         this.topToolbar = topToolbar;
+        this.fireBaseManager = fireBaseManager;
 
         setMainView();
         setBottomToolbar();
+
     }
 
     private void setMainView() {
-        recyclerView =  context.findViewById(R.id.shopping_list_view);
+        recyclerView = context.findViewById(R.id.shopping_list_view);
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(mLayoutManager);
 
-        adapter = new TaskAdapter();
+        adapter = new TaskAdapter(fireBaseManager);
         recyclerView.setAdapter(adapter);
     }
 
@@ -72,15 +76,15 @@ public class ShopListView implements View.OnClickListener, BaseCollectionItem.On
     public void setShopList(ShopList shopList) {
         if (currentShopList == shopList) {
             return;
-        } 
-        
+        }
+
         if (currentShopList != null) {
             currentShopList.removeAllListeners();
         }
 
         currentShopList = shopList;
         toggleToolbar();
-        topToolbar.setTitle(shopList.getTitle());
+        shopList.setOnChangeListener(this);
 
         adapter.setList(currentShopList);
 
@@ -117,5 +121,10 @@ public class ShopListView implements View.OnClickListener, BaseCollectionItem.On
                 onAddTaskButtonClick();
                 break;
         }
+    }
+
+    @Override
+    public void onChange() {
+        topToolbar.setTitle(currentShopList.getTitle());
     }
 }

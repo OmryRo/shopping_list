@@ -11,11 +11,11 @@ import app.shoppinglist.wsux.shoppinglist.R;
 
 public class ShareHandler {
 
-    private Context context;
+    private Activity context;
     private FireBaseManager manager;
     private Intent handledIntent;
 
-    ShareHandler(Context context, FireBaseManager manager) {
+    ShareHandler(Activity context, FireBaseManager manager) {
         this.context = context;
         this.manager = manager;
     }

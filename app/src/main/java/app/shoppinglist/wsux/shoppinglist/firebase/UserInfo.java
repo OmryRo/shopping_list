@@ -139,20 +139,23 @@ public class UserInfo extends BaseCollectionItem {
     }
 
     public void addKnownList(String listId) {
-        listNames.add(listId);
-        updateField(ref, FIRESTORE_FIELD_LISTS, listNames);
+        setLastList(listId);
+        appendToList(ref, FIRESTORE_FIELD_LISTS, listId);
         reportChildChange();
     }
 
     public void removeKnownList(String listId) {
-        listNames.remove(listId);
-        updateField(ref, FIRESTORE_FIELD_LISTS, listNames);
+        removeFromList(ref, FIRESTORE_FIELD_LISTS, listId);
         manager.reportEvent(FireBaseManager.ON_LIST_DELETED, lists.get(listId));
         lists.remove(listId);
     }
 
-    public void setLastList(ShopList shopList) {
-        lastList = shopList.getListId();
+    public void setLastList(String lastList) {
+
+        if (lastList == null || lastList.equals(this.lastList)) {
+            return;
+        }
+
         updateField(ref, FIRESTORE_FIELD_LAST_LIST, lastList);
     }
 
@@ -171,14 +174,21 @@ public class UserInfo extends BaseCollectionItem {
             return;
         }
 
-        tokens.put(listId, token);
-        updateField(ref, FIRESTORE_FIELD_TOKENS, tokens);
-        addKnownList(listId);
+        addToMap(ref, FIRESTORE_FIELD_TOKENS, listId, token).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                addKnownList(listId);
+            }
+        });
     }
 
     public void removeToken(String listId) {
-        tokens.remove(listId);
-        updateField(ref, FIRESTORE_FIELD_TOKENS, tokens);
+
+        if (!tokens.containsKey(listId)) {
+            return;
+        }
+
+        removeFromMap(ref, FIRESTORE_FIELD_TOKENS, listId);
     }
 
     public void createNewList(String listTitle) {
@@ -228,5 +238,10 @@ public class UserInfo extends BaseCollectionItem {
     @Override
     void specificOnFailure(Exception e) {
         manager.reportEvent(FireBaseManager.ON_USER_UPDATE_FAILED, e);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("UserInfo: %s", userId);
     }
 }

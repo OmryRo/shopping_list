@@ -13,6 +13,8 @@ import app.shoppinglist.wsux.shoppinglist.firebase.FireBaseManager;
 
 public class LoginScreen extends Fragment implements View.OnClickListener {
 
+    private View loginScreenLayout;
+
     public LoginScreen() {}
     private FireBaseManager fireBaseManager;
 
@@ -26,10 +28,18 @@ public class LoginScreen extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View loginScreenLayout = inflater.inflate(R.layout.fragment_login_screen, container, false);
+        loginScreenLayout = inflater.inflate(R.layout.fragment_login_screen, container, false);
         loginScreenLayout.findViewById(R.id.sign_in_button).setOnClickListener(this);
 
         return loginScreenLayout;
+    }
+
+    public void show() {
+        loginScreenLayout.setVisibility(View.VISIBLE);
+    }
+
+    public void hide() {
+        loginScreenLayout.setVisibility(View.GONE);
     }
 
     public void setFirebaseManager(FireBaseManager firebaseManager) {
@@ -44,6 +54,7 @@ public class LoginScreen extends Fragment implements View.OnClickListener {
                 break;
         }
     }
+
 
     private void onSignInButtonClick() {
         fireBaseManager.getLoginManager().requestLogin();
