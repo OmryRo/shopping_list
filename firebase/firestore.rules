@@ -1,0 +1,69 @@
+service cloud.firestore {
+  match /databases/{database}/documents {
+  
+  	match /users/{user} {
+    	function isSignedIn() {
+      	return request.auth != null && request.auth.uid == user;
+      }
+      
+      allow read, write: if isSignedIn();
+    }
+  
+    match /lists/{list} {
+
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+			function isAuthor(rsc) {
+      	return request.auth.uid == rsc.data.author;
+      }
+      
+      function isCollaborator(rsc) {
+      	return rsc != null && rsc.data.collaborators != null && request.auth.uid in rsc.data.collaborators;
+      }
+      
+      function hasInviteToken(rsc) {
+      	return rsc.data.tokens[get(/databases/$(database)/documents/users/$(request.auth.uid)).data.tokens[list]] > request.time ;
+      }
+      
+      function isExist(rsc) {
+      	return rsc != null;
+      }
+      
+      function notTouchingAuthor(rsc) {
+      	return isAuthor(rsc) || request.resource.data.author == resource.data.author;
+      }
+      
+      function hasReadAccess(rsc) {
+      	return isSignedIn() && isExist(rsc) && (isAuthor(rsc) || isCollaborator(rsc) || hasInviteToken(rsc));
+      }
+      
+      function hasUpdateAccess(rsc) {
+      	return isSignedIn() && isExist(rsc) && notTouchingAuthor(rsc) && (isAuthor(rsc) || isCollaborator(rsc) || hasInviteToken(rsc));
+      }
+      
+      function hasCreateAccess(rsc) {
+      	return isSignedIn() && !isExist(rsc);
+      }
+      
+      function hasDeleteAccess(rsc) {
+      	return isSignedIn() && isAuthor(rsc);
+      }
+      
+      allow read, list: if hasReadAccess(resource);
+      allow update: if hasUpdateAccess(resource);
+      allow create: if hasCreateAccess(resource);
+      allow delete: if hasDeleteAccess(resource);
+      
+      match /tasks/{task} {
+      	allow read, write: if hasReadAccess(get(/databases/$(database)/documents/lists/$(list)));
+      }
+      
+      match /collaborators/{collaborator} {
+      	allow read: if hasReadAccess(get(/databases/$(database)/documents/lists/$(list)));
+        allow write: if hasReadAccess(get(/databases/$(database)/documents/lists/$(list))) && request.auth != null && request.auth.uid == collaborator; 
+      }
+    }
+  }
+}
