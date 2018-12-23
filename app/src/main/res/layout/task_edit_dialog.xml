@@ -10,14 +10,16 @@
         android:orientation="vertical">
 
         <RelativeLayout
+            android:id="@+id/task_edit_image_container"
             android:layout_width="match_parent"
+            android:clickable="true"
             android:layout_height="180dp">
 
             <ImageView
                 android:id="@+id/task_edit_image_iv"
+                android:clickable="false"git
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@mipmap/ic_launcher" />
+                android:layout_height="match_parent" />
 
             <LinearLayout
                 android:id="@+id/task_edit_image_menu"

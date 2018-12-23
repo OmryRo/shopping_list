@@ -27,7 +27,7 @@ public class TaskEditDialog extends Dialog implements View.OnClickListener,
     private ShopTask shopTask;
     private FireBaseManager fireBaseManager;
     private UploadManager.ImageUpload imageUpload;
-    private LinearLayout linearLayout;
+    private LinearLayout imageSelectorLayout;
 
     TaskEditDialog(Context context, ShopTask shopTask, FireBaseManager fireBaseManager) {
         super(context);
@@ -45,11 +45,13 @@ public class TaskEditDialog extends Dialog implements View.OnClickListener,
         editNameEt = findViewById(R.id.task_edit_name_tv);
         editNoteEt = findViewById(R.id.task_edit_note_tv);
         editThumbnailIv = findViewById(R.id.task_edit_image_iv);
+        imageSelectorLayout = findViewById(R.id.task_edit_image_menu);
 
         findViewById(R.id.task_delete_ib).setOnClickListener(this);
         findViewById(R.id.task_edit_done_ib).setOnClickListener(this);
         findViewById(R.id.task_open_camera_ib).setOnClickListener(this);
         findViewById(R.id.task_open_gallery_ib).setOnClickListener(this);
+        findViewById(R.id.task_edit_image_container).setOnClickListener(this);
     }
 
     private void updateViewsData() {
@@ -112,7 +114,6 @@ public class TaskEditDialog extends Dialog implements View.OnClickListener,
 
     @Override
     public void onClick(View view) {
-        linearLayout = findViewById(R.id.task_edit_image_menu);
         switch (view.getId()) {
             case R.id.task_delete_image_ib:
                 deleteImage();
@@ -123,8 +124,8 @@ public class TaskEditDialog extends Dialog implements View.OnClickListener,
             case R.id.task_edit_done_ib:
                 update();
                 break;
-            case R.id.task_edit_image_menu:
-                showImageMenu();
+            case R.id.task_edit_image_container:
+                toggleImageMenu();
                 break;
             case R.id.task_open_camera_ib:
                 openCamera();
@@ -140,12 +141,13 @@ public class TaskEditDialog extends Dialog implements View.OnClickListener,
         hideImageMenu();
     }
 
-    private void showImageMenu() {
-        linearLayout.setVisibility(View.VISIBLE);
+    private void toggleImageMenu() {
+        boolean isVisible = imageSelectorLayout.getVisibility() == View.VISIBLE;
+        imageSelectorLayout.setVisibility(isVisible ? View.GONE : View.VISIBLE);
     }
 
     private void hideImageMenu() {
-        linearLayout.setVisibility(View.GONE);
+        imageSelectorLayout.setVisibility(View.GONE);
     }
 
     @Override
