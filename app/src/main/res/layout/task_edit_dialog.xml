@@ -17,7 +17,7 @@
 
             <ImageView
                 android:id="@+id/task_edit_image_iv"
-                android:clickable="false"git
+                android:clickable="false"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 

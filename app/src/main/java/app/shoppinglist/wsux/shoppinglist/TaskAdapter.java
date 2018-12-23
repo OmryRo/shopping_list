@@ -1,11 +1,8 @@
 
 package app.shoppinglist.wsux.shoppinglist;
 
-
-import android.app.Activity;
 import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +10,6 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -46,7 +42,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         if (shopList == currentShopList) {
             return;
         }
-       
+
         if (currentShopList != null) {
             currentShopList.removeAllListeners();
         }
@@ -107,7 +103,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     class TaskViewHolder extends RecyclerView.ViewHolder
             implements BaseCollectionItem.OnChangeListener,
             CompoundButton.OnCheckedChangeListener, BaseCollectionItem.OnMediaDownload,
-                View.OnLongClickListener {
+            View.OnLongClickListener {
 
         private LinearLayout itemView;
         private TextView taskNameTv;

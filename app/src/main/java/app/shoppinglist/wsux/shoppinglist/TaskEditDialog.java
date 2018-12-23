@@ -2,12 +2,10 @@ package app.shoppinglist.wsux.shoppinglist;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -52,6 +50,8 @@ public class TaskEditDialog extends Dialog implements View.OnClickListener,
         findViewById(R.id.task_open_camera_ib).setOnClickListener(this);
         findViewById(R.id.task_open_gallery_ib).setOnClickListener(this);
         findViewById(R.id.task_edit_image_container).setOnClickListener(this);
+        findViewById(R.id.task_delete_image_ib).setOnClickListener(this);
+
     }
 
     private void updateViewsData() {
@@ -114,6 +114,7 @@ public class TaskEditDialog extends Dialog implements View.OnClickListener,
 
     @Override
     public void onClick(View view) {
+        Log.d(TAG, "onClick: "+ view.getId());
         switch (view.getId()) {
             case R.id.task_delete_image_ib:
                 deleteImage();
@@ -138,6 +139,7 @@ public class TaskEditDialog extends Dialog implements View.OnClickListener,
 
     private void deleteImage() {
         editThumbnailIv.setImageResource(R.drawable.luncher_icon);
+
         hideImageMenu();
     }
 

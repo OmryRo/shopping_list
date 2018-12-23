@@ -26,16 +26,16 @@ import app.shoppinglist.wsux.shoppinglist.R;
 /**
  * this module usage:
  * fireBaseManager.getUploadManager().requestCamera()
- *          for starting activity to take a photo
+ * for starting activity to take a photo
  * fireBaseManager.getUploadManager().requestChoosePicture()
- *          for starting activity to take a photo from the gallery.
- *
+ * for starting activity to take a photo from the gallery.
+ * <p>
  * you have to call one of them using the interface OnChooseMediaResultListener
- *      by using this interface, if the camera activity or gallery retrived a picture
- *      you will get an object of ImageUpload.
- *      you can choose to use getImagePreview() to show the picture on Imageview,
- *      or to uploadFile, and giving the ShopTask object and an interface so you will
- *      know when the upload done.
+ * by using this interface, if the camera activity or gallery retrived a picture
+ * you will get an object of ImageUpload.
+ * you can choose to use getImagePreview() to show the picture on Imageview,
+ * or to uploadFile, and giving the ShopTask object and an interface so you will
+ * know when the upload done.
  */
 public class UploadManager {
 
@@ -255,11 +255,13 @@ public class UploadManager {
 
     public interface OnChooseMediaResultListener {
         void onSelectSuccess(ImageUpload image);
+
         void onSelectFailed(Exception e);
     }
 
     public interface OnUploadMediaResultListener {
         void onUploadSuccess(String documentId);
+
         void onUploadFailed(Exception e);
     }
 }
