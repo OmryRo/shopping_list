@@ -283,33 +283,21 @@ public class ShopList extends BaseCollectionItem {
     }
 
     private void refreshShopTaskData() {
-        insertTasksToShopTasks();
-
-        List<String> tasksToRemove = new ArrayList<>();
-        getIrrelevantTasks(tasksToRemove);
-
-        removeIrrelevantTasks(tasksToRemove);
-    }
-
-    private void insertTasksToShopTasks(){
         for (String taskId : tasks) {
             if (!shopTasks.containsKey(taskId)) {
                 shopTasks.put(taskId, new ShopTask(manager, this, taskId));
             }
         }
-    }
 
-    private void getIrrelevantTasks(List<String> tasksToRemove){
+        List<String> tasksToRemove = new ArrayList<>();
+        
         for (String taskId : shopTasks.keySet()) {
             if (!tasks.contains(taskId)) {
                 tasksToRemove.add(taskId);
             }
         }
-    }
-
-    private void removeIrrelevantTasks(List<String> tasksToRemove){
+        
         for (String taskId : tasksToRemove) {
-            manager.reportEvent(FireBaseManager.ON_TASK_DELETED, shopTasks.get(taskId));
             shopTasks.remove(taskId);
         }
     }
