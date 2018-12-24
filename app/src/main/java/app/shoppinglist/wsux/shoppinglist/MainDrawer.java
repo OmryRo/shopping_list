@@ -6,7 +6,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
@@ -22,7 +21,6 @@ import java.util.Map;
 
 import app.shoppinglist.wsux.shoppinglist.firebase.BaseCollectionItem;
 import app.shoppinglist.wsux.shoppinglist.firebase.ShopList;
-import app.shoppinglist.wsux.shoppinglist.firebase.UploadManager;
 import app.shoppinglist.wsux.shoppinglist.firebase.UserInfo;
 
 public class MainDrawer implements NavigationView.OnNavigationItemSelectedListener,
@@ -121,20 +119,25 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
 
     private void addListOfListsSubMenu(Menu navigationViewMenu) {
         SubMenu listSubMenu = navigationViewMenu.addSubMenu(R.string.menu_sublist_lists);
+        MenuItem menuItem;
 
         for (ShopList shopList : getOrderedListOfLists()) {
-            MenuItem menuItem = listSubMenu.add(shopList.getTitle());
-            menuItem.setIcon(R.drawable.ic_menu_assignment);
-            menuItem.setCheckable(true);
-
-            shopListMenuRef.put(menuItem, shopList);
-
-            if (selectedList == null && shopList.getListId().equals(userInfo.getLastList())) {
-                selectedList = shopList;
-            }
-
-            menuItem.setChecked(selectedList == shopList);
+            menuItem = listSubMenu.add(shopList.getTitle());
+            setMenuItemDetails(menuItem, shopList);
         }
+    }
+
+    private void setMenuItemDetails(MenuItem menuItem, ShopList shopList){
+        menuItem.setIcon(R.drawable.ic_menu_assignment);
+        menuItem.setCheckable(true);
+
+        shopListMenuRef.put(menuItem, shopList);
+
+        if (selectedList == null && shopList.getListId().equals(userInfo.getLastList())) {
+            selectedList = shopList;
+        }
+
+        menuItem.setChecked(selectedList == shopList);
     }
 
     private ArrayList<ShopList> getOrderedListOfLists() {

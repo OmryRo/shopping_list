@@ -51,6 +51,7 @@ public class ShareHandler {
         return context.getString(R.string.share_text, appName, url);
     }
 
+    //TODO- split this function somehow
     private String[] checkForIncomingIntent() {
         Intent startIntent = ((Activity) context).getIntent();
 

@@ -51,10 +51,16 @@ public class ShopListView implements View.OnClickListener, BaseCollectionItem.On
     private void setBottomToolbar() {
         addTaskContainer = context.findViewById(R.id.bar_add_task_container);
         toggleToolbar();
+        addTextBt();
+        addTextEt();
+    }
 
-
+    private void addTextBt() {
         final View addTextBt = context.findViewById(R.id.bar_add_task_bt);
         addTextBt.setOnClickListener(this);
+    }
+
+    private void addTextEt() {
         addTextEt = context.findViewById(R.id.bar_add_task_et);
         addTextEt.setOnKeyListener(new View.OnKeyListener() {
             @Override
@@ -66,7 +72,6 @@ public class ShopListView implements View.OnClickListener, BaseCollectionItem.On
                 return false;
             }
         });
-
     }
 
     private void toggleToolbar() {
@@ -87,14 +92,16 @@ public class ShopListView implements View.OnClickListener, BaseCollectionItem.On
         shopList.setOnChangeListener(this);
 
         adapter.setList(currentShopList);
-
     }
 
     private void onAddTaskButtonClick() {
         if (currentShopList == null) {
             return;
         }
+        setTaskTitle();
+    }
 
+    private void setTaskTitle() {
         String taskTitle = addTextEt.getText().toString();
 
         if (taskTitle.length() == 0) {

@@ -290,14 +290,14 @@ public class ShopList extends BaseCollectionItem {
         }
 
         List<String> tasksToRemove = new ArrayList<>();
+        
         for (String taskId : shopTasks.keySet()) {
             if (!tasks.contains(taskId)) {
                 tasksToRemove.add(taskId);
             }
         }
-
+        
         for (String taskId : tasksToRemove) {
-            manager.reportEvent(FireBaseManager.ON_TASK_DELETED, shopTasks.get(taskId));
             shopTasks.remove(taskId);
         }
     }
@@ -314,6 +314,7 @@ public class ShopList extends BaseCollectionItem {
         }
     }
 
+    //TODO- split this function
     @Override
     void specificOnEvent(DocumentSnapshot document) {
 

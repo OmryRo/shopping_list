@@ -89,6 +89,7 @@ public class UserInfo extends BaseCollectionItem {
         initInfoInDB();
     }
 
+    //TODO- split this function
     @Override
     void specificOnEvent(DocumentSnapshot document) {
 

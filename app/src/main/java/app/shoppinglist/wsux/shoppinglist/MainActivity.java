@@ -65,6 +65,10 @@ public class MainActivity extends AppCompatActivity
 
         eventReporter = new EventReporter(this);
 
+        initialTopToolBar();
+    }
+
+    private void initialTopToolBar() {
         Toolbar topToolBar = findViewById(R.id.toolbar);
         setSupportActionBar(topToolBar);
 
@@ -73,7 +77,6 @@ public class MainActivity extends AppCompatActivity
 
         findViewById(R.id.drawer_sign_out).setOnClickListener(this);
         topToolBar.setOnLongClickListener(this);
-
     }
 
     private void setLoginScreen() {
