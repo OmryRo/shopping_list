@@ -42,11 +42,8 @@ public class TaskEditDialog extends Dialog implements View.OnClickListener,
 
     private void setViews() {
         setContentView(R.layout.task_edit_dialog);
-
         setEditFields();
-
         setOnClickListeners();
-
     }
 
     private void setEditFields() {
