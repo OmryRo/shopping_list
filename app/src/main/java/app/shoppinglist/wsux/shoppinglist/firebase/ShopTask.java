@@ -51,7 +51,6 @@ public class ShopTask extends BaseCollectionItem {
 
         if (document.contains(FIRESTORE_FIELD_IMAGE_URL)) {
             downloadImageFromFireStoreUrl(document);
-
         }
 
         setReady();
@@ -173,17 +172,16 @@ public class ShopTask extends BaseCollectionItem {
     }
 
     private void removeImageUrl() {
-
+        
         if (imageUrl == null) {
             return;
         }
 
         imageUrl = null;
-
         updateField(ref, FIRESTORE_FIELD_IMAGE_URL, FieldValue.delete());
 
     }
-    //todo: consider remove unneccessary parameters
+
     static Task<DocumentReference> addNewTask(ShopList inList, String title, String description, UserInfo userInfo) {
         inList.manager.reportEvent(FireBaseManager.ON_PROGRESS_START_CREATE);
         HashMap<String, Object> fields = new HashMap<>();
