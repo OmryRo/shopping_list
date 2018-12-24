@@ -1,10 +1,8 @@
 package app.shoppinglist.wsux.shoppinglist.firebase;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.ImageReader;
 import android.os.AsyncTask;
 import android.util.DisplayMetrics;
 

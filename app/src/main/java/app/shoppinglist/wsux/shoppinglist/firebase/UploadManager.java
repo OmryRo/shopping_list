@@ -26,9 +26,9 @@ import app.shoppinglist.wsux.shoppinglist.R;
 /**
  * this module usage:
  * fireBaseManager.getUploadManager().requestCamera()
- *          for starting activity to take a photo
- * fireBaseManager.getUploadManager().requestChoosePicture()
- *          for starting activity to take a photo from the gallery.
+ *      for starting activity to take a photo
+ *      fireBaseManager.getUploadManager().requestChoosePicture()
+ *      for starting activity to take a photo from the gallery.
  *
  * you have to call one of them using the interface OnChooseMediaResultListener
  *      by using this interface, if the camera activity or gallery retrived a picture
@@ -65,6 +65,23 @@ public class UploadManager {
                         shopTask.getTaskId()
                 )
         );
+    }
+
+    public void deleteImage(ShopTask shopTask) {
+        StorageReference storageRef = getStorageReference(shopTask);
+        storageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(TAG, "onSuccess: ");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "onFailure: ");
+            }
+        });
+
+
     }
 
     public boolean requestChoosePicture(OnChooseMediaResultListener resultListener) {
@@ -243,7 +260,7 @@ public class UploadManager {
             int width = Math.round(ratio * bitmap.getWidth());
             int height = Math.round(ratio * bitmap.getHeight());
 
-            return Bitmap.createScaledBitmap(bitmap, width, height, false);
+            return Bitmap.createScaledBitmap(bitmap, width, height, true);
         }
 
         private byte[] toByteArray(Bitmap bitmap) {

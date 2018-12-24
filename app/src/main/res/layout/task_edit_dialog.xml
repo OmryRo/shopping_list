@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -8,10 +9,48 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/task_image_iv"
+        <RelativeLayout
+            android:id="@+id/task_edit_image_container"
             android:layout_width="match_parent"
-            android:layout_height="180dp" />
+            android:clickable="true"
+            android:layout_height="180dp">
+
+            <ImageView
+                android:id="@+id/task_edit_image_iv"
+                android:clickable="false"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <LinearLayout
+                android:id="@+id/task_edit_image_menu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:background="@color/colorPrimary"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <ImageButton
+                    android:id="@+id/task_open_gallery_ib"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_menu_gallery" />
+
+                <ImageButton
+                    android:id="@+id/task_open_camera_ib"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_menu_camera" />
+
+                <ImageButton
+                    android:id="@+id/task_delete_image_ib"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_backspace" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
 
         <EditText
             android:id="@+id/task_edit_name_tv"
@@ -42,25 +81,18 @@
                 android:src="@drawable/ic_edit_delete_item" />
 
             <ImageButton
-                android:id="@+id/task_open_gallery_ib"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:src="@drawable/ic_menu_gallery" />
-
-            <ImageButton
-                android:id="@+id/task_open_camera_ib"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:src="@drawable/ic_menu_camera" />
-
-            <ImageButton
                 android:id="@+id/task_edit_done_ib"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:src="@drawable/ic_edit_done" />
+
+            <ImageButton
+                android:id="@+id/task_edit_cancel_ib"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_edit_cancel" />
 
         </LinearLayout>
 

@@ -2,10 +2,12 @@ package app.shoppinglist.wsux.shoppinglist.firebase;
 
 
 import android.graphics.Bitmap;
+
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 
 import java.util.HashMap;
 
@@ -45,28 +47,39 @@ public class ShopTask extends BaseCollectionItem {
 
     @Override
     void specificOnEvent(DocumentSnapshot document) {
-        title = document.getString(FIRESTORE_FIELD_TITLE);
-        state = document.getLong(FIRESTORE_FIELD_STATE);
-        creator = document.getString(FIRESTORE_FIELD_CREATOR);
-        description = document.getString(FIRESTORE_FIELD_DESCRIPTION);
+        setTaskFields(document);
 
         if (document.contains(FIRESTORE_FIELD_IMAGE_URL)) {
-            imageUrl = document.getString(FIRESTORE_FIELD_IMAGE_URL);
-
-            if (imageUrl != null && imageUrl.length() > 0 && !imageUrl.equals(downloadedImage)) {
-                downloadedImage = imageUrl;
-                manager.getImageManager().downloadPicture(this, imageUrl);
-            }
-
+            downloadImageFromFireStoreUrl(document);
         }
 
         setReady();
         reportOnChangeEvent();
     }
-    
+
+    private void downloadImageFromFireStoreUrl(DocumentSnapshot document) {
+        imageUrl = document.getString(FIRESTORE_FIELD_IMAGE_URL);
+
+        if (isValidImageUrl()) {
+            downloadedImage = imageUrl;
+            manager.getImageManager().downloadPicture(this, imageUrl);
+        }
+    }
+
+    private boolean isValidImageUrl() {
+        return imageUrl != null && imageUrl.length() > 0 && !imageUrl.equals(downloadedImage);
+    }
+
+    private void setTaskFields(DocumentSnapshot document) {
+        title = document.getString(FIRESTORE_FIELD_TITLE);
+        state = document.getLong(FIRESTORE_FIELD_STATE);
+        creator = document.getString(FIRESTORE_FIELD_CREATOR);
+        description = document.getString(FIRESTORE_FIELD_DESCRIPTION);
+    }
+
     private void reportOnChangeEvent() {
         manager.reportEvent(FireBaseManager.ON_TASK_UPDATED, this);
-        
+
         inList.reportChildChange();
 
         if (onChangeListener != null) {
@@ -147,7 +160,7 @@ public class ShopTask extends BaseCollectionItem {
 
     void setImageUrl(String imageUrl) {
 
-        if (this.imageUrl == imageUrl) {
+        if (this.imageUrl.equals(imageUrl)) {
             return;
         }
 
@@ -158,6 +171,17 @@ public class ShopTask extends BaseCollectionItem {
         updateField(ref, FIRESTORE_FIELD_IMAGE_URL, imageUrl);
     }
 
+    private void removeImageUrl() {
+        
+        if (imageUrl == null) {
+            return;
+        }
+
+        imageUrl = null;
+        updateField(ref, FIRESTORE_FIELD_IMAGE_URL, FieldValue.delete());
+
+    }
+
     static Task<DocumentReference> addNewTask(ShopList inList, String title, String description, UserInfo userInfo) {
         inList.manager.reportEvent(FireBaseManager.ON_PROGRESS_START_CREATE);
         HashMap<String, Object> fields = new HashMap<>();
@@ -166,6 +190,15 @@ public class ShopTask extends BaseCollectionItem {
         fields.put(FIRESTORE_FIELD_DESCRIPTION, description);
         fields.put(FIRESTORE_FIELD_STATE, SHOP_TASK_NOT_DONE);
         return inList.getRef().collection(FIRESTORE_TABLE).add(fields);
+    }
+
+    public void removeImage() {
+        if (imageUrl == null) {
+            return;
+        }
+
+        removeImageUrl();
+        manager.getUploadManager().deleteImage(this);
     }
 
     public void remove() {
