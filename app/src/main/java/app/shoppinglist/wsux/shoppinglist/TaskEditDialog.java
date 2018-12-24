@@ -139,7 +139,9 @@ public class TaskEditDialog extends Dialog implements View.OnClickListener,
 
     private void deleteImage() {
         editThumbnailIv.setImageResource(R.drawable.luncher_icon);
-
+        if (shopTask.hasPicture()) {
+            shopTask.removeImage();
+        }
         hideImageMenu();
     }
 

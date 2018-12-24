@@ -2,6 +2,7 @@ package app.shoppinglist.wsux.shoppinglist.firebase;
 
 
 import android.graphics.Bitmap;
+
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
@@ -64,10 +65,10 @@ public class ShopTask extends BaseCollectionItem {
         setReady();
         reportOnChangeEvent();
     }
-    
+
     private void reportOnChangeEvent() {
         manager.reportEvent(FireBaseManager.ON_TASK_UPDATED, this);
-        
+
         inList.reportChildChange();
 
         if (onChangeListener != null) {
@@ -159,6 +160,18 @@ public class ShopTask extends BaseCollectionItem {
         updateField(ref, FIRESTORE_FIELD_IMAGE_URL, imageUrl);
     }
 
+    private void removeImageUrl() {
+
+        if (imageUrl == null) {
+            return;
+        }
+
+        imageUrl = null;
+
+        updateField(ref, FIRESTORE_FIELD_IMAGE_URL, FieldValue.delete());
+
+    }
+
     static Task<DocumentReference> addNewTask(ShopList inList, String title, String description, UserInfo userInfo) {
         inList.manager.reportEvent(FireBaseManager.ON_PROGRESS_START_CREATE);
         HashMap<String, Object> fields = new HashMap<>();
@@ -167,6 +180,11 @@ public class ShopTask extends BaseCollectionItem {
         fields.put(FIRESTORE_FIELD_DESCRIPTION, description);
         fields.put(FIRESTORE_FIELD_STATE, SHOP_TASK_NOT_DONE);
         return inList.getRef().collection(FIRESTORE_TABLE).add(fields);
+    }
+
+    public void removeImage() {
+        removeImageUrl();
+        manager.getUploadManager().deleteImage(this);
     }
 
     public void remove() {

@@ -67,6 +67,23 @@ public class UploadManager {
         );
     }
 
+    public void deleteImage(ShopTask shopTask) {
+        StorageReference storageRef = getStorageReference(shopTask);
+        storageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(TAG, "onSuccess: ");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "onFailure: ");
+            }
+        });
+
+
+    }
+
     public boolean requestChoosePicture(OnChooseMediaResultListener resultListener) {
         if (this.resultListener != null) {
             return false;
@@ -243,7 +260,7 @@ public class UploadManager {
             int width = Math.round(ratio * bitmap.getWidth());
             int height = Math.round(ratio * bitmap.getHeight());
 
-            return Bitmap.createScaledBitmap(bitmap, width, height, false);
+            return Bitmap.createScaledBitmap(bitmap, width, height, true);
         }
 
         private byte[] toByteArray(Bitmap bitmap) {
