@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity
                         what,
                         data != null ? data.toString() : "null",
                         e != null ? e.getMessage() : "null"
-                        )
+                )
         );
     }
 
@@ -239,7 +239,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void addNewListPressed(){
+    public void addNewListPressed() {
 
         View popupLayout = getLayoutInflater().inflate(R.layout.add_new_list_popup_layout, null);
         final EditText titleEt = popupLayout.findViewById(R.id.new_list_popup_title);
@@ -298,6 +298,7 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         currentShopList.remove();
+                        mainDrawer.openFirstAvailableShopList();
                     }
                 })
                 .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {

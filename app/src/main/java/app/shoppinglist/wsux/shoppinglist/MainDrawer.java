@@ -30,6 +30,7 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
         BaseCollectionItem.OnChangeListener {
 
     private final static String TAG = "MAIN_DRAWER";
+    private final static String DEFAULT_LIST_NAME = "Default List";
 
     private final static int HEADER_VIEW_INDEX = 0;
 
@@ -121,7 +122,7 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
     private void addListOfListsSubMenu(Menu navigationViewMenu) {
         SubMenu listSubMenu = navigationViewMenu.addSubMenu(R.string.menu_sublist_lists);
 
-        for (ShopList shopList: getOrderedListOfLists()) {
+        for (ShopList shopList : getOrderedListOfLists()) {
             MenuItem menuItem = listSubMenu.add(shopList.getTitle());
             menuItem.setIcon(R.drawable.ic_menu_assignment);
             menuItem.setCheckable(true);
@@ -184,6 +185,15 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
         }
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    void openFirstAvailableShopList() {
+        if (getOrderedListOfLists().size() <= 1) {
+            userInfo.createNewList(DEFAULT_LIST_NAME);
+        } else {
+            MenuItem menuItem = (MenuItem) shopListMenuRef.keySet().toArray()[0];
+            defineCurrentShoplist(menuItem);
+        }
     }
 
     private void defineCurrentShoplist(MenuItem menuItem) {
