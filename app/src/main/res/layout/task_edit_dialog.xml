@@ -87,6 +87,13 @@
                 android:layout_weight="1"
                 android:src="@drawable/ic_edit_done" />
 
+            <ImageButton
+                android:id="@+id/task_edit_cancel_ib"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_edit_cancel" />
+
         </LinearLayout>
 
     </LinearLayout>

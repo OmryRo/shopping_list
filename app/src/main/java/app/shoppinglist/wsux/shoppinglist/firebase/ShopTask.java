@@ -47,23 +47,35 @@ public class ShopTask extends BaseCollectionItem {
 
     @Override
     void specificOnEvent(DocumentSnapshot document) {
-        title = document.getString(FIRESTORE_FIELD_TITLE);
-        state = document.getLong(FIRESTORE_FIELD_STATE);
-        creator = document.getString(FIRESTORE_FIELD_CREATOR);
-        description = document.getString(FIRESTORE_FIELD_DESCRIPTION);
+        setTaskFields(document);
 
         if (document.contains(FIRESTORE_FIELD_IMAGE_URL)) {
-            imageUrl = document.getString(FIRESTORE_FIELD_IMAGE_URL);
-
-            if (imageUrl != null && imageUrl.length() > 0 && !imageUrl.equals(downloadedImage)) {
-                downloadedImage = imageUrl;
-                manager.getImageManager().downloadPicture(this, imageUrl);
-            }
+            downloadImageFromFireStoreUrl(document);
 
         }
 
         setReady();
         reportOnChangeEvent();
+    }
+
+    private void downloadImageFromFireStoreUrl(DocumentSnapshot document) {
+        imageUrl = document.getString(FIRESTORE_FIELD_IMAGE_URL);
+
+        if (isValidImageUrl()) {
+            downloadedImage = imageUrl;
+            manager.getImageManager().downloadPicture(this, imageUrl);
+        }
+    }
+
+    private boolean isValidImageUrl() {
+        return imageUrl != null && imageUrl.length() > 0 && !imageUrl.equals(downloadedImage);
+    }
+
+    private void setTaskFields(DocumentSnapshot document) {
+        title = document.getString(FIRESTORE_FIELD_TITLE);
+        state = document.getLong(FIRESTORE_FIELD_STATE);
+        creator = document.getString(FIRESTORE_FIELD_CREATOR);
+        description = document.getString(FIRESTORE_FIELD_DESCRIPTION);
     }
 
     private void reportOnChangeEvent() {
@@ -149,7 +161,7 @@ public class ShopTask extends BaseCollectionItem {
 
     void setImageUrl(String imageUrl) {
 
-        if (this.imageUrl == imageUrl) {
+        if (this.imageUrl.equals(imageUrl)) {
             return;
         }
 
@@ -171,7 +183,7 @@ public class ShopTask extends BaseCollectionItem {
         updateField(ref, FIRESTORE_FIELD_IMAGE_URL, FieldValue.delete());
 
     }
-
+    //todo: consider remove unneccessary parameters
     static Task<DocumentReference> addNewTask(ShopList inList, String title, String description, UserInfo userInfo) {
         inList.manager.reportEvent(FireBaseManager.ON_PROGRESS_START_CREATE);
         HashMap<String, Object> fields = new HashMap<>();
@@ -183,6 +195,10 @@ public class ShopTask extends BaseCollectionItem {
     }
 
     public void removeImage() {
+        if (imageUrl == null) {
+            return;
+        }
+
         removeImageUrl();
         manager.getUploadManager().deleteImage(this);
     }
