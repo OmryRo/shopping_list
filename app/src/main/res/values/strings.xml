@@ -1,8 +1,7 @@
 <resources>
     <string name="app_name">Shopping List</string>
-    <string name="title_activity_test_firebase">TestFirebaseActivity</string>
-    <string name="share_domain">shoppinglist-da074.firebaseapp.com</string>
-    <string name="share_url">http://%s/%s/%s</string>
+    <string name="share_domain" translatable="false">shoppinglist-da074.firebaseapp.com</string>
+    <string name="share_url" translatable="false">http://%s/%s/%s</string>
     <string name="share_text">View my shopping list at %s: %s</string>
     <string name="open_share_link">Open shopping list</string>
     <string name="join_list_message">Do you want to join the list %s?</string>
@@ -31,13 +30,13 @@
     <string name="request_picture">Choose Picture</string>
     <string name="request_camera">Take a Picture</string>
     <string name="rename">rename</string>
-    <string name="progress_loading">Loading...</string>
-    <string name="progress_creating">Creating...</string>
-    <string name="progress_updating">Updating...</string>
-    <string name="progress_deleting">Deleting...</string>
-    <string name="progress_uploading">Uploading...</string>
-    <string name="progress_downloading">Downloading...</string>
-    <string name="progress_sign_in">Sign In...</string>
-    <string name="progress_sign_out">Sign Out...</string>
-    <string name="progress_quiting">Quiting...</string>
+    <string name="progress_loading">Loading…</string>
+    <string name="progress_creating">Creating…</string>
+    <string name="progress_updating">Updating…</string>
+    <string name="progress_deleting">Deleting…</string>
+    <string name="progress_uploading">Uploading…</string>
+    <string name="progress_downloading">Downloading…</string>
+    <string name="progress_sign_in">Sign In…</string>
+    <string name="progress_sign_out">Sign Out…</string>
+    <string name="progress_quiting">Quitting…</string>
 </resources>
