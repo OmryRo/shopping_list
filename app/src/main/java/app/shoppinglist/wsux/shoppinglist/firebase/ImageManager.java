@@ -46,11 +46,17 @@ public class ImageManager {
             return null;
         }
 
+        BitmapFactory.Options options = createBitmapFactoryOptions();
+        return BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+    }
+
+    private BitmapFactory.Options createBitmapFactoryOptions() {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
         options.inScaled = false;
         options.inDensity = DisplayMetrics.DENSITY_DEFAULT;
-        return BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+
+        return options;
     }
 
     void downloadPicture(BaseCollectionItem item, String pictureUrl) {
@@ -61,7 +67,7 @@ public class ImageManager {
         if (item instanceof Collaborator) {
             return getPictureFile((Collaborator) item);
         }
-        
+
         if (item instanceof UserInfo) {
             return getPictureFile((UserInfo) item);
         }
@@ -69,9 +75,9 @@ public class ImageManager {
         if (item instanceof ShopTask) {
             return getPictureFile((ShopTask) item);
         }
-        
+
         return null;
-        
+
     }
 
     private File getPictureFile(Collaborator collaborator) {
@@ -102,7 +108,7 @@ public class ImageManager {
 
         private final String RES_OK = "OK";
         private final String RES_FAIL = null;
-        
+
         private BaseCollectionItem item;
         private String pictureUrl;
         private File file;
@@ -114,21 +120,21 @@ public class ImageManager {
 
             file = getPictureFile(item);
         }
-        
+
         private void downloadFile() throws IOException {
-                URL url = new URL(pictureUrl);
-                URLConnection urlConnection = url.openConnection();
-                InputStream inputStream = urlConnection.getInputStream();
-                FileOutputStream fileOutput = new FileOutputStream(file);
-                byte[] buffer = new byte[1024];
+            URL url = new URL(pictureUrl);
+            URLConnection urlConnection = url.openConnection();
+            InputStream inputStream = urlConnection.getInputStream();
+            FileOutputStream fileOutput = new FileOutputStream(file);
+            byte[] buffer = new byte[1024];
 
-                int bufferLength = 0;
-                while ( (bufferLength = inputStream.read(buffer)) > 0 ) {
-                    fileOutput.write(buffer, 0, bufferLength);
-                }
+            int bufferLength = 0;
+            while ((bufferLength = inputStream.read(buffer)) > 0) {
+                fileOutput.write(buffer, 0, bufferLength);
+            }
 
-                fileOutput.close();
-                inputStream.close();
+            fileOutput.close();
+            inputStream.close();
         }
 
         @Override

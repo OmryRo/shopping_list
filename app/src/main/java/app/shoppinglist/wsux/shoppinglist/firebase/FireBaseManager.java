@@ -1,13 +1,10 @@
 package app.shoppinglist.wsux.shoppinglist.firebase;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
-
-import java.io.File;
 
 public class FireBaseManager {
 
@@ -67,14 +64,21 @@ public class FireBaseManager {
     public static final int RC_CAMERA_PERMISSION = 0x1003;
 
     public FireBaseManager(Activity context, FireBaseEventsInterface eventsInterface) {
-        this.context = context;
+        initialEventsInterface(eventsInterface);
+        initialContextFields(context);
+    }
+
+    private void initialEventsInterface(FireBaseEventsInterface eventsInterface) {
         this.eventsInterface = eventsInterface;
         this.db = FirebaseFirestore.getInstance();
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
                 .setTimestampsInSnapshotsEnabled(true)
                 .build();
         this.db.setFirestoreSettings(settings);
+    }
 
+    private void initialContextFields(Activity context) {
+        this.context = context;
         this.loginManager = new LoginManager(context, this);
         this.shareHandler = new ShareHandler(context, this);
         this.imageManager = new ImageManager(context, this);
@@ -102,9 +106,13 @@ public class FireBaseManager {
         return shareHandler;
     }
 
-    public ImageManager getImageManager() { return imageManager; }
+    public ImageManager getImageManager() {
+        return imageManager;
+    }
 
-    public UploadManager getUploadManager() { return uploadManager; }
+    public UploadManager getUploadManager() {
+        return uploadManager;
+    }
 
     FirebaseFirestore getDb() {
         return db;
@@ -136,9 +144,18 @@ public class FireBaseManager {
 
     }
 
-    void reportEvent(int what) { reportEvent(what, null, null);}
-    void reportEvent(int what, Object data) { reportEvent(what, data, null); }
-    void reportEvent(int what, Exception e) { reportEvent(what, null, e); }
+    void reportEvent(int what) {
+        reportEvent(what, null, null);
+    }
+
+    void reportEvent(int what, Object data) {
+        reportEvent(what, data, null);
+    }
+
+    void reportEvent(int what, Exception e) {
+        reportEvent(what, null, e);
+    }
+
     void reportEvent(int what, Object data, Exception e) {
 
         if (what == ON_SIGN_IN) {

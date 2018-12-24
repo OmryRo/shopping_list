@@ -76,6 +76,7 @@ public class Collaborator extends BaseCollectionItem {
         return new Timestamp(tomorrow);
     }
 
+    //TODO- split this function
     @Override
     void specificOnEvent(DocumentSnapshot document) {
         name = document.getString(FIRESTORE_FIELD_NAME);
