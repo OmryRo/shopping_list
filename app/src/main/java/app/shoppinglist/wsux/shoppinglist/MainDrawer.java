@@ -240,7 +240,7 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
         userEmailTv.setText(userEmail);
     }
 
-    public void openAndLockWhenNoUserHasNoLists() {
+    public void openAndLock() {
         if(selectedList == null){
             drawer.openDrawer(GravityCompat.START);
             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN);
