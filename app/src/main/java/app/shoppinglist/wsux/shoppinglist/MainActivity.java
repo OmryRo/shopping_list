@@ -169,6 +169,8 @@ public class MainActivity extends AppCompatActivity
         this.userInfo = userInfo;
         mainDrawer.setUserInfo(userInfo);
         hideLoginScreen();
+        mainDrawer.openAndLockWhenNoUserHasNoLists();
+
     }
 
     private void onLogout() {
@@ -261,6 +263,7 @@ public class MainActivity extends AppCompatActivity
                 }
 
                 userInfo.createNewList(title);
+                mainDrawer.toggeLockDrawer(userInfo);
             }
         });
 
@@ -271,6 +274,7 @@ public class MainActivity extends AppCompatActivity
     public void selectedList(final ShopList shopList) {
         currentShopList = shopList;
         shopListView.setShopList(shopList);
+        mainDrawer.toggeLockDrawer(userInfo);
     }
 
     public void onShareListFound(final ShopList listFound) {

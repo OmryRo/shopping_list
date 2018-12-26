@@ -28,7 +28,6 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
         BaseCollectionItem.OnChangeListener {
 
     private final static String TAG = "MAIN_DRAWER";
-    private final static String DEFAULT_LIST_NAME = "Default List";
 
     private final static int HEADER_VIEW_INDEX = 0;
 
@@ -92,7 +91,7 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
         this.userInfo = userInfo;
     }
 
-    private void toggeLockDrawer(UserInfo userInfo) {
+    void toggeLockDrawer(UserInfo userInfo) {
         drawer.setDrawerLockMode(userInfo == null ?
                 DrawerLayout.LOCK_MODE_LOCKED_CLOSED :
                 DrawerLayout.LOCK_MODE_UNLOCKED
@@ -192,7 +191,9 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
 
     void openFirstAvailableShopList() {
         if (getOrderedListOfLists().size() <= 1) {
-            userInfo.createNewList(DEFAULT_LIST_NAME);
+            toolbar.setTitle(R.string.title_activity_main);
+            drawer.openDrawer(GravityCompat.START);
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN);
         } else {
             MenuItem menuItem = (MenuItem) shopListMenuRef.keySet().toArray()[0];
             defineCurrentShoplist(menuItem);
@@ -237,6 +238,13 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
 
         userNameTv.setText(userName);
         userEmailTv.setText(userEmail);
+    }
+
+    public void openAndLockWhenNoUserHasNoLists() {
+        if(selectedList == null){
+            drawer.openDrawer(GravityCompat.START);
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN);
+        }
     }
 
     interface MainDrawerInterface {
