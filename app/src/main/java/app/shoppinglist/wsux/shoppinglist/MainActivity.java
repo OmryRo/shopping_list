@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity
         this.userInfo = userInfo;
         mainDrawer.setUserInfo(userInfo);
         hideLoginScreen();
-        mainDrawer.openAndLock();
+        mainDrawer.openAndLockDrawer();
 
     }
 
