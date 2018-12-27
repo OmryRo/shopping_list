@@ -314,37 +314,48 @@ public class ShopList extends BaseCollectionItem {
         }
     }
 
-    //TODO- split this function
     @Override
     void specificOnEvent(DocumentSnapshot document) {
 
         title = document.getString(FIRESTORE_FIELD_TITLE);
         author = document.getString(FIRESTORE_FIELD_AUTHOR);
 
-        ArrayList<String> tasks = new ArrayList<>();
-        if (document.contains(FIRESTORE_FIELD_TASKS)) {
-            tasks.addAll((List<String>) document.get(FIRESTORE_FIELD_TASKS));
-        }
-        this.tasks = tasks;
+        loadTasksFromDB(document);
         refreshShopTaskData();
 
-        ArrayList collaborators = new ArrayList<>();
-        if (document.contains(FIRESTORE_FIELD_COLLABORATORS)) {
-            collaborators.addAll((List<String>) document.get(FIRESTORE_FIELD_COLLABORATORS));
-        }
-        this.collaborators = collaborators;
+        loadCollaboratorsFromDB(document);
         refreshCollaboratorData();
 
-        HashMap<String, Object> tokens = new HashMap<>();
-        if (document.contains(FIRESTORE_FIELD_TOKENS)) {
-            tokens.putAll((HashMap<String, Object>) document.get(FIRESTORE_FIELD_TOKENS));
-        }
-        this.tokens = tokens;
+        loadTokensFromDB(document);
 
         isMember = userInfo.getUserId().equals(author) || collaborators.contains(userInfo.getUserId());
         setReady();
 
         reportChanges();
+    }
+
+    private void loadTokensFromDB(DocumentSnapshot document) {
+        HashMap<String, Object> tokens = new HashMap<>();
+        if (document.contains(FIRESTORE_FIELD_TOKENS)) {
+            tokens.putAll((HashMap<String, Object>) document.get(FIRESTORE_FIELD_TOKENS));
+        }
+        this.tokens = tokens;
+    }
+
+    private void loadCollaboratorsFromDB(DocumentSnapshot document) {
+        List<String> collaborators = new ArrayList<>();
+        if (document.contains(FIRESTORE_FIELD_COLLABORATORS)) {
+            collaborators.addAll((List<String>) document.get(FIRESTORE_FIELD_COLLABORATORS));
+        }
+        this.collaborators = collaborators;
+    }
+
+    private void loadTasksFromDB(DocumentSnapshot document) {
+        ArrayList<String> tasks = new ArrayList<>();
+        if (document.contains(FIRESTORE_FIELD_TASKS)) {
+            tasks.addAll((List<String>) document.get(FIRESTORE_FIELD_TASKS));
+        }
+        this.tasks = tasks;
     }
 
     private void reportChanges() {

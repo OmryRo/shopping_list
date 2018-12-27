@@ -1,11 +1,9 @@
 package app.shoppinglist.wsux.shoppinglist.firebase;
 
 import android.app.Activity;
-import android.app.Application;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.util.Log;
+import android.support.annotation.Nullable;
 
 import app.shoppinglist.wsux.shoppinglist.R;
 
@@ -51,7 +49,6 @@ public class ShareHandler {
         return context.getString(R.string.share_text, appName, url);
     }
 
-    //TODO- split this function somehow
     private String[] checkForIncomingIntent() {
         Intent startIntent = ((Activity) context).getIntent();
 
@@ -68,10 +65,16 @@ public class ShareHandler {
             return null;
         }
 
+        return extractTokenAndIdFromData(data);
+    }
+
+    @Nullable
+    private String[] extractTokenAndIdFromData(Uri data) {
         String path = data.getPath();
         if (path == null) {
             return null;
         }
+
         String[] splittedPath = path.split("/");
 
         if (splittedPath.length != 3) {
@@ -83,7 +86,7 @@ public class ShareHandler {
 
         return new String[] {listId, token};
     }
-    
+
     private boolean isIntentDataHostValid(Uri data) {
         return (data.getHost() == null ||
                 !data.getHost().equals(context.getString(R.string.share_domain)));

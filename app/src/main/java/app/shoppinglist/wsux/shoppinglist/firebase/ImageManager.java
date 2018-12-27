@@ -119,6 +119,10 @@ public class ImageManager {
             file = getPictureFile(item);
         }
 
+        /*
+         * Note that this function's purpose is to download a file
+         * Splitting it to sub-functions will just make it less readable
+         */
         private void downloadFile() throws IOException {
             URL url = new URL(pictureUrl);
             URLConnection urlConnection = url.openConnection();

@@ -1,41 +1,21 @@
 package app.shoppinglist.wsux.shoppinglist;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
-import java.util.HashMap;
-
-import app.shoppinglist.wsux.shoppinglist.firebase.BaseCollectionItem;
-import app.shoppinglist.wsux.shoppinglist.firebase.Collaborator;
 import app.shoppinglist.wsux.shoppinglist.firebase.FireBaseManager;
 import app.shoppinglist.wsux.shoppinglist.firebase.ShopList;
-import app.shoppinglist.wsux.shoppinglist.firebase.ShopTask;
-import app.shoppinglist.wsux.shoppinglist.firebase.UploadManager;
 import app.shoppinglist.wsux.shoppinglist.firebase.UserInfo;
 
 public class MainActivity extends AppCompatActivity
@@ -169,6 +149,8 @@ public class MainActivity extends AppCompatActivity
         this.userInfo = userInfo;
         mainDrawer.setUserInfo(userInfo);
         hideLoginScreen();
+        mainDrawer.openAndLockDrawer();
+
     }
 
     private void onLogout() {
@@ -261,6 +243,7 @@ public class MainActivity extends AppCompatActivity
                 }
 
                 userInfo.createNewList(title);
+                mainDrawer.toggeLockDrawer(userInfo);
             }
         });
 
@@ -271,6 +254,7 @@ public class MainActivity extends AppCompatActivity
     public void selectedList(final ShopList shopList) {
         currentShopList = shopList;
         shopListView.setShopList(shopList);
+        mainDrawer.toggeLockDrawer(userInfo);
     }
 
     public void onShareListFound(final ShopList listFound) {
