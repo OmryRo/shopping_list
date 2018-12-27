@@ -2,7 +2,6 @@ package app.shoppinglist.wsux.shoppinglist.firebase;
 
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.util.Pair;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -67,7 +66,9 @@ public class UserInfo extends BaseCollectionItem {
         return pictureURL;
     }
 
-    public String getToken(String listId) { return tokens.get(listId); }
+    public String getToken(String listId) {
+        return tokens.get(listId);
+    }
 
     public Bitmap getPicture() {
         return manager.getImageManager().getPicture(this);
@@ -75,7 +76,7 @@ public class UserInfo extends BaseCollectionItem {
 
     public HashMap<String, ShopList> getLists() {
         HashMap<String, ShopList> readyLists = new HashMap<>();
-        for (HashMap.Entry<String, ShopList> entry: lists.entrySet()) {
+        for (HashMap.Entry<String, ShopList> entry : lists.entrySet()) {
             if (entry.getValue().isReady() && entry.getValue().isMember()) {
                 readyLists.put(entry.getKey(), entry.getValue());
             }
@@ -89,7 +90,6 @@ public class UserInfo extends BaseCollectionItem {
         initInfoInDB();
     }
 
-    //TODO- split this function
     @Override
     void specificOnEvent(DocumentSnapshot document) {
 
@@ -97,17 +97,7 @@ public class UserInfo extends BaseCollectionItem {
             lastList = document.getString(FIRESTORE_FIELD_LAST_LIST);
         }
 
-        ArrayList<String> listNames = new ArrayList<>();
-        if (document.contains(FIRESTORE_FIELD_LISTS)) {
-            listNames.addAll((List<String>) document.get(FIRESTORE_FIELD_LISTS));
-
-            for (String listId : listNames) {
-                if (!lists.containsKey(listId)) {
-                    lists.put(listId, new ShopList(manager, UserInfo.this, listId));
-                }
-            }
-        }
-        this.listNames = listNames;
+        loadListNamesFromDB(document);
 
         if (document.contains(FIRESTORE_FIELD_TOKENS)) {
             tokens.putAll((Map<String, String>) document.get(FIRESTORE_FIELD_TOKENS));
@@ -122,6 +112,20 @@ public class UserInfo extends BaseCollectionItem {
 
         // in case the list is empty..
         reportChildChange();
+    }
+
+    private void loadListNamesFromDB(DocumentSnapshot document) {
+        ArrayList<String> listNames = new ArrayList<>();
+        if (document.contains(FIRESTORE_FIELD_LISTS)) {
+            listNames.addAll((List<String>) document.get(FIRESTORE_FIELD_LISTS));
+
+            for (String listId : listNames) {
+                if (!lists.containsKey(listId)) {
+                    lists.put(listId, new ShopList(manager, UserInfo.this, listId));
+                }
+            }
+        }
+        this.listNames = listNames;
     }
 
     protected void setReady() {
@@ -161,7 +165,7 @@ public class UserInfo extends BaseCollectionItem {
     }
 
     public String getLastList() {
-        return  lastList;
+        return lastList;
     }
 
     public void addToken(final String listId, String token) {

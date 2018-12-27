@@ -76,7 +76,10 @@ public class Collaborator extends BaseCollectionItem {
         return new Timestamp(tomorrow);
     }
 
-    //TODO- split this function
+    /*
+     *  Note that this function's purpose is to assign values in the class's fields
+     *  Splitting it to sub-functions will just make it less readable
+     */
     @Override
     void specificOnEvent(DocumentSnapshot document) {
         name = document.getString(FIRESTORE_FIELD_NAME);
