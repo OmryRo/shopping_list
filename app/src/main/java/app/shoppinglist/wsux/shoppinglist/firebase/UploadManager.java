@@ -10,6 +10,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -19,6 +20,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 
 import app.shoppinglist.wsux.shoppinglist.R;
@@ -26,20 +28,21 @@ import app.shoppinglist.wsux.shoppinglist.R;
 /**
  * this module usage:
  * fireBaseManager.getUploadManager().requestCamera()
- *      for starting activity to take a photo
- *      fireBaseManager.getUploadManager().requestChoosePicture()
- *      for starting activity to take a photo from the gallery.
- *
+ * for starting activity to take a photo
+ * fireBaseManager.getUploadManager().requestChoosePicture()
+ * for starting activity to take a photo from the gallery.
+ * <p>
  * you have to call one of them using the interface OnChooseMediaResultListener
- *      by using this interface, if the camera activity or gallery retrived a picture
- *      you will get an object of ImageUpload.
- *      you can choose to use getImagePreview() to show the picture on Imageview,
- *      or to uploadFile, and giving the ShopTask object and an interface so you will
- *      know when the upload done.
+ * by using this interface, if the camera activity or gallery retrived a picture
+ * you will get an object of ImageUpload.
+ * you can choose to use getImagePreview() to show the picture on Imageview,
+ * or to uploadFile, and giving the ShopTask object and an interface so you will
+ * know when the upload done.
  */
 public class UploadManager {
 
     private static final String TAG = "UPLOAD_MANAGER";
+    private static final String CAMERA_TMP_NAME = ".camerapicture";
     private static final int MAX_WIDTH = 800;
     private static final int MAX_HEIGHT = 800;
     private static final int JPEG_COMPRESS = 70;
@@ -48,6 +51,7 @@ public class UploadManager {
     private Activity context;
     private FireBaseManager manager;
     private FirebaseStorage storage;
+    private String currentPhotoPath;
 
     private OnChooseMediaResultListener resultListener;
 
@@ -116,9 +120,31 @@ public class UploadManager {
             this.resultListener = null;
             return false;
         }
+        File photoFile = null;
+        try {
+            photoFile = createImageFile();
+        } catch (IOException ex) {
+            Log.d(TAG, "requestCamera: error cccurred while create the file" + ex.getMessage());
+        }
 
+        if (photoFile == null) {
+            return false;
+        }
+        Uri photoURI = FileProvider.getUriForFile(context,
+                "app.shoppinglist.wsux.shoppinglist.firebase",
+                photoFile);
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
         context.startActivityForResult(cameraIntent, FireBaseManager.RC_CAMERA);
         return true;
+    }
+
+    private File createImageFile() throws IOException {
+        File cacheDir = context.getCacheDir();
+        File image = File.createTempFile(CAMERA_TMP_NAME, ".jpg", cacheDir);
+
+        // Save a file: path for use with ACTION_VIEW intents
+        this.currentPhotoPath = image.getAbsolutePath();
+        return image;
     }
 
     public void onRequestCameraPermissionsResult(String permissions[], int[] grantResults) {
@@ -175,7 +201,15 @@ public class UploadManager {
         }
 
         if (validateCameraRequestResult(resultCode, data)) {
-            listener.onSelectSuccess(new ImageUpload((Bitmap) data.getExtras().get(CAMERA_INTENT_EXTRA_DATA)));
+            try {
+                File file = new File(currentPhotoPath);
+
+                Bitmap bitmap = MediaStore.Images.Media.
+                        getBitmap(context.getContentResolver(), Uri.fromFile(file));
+                listener.onSelectSuccess(new ImageUpload((Bitmap) data.getExtras().get(CAMERA_INTENT_EXTRA_DATA)));
+            } catch (Exception ex) {
+                Log.d(TAG, "onCameraRequestResult: "+ex.getMessage());
+            }
         } else {
             listener.onSelectFailed(null);
         }
@@ -272,11 +306,13 @@ public class UploadManager {
 
     public interface OnChooseMediaResultListener {
         void onSelectSuccess(ImageUpload image);
+
         void onSelectFailed(Exception e);
     }
 
     public interface OnUploadMediaResultListener {
         void onUploadSuccess(String documentId);
+
         void onUploadFailed(Exception e);
     }
 }
