@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -128,18 +129,19 @@ public class UploadManager {
         }
 
         if (photoFile == null) {
+            this.resultListener = null;
             return false;
         }
-        Uri photoURI = FileProvider.getUriForFile(context,
-                "app.shoppinglist.wsux.shoppinglist.firebase",
-                photoFile);
+        final String AUTHORITY = context.getPackageName() + ".fileprovider";
+        Uri photoURI = FileProvider.getUriForFile(context, AUTHORITY, photoFile);
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
         context.startActivityForResult(cameraIntent, FireBaseManager.RC_CAMERA);
         return true;
     }
 
     private File createImageFile() throws IOException {
-        File cacheDir = context.getCacheDir();
+//        File cacheDir = context.getCacheDir();
+        File cacheDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(CAMERA_TMP_NAME, ".jpg", cacheDir);
 
         // Save a file: path for use with ACTION_VIEW intents
@@ -200,16 +202,14 @@ public class UploadManager {
             return;
         }
 
-        if (validateCameraRequestResult(resultCode, data)) {
-            try {
-                File file = new File(currentPhotoPath);
+        if (resultCode == Activity.RESULT_OK) {
 
-                Bitmap bitmap = MediaStore.Images.Media.
-                        getBitmap(context.getContentResolver(), Uri.fromFile(file));
-                listener.onSelectSuccess(new ImageUpload((Bitmap) data.getExtras().get(CAMERA_INTENT_EXTRA_DATA)));
-            } catch (Exception ex) {
-                Log.d(TAG, "onCameraRequestResult: "+ex.getMessage());
-            }
+
+            File f = new File(currentPhotoPath);
+            Uri contentUri = Uri.fromFile(f);
+
+            listener.onSelectSuccess(new ImageUpload(contentUri));
+
         } else {
             listener.onSelectFailed(null);
         }
