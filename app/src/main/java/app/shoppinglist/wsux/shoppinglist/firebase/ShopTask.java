@@ -160,10 +160,6 @@ public class ShopTask extends BaseCollectionItem {
 
     void setImageUrl(String imageUrl) {
 
-//        if (this.imageUrl.equals(imageUrl)) {
-//            return;
-//        }
-
         if (imageUrl == null) {
             imageUrl = "";
         }
