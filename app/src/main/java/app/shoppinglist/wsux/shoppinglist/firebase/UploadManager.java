@@ -140,11 +140,9 @@ public class UploadManager {
     }
 
     private File createImageFile() throws IOException {
-//        File cacheDir = context.getCacheDir();
         File cacheDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(CAMERA_TMP_NAME, ".jpg", cacheDir);
 
-        // Save a file: path for use with ACTION_VIEW intents
         this.currentPhotoPath = image.getAbsolutePath();
         return image;
     }
@@ -203,8 +201,7 @@ public class UploadManager {
         }
 
         if (resultCode == Activity.RESULT_OK) {
-
-
+            
             File f = new File(currentPhotoPath);
             Uri contentUri = Uri.fromFile(f);
 
@@ -277,12 +274,12 @@ public class UploadManager {
                     });
                 }
             })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            listener.onUploadFailed(e);
-                        }
-                    });
+            .addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    listener.onUploadFailed(e);
+                }
+            });
         }
 
         private Bitmap reScale(Bitmap bitmap) {
@@ -306,13 +303,11 @@ public class UploadManager {
 
     public interface OnChooseMediaResultListener {
         void onSelectSuccess(ImageUpload image);
-
         void onSelectFailed(Exception e);
     }
 
     public interface OnUploadMediaResultListener {
         void onUploadSuccess(String documentId);
-
         void onUploadFailed(Exception e);
     }
 }
