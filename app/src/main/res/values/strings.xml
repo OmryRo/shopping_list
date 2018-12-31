@@ -16,6 +16,7 @@
     <string name="action_rename_list">Rename List</string>
     <string name="action_quit_list">Quit List</string>
     <string name="create_new_list">Create new list</string>
+    <string name="chage_list_name">Change list name</string>
     <string name="sign_out">Sign out</string>
     <string name="menu_sublist_lists">My Lists</string>
     <string name="not_available">N/A</string>

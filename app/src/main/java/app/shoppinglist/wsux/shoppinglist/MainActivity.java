@@ -211,7 +211,6 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View v) {
                 String title = titleEt.getText().toString();
 
-                // TODO: add more validations
                 if (title.length() == 0) {
                     return;
                 }
