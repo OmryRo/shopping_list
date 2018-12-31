@@ -132,8 +132,8 @@ public class UploadManager {
             this.resultListener = null;
             return false;
         }
-        final String AUTHORITY = context.getPackageName() + ".fileprovider";
-        Uri photoURI = FileProvider.getUriForFile(context, AUTHORITY, photoFile);
+        final String authority = context.getPackageName() + ".fileprovider";
+        Uri photoURI = FileProvider.getUriForFile(context, authority, photoFile);
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
         context.startActivityForResult(cameraIntent, FireBaseManager.RC_CAMERA);
         return true;
