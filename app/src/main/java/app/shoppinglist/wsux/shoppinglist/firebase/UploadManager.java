@@ -52,7 +52,7 @@ public class UploadManager {
     private Activity context;
     private FireBaseManager manager;
     private FirebaseStorage storage;
-    private String currentPhotoPath;
+    private File currentFileImage;
 
     private OnChooseMediaResultListener resultListener;
 
@@ -100,6 +100,7 @@ public class UploadManager {
     }
 
     public boolean requestCamera(OnChooseMediaResultListener resultListener) {
+
         if (this.resultListener != null) {
             return false;
         }
@@ -110,41 +111,39 @@ public class UploadManager {
             return false;
         }
 
-        // todo: currently this function will get a thumbnail size camera picture. which is
-        //  not what we are want to do... we have to improve this intent by reserve file location
-        //  for saving the picture. for now what we have here is enough.
-        //  read more at:
-        //      https://stackoverflow.com/questions/47179862/how-to-get-full-size-image-on-camera-intent
-        //      https://developer.android.com/training/camera/photobasics
-        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (cameraIntent.resolveActivity(context.getPackageManager()) == null) {
-            this.resultListener = null;
-            return false;
-        }
-        File photoFile = null;
         try {
-            photoFile = createImageFile();
+            currentFileImage = createImageFile();
         } catch (IOException e) {
             Log.e(TAG, "requestCamera: error cccurred while create the file", e);
-        }
-
-        if (photoFile == null) {
             this.resultListener = null;
             return false;
         }
-        final String authority = context.getPackageName() + ".fileprovider";
-        Uri photoURI = FileProvider.getUriForFile(context, authority, photoFile);
-        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+
+        Intent cameraIntent = createCamaraIntent();
+        if (cameraIntent == null) {
+            return false;
+        }
+
         context.startActivityForResult(cameraIntent, FireBaseManager.RC_CAMERA);
         return true;
     }
 
+    private Intent createCamaraIntent(){
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        if (cameraIntent.resolveActivity(context.getPackageManager()) == null) {
+            this.resultListener = null;
+            return null;
+        }
+
+        final String authority = context.getPackageName() + ".fileprovider";
+        Uri photoURI = FileProvider.getUriForFile(context, authority, currentFileImage);
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+        return cameraIntent;
+    }
     private File createImageFile() throws IOException {
         File cacheDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(CAMERA_TMP_NAME, ".jpg", cacheDir);
-
-        this.currentPhotoPath = image.getAbsolutePath();
-        return image;
+        return File.createTempFile(CAMERA_TMP_NAME, ".jpg", cacheDir);
     }
 
     public void onRequestCameraPermissionsResult(String permissions[], int[] grantResults) {
@@ -188,11 +187,6 @@ public class UploadManager {
         return resultCode == Activity.RESULT_OK && data != null && data.getData() != null;
     }
 
-    private boolean validateCameraRequestResult(int resultCode, Intent data) {
-        return resultCode == Activity.RESULT_OK && data != null &&
-                data.getExtras() != null && data.getExtras().containsKey(CAMERA_INTENT_EXTRA_DATA);
-    }
-
     void onCameraRequestResult(int resultCode, Intent data) {
 
         OnChooseMediaResultListener listener = getMediaResultListener();
@@ -201,29 +195,30 @@ public class UploadManager {
         }
 
         if (resultCode == Activity.RESULT_OK) {
-            
-            File f = new File(currentPhotoPath);
-            Uri contentUri = Uri.fromFile(f);
-
-            listener.onSelectSuccess(new ImageUpload(contentUri));
+            listener.onSelectSuccess(new ImageUpload( Uri.fromFile(currentFileImage)));
 
         } else {
             listener.onSelectFailed(null);
-        }
 
+        }
     }
 
     void onPictureRequestResult(int resultCode, Intent data) {
+
         OnChooseMediaResultListener listener = getMediaResultListener();
         if (listener == null) {
             return;
+
         }
 
         if (validateMediaRequestResult(resultCode, data)) {
             listener.onSelectSuccess(new ImageUpload(data.getData()));
+
         } else {
             listener.onSelectFailed(null);
+
         }
+
     }
 
     public class ImageUpload {
@@ -239,10 +234,6 @@ public class UploadManager {
             } catch (IOException e) {
                 Log.e(TAG, "ImageUpload: ", e);
             }
-        }
-
-        ImageUpload(Bitmap bitmap) {
-            this.bitmap = reScale(bitmap);
         }
 
         public Bitmap getImagePreview() {
