@@ -58,14 +58,14 @@
             android:layout_height="wrap_content"
             android:inputType="text"
             android:maxLines="1"
-            android:text="@string/add" />
+            android:hint="@string/what_to_buy" />
 
         <EditText
             android:id="@+id/task_edit_note_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="text"
-            android:text="@string/Note" />
+            android:hint="@string/notes_or_details" />
 
         <LinearLayout
             android:layout_width="match_parent"

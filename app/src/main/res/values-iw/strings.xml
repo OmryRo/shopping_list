@@ -36,4 +36,6 @@
     <string name="progress_sign_in">מתחבר…</string>
     <string name="progress_sign_out">מתנתק…</string>
     <string name="progress_quiting">יוצא…</string>
+    <string name="what_to_buy">מה לקנות?</string>
+    <string name="notes_or_details">הערות או פרטים</string>
 </resources>

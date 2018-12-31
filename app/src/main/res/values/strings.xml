@@ -41,4 +41,6 @@
     <string name="progress_sign_in">Sign In…</string>
     <string name="progress_sign_out">Sign Out…</string>
     <string name="progress_quiting">Quitting…</string>
+    <string name="what_to_buy">what to buy?</string>
+    <string name="notes_or_details">Notes or Details</string>
 </resources>
