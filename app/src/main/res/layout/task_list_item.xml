@@ -11,6 +11,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginEnd="10dp"
+        android:scaleType="centerCrop"
         android:src="@mipmap/ic_launcher" />
 
     <LinearLayout
@@ -40,8 +41,10 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/task_status_container"
         android:layout_width="50dp"
         android:layout_height="50dp"
+        android:clickable="true"
         android:gravity="center">
 
         <CheckBox

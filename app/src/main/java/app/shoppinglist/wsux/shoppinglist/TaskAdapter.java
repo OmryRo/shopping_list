@@ -1,6 +1,7 @@
 
 package app.shoppinglist.wsux.shoppinglist;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -103,12 +105,14 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     class TaskViewHolder extends RecyclerView.ViewHolder
             implements BaseCollectionItem.OnChangeListener,
             CompoundButton.OnCheckedChangeListener, BaseCollectionItem.OnMediaDownload,
-            View.OnLongClickListener {
+            View.OnLongClickListener, View.OnClickListener {
 
+        private int numberOfTimePressed;
         private LinearLayout itemView;
         private TextView taskNameTv;
         private TextView taskNoteTv;
         private CheckBox statusCb;
+        private View statusContainer;
         private ImageView thumbnailIv;
         private ShopTask task;
 
@@ -119,12 +123,16 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             taskNoteTv = itemView.findViewById(R.id.task_note_tv);
             statusCb = itemView.findViewById(R.id.task_status);
             thumbnailIv = itemView.findViewById(R.id.task_thumbnail);
+            statusContainer = itemView.findViewById(R.id.task_status_container);
             itemView.setOnLongClickListener(this);
+            itemView.setOnClickListener(this);
+            statusContainer.setOnClickListener(this);
         }
 
         private void updateView(int position) {
 
             task = shopTasks.get(position);
+            this.numberOfTimePressed = 0;
 
             if (task == null) {
                 return;
@@ -191,5 +199,28 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             new TaskEditDialog(view.getContext(), task, fireBaseManager).show();
             return false;
         }
+
+        @Override
+        public void onClick(View view) {
+            if (view == itemView) {
+                onSingleClickOnView(view.getContext());
+            } else {
+                onCheckBoxAreaClick();
+            }
+        }
+
+        private void onSingleClickOnView(Context context) {
+            numberOfTimePressed++;
+
+            if (numberOfTimePressed % 3 == 0) {
+                Toast.makeText(context, "Long press to edit.", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        private void onCheckBoxAreaClick() {
+            statusCb.setChecked(!statusCb.isChecked());
+        }
+
+
     }
 }
