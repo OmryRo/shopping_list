@@ -255,6 +255,7 @@ public class MainActivity extends AppCompatActivity
         currentShopList = shopList;
         shopListView.setShopList(shopList);
         mainDrawer.toggeLockDrawer(userInfo);
+        mainDrawer.closeDrawer();
     }
 
     public void onShareListFound(final ShopList listFound) {
