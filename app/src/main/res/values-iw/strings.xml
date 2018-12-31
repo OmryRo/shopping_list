@@ -15,7 +15,7 @@
     <string name="action_quit_list">עזוב רשימה</string>
     <string name="create_new_list">צור רשימה חדשה</string>
     <string name="sign_out">התנתק</string>
-    <string name="menu_sublist_lists">רשימות</string>
+    <string name="menu_sublist_lists">הרשימות שלי</string>
     <string name="not_available">לא זמין</string>
     <string name="verify_before_quit">האם אתה בטוח כי ברצונך לעזוב את הרשימה %s?</string>
     <string name="pre_sign_in_message">שלום!\nבבקשה התחבר על מנת שתוכל להתחיל להשתמש באפליקציה.</string>
