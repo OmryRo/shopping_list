@@ -44,4 +44,5 @@
     <string name="what_to_buy">what to buy?</string>
     <string name="notes_or_details">Notes or Details</string>
     <string name="tap_to_add_an_image">Tap to add an image</string>
+    <string name="long_press_to_edit">Long press to edit.</string>
 </resources>
