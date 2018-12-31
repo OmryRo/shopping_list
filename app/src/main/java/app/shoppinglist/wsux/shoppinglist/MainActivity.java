@@ -236,12 +236,12 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 String title = titleEt.getText().toString();
-                dialog.dismiss();
 
-                if (userInfo == null) {
+                if (title.length() == 0 || userInfo == null) {
                     return;
                 }
 
+                dialog.dismiss();
                 userInfo.createNewList(title);
                 mainDrawer.toggeLockDrawer(userInfo);
             }
