@@ -13,13 +13,37 @@
             android:id="@+id/task_edit_image_container"
             android:layout_width="match_parent"
             android:clickable="true"
+            android:background="#ffaaaaaa"
             android:layout_height="180dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:orientation="vertical"
+                >
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="center"
+                    android:tint="@color/colorPrimary"
+                    android:src="@drawable/ic_touch_app"
+                    />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimary"
+                    android:text="@string/tap_to_add_an_image"
+                    android:textSize="16sp"
+                    />
+            </LinearLayout>
 
             <ImageView
                 android:id="@+id/task_edit_image_iv"
                 android:clickable="false"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:visibility="gone"/>
 
             <LinearLayout
                 android:id="@+id/task_edit_image_menu"
