@@ -124,8 +124,8 @@ public class UploadManager {
         File photoFile = null;
         try {
             photoFile = createImageFile();
-        } catch (IOException ex) {
-            Log.d(TAG, "requestCamera: error cccurred while create the file" + ex.getMessage());
+        } catch (IOException e) {
+            Log.e(TAG, "requestCamera: error cccurred while create the file", e);
         }
 
         if (photoFile == null) {
