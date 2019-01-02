@@ -29,14 +29,17 @@ public class ShareDialog extends Dialog implements View.OnClickListener {
         this.shopList = shopList;
 
         setContentView(R.layout.share_layout);
+        setRecycleView();
+        defineSharedDialogButtons();
+    }
+
+    private void setRecycleView() {
         RecyclerView shareRecyclerView = findViewById(R.id.share_layout_recycle_view);
-        LinearLayoutManager shareLayoutManager = new LinearLayoutManager(context);
+        LinearLayoutManager shareLayoutManager = new LinearLayoutManager(getContext());
         shareRecyclerView.setLayoutManager(shareLayoutManager);
 
-        UserAdapter userAdapter = new UserAdapter(shopList);
+        UserAdapter userAdapter = new UserAdapter(getContext(), shopList);
         shareRecyclerView.setAdapter(userAdapter);
-
-        defineSharedDialogButtons();
     }
 
     private void defineSharedDialogButtons() {
