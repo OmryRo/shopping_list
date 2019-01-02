@@ -47,6 +47,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     }
 
     UserAdapter(Context context, ShopList shopList) {
+        this.context = context;
         this.shopList = shopList;
         usersDataset = new ArrayList<>(getOrderedCollaborators(shopList));
     }
