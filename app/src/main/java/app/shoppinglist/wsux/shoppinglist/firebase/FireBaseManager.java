@@ -8,7 +8,7 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
 public class FireBaseManager {
 
-    private Activity context;
+    Activity context;
     private LoginManager loginManager;
     private ShareHandler shareHandler;
     private FireBaseEventsInterface eventsInterface;
