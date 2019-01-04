@@ -213,7 +213,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             numberOfTimePressed++;
 
             if (numberOfTimePressed % 3 == 0) {
-                Toast.makeText(context, "Long press to edit.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, R.string.long_press_to_edit, Toast.LENGTH_SHORT).show();
             }
         }
 

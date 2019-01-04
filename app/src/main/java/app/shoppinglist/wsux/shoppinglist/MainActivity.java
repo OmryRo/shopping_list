@@ -198,55 +198,47 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void renameListPressed() {
-        View popupLayout = getLayoutInflater().inflate(R.layout.rename_list_popup_layout, null);
-        final EditText titleEt = popupLayout.findViewById(R.id.rename_list_popup_title);
-        titleEt.setText(currentShopList.getTitle());
 
-        final AlertDialog dialog = new AlertDialog.Builder(this)
-                .setView(popupLayout)
-                .create();
+        EditTitlePopup alert = new EditTitlePopup(
+                this, R.string.chage_list_name, R.string.list_title, R.string.rename,
+                new EditTitlePopup.ResultListener() {
 
-        popupLayout.findViewById(R.id.rename_list_popup_change).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String title = titleEt.getText().toString();
+                    @Override
+                    public void onAcceptClick(String newTitle) {
+                        currentShopList.setTitle(newTitle);
+                    }
 
-                if (title.length() == 0) {
-                    return;
+                    @Override
+                    public void onCancelClick() {
+
+                    }
                 }
-
-                dialog.dismiss();
-                currentShopList.setTitle(title);
-            }
-        });
-        dialog.show();
+        );
+        alert.setValue(currentShopList.getTitle());
+        alert.show();
     }
 
     @Override
     public void addNewListPressed() {
 
-        View popupLayout = getLayoutInflater().inflate(R.layout.add_new_list_popup_layout, null);
-        final EditText titleEt = popupLayout.findViewById(R.id.new_list_popup_title);
-        final AlertDialog dialog = new AlertDialog.Builder(this)
-                .setView(popupLayout)
-                .create();
+        EditTitlePopup alert = new EditTitlePopup(
+                this, R.string.create_new_list, R.string.list_title, R.string.add,
+                new EditTitlePopup.ResultListener() {
 
-        popupLayout.findViewById(R.id.new_list_popup_create).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String title = titleEt.getText().toString();
+                    @Override
+                    public void onAcceptClick(String newTitle) {
+                        userInfo.createNewList(newTitle);
+                        mainDrawer.toggeLockDrawer(userInfo);
+                    }
 
-                if (title.length() == 0 || userInfo == null) {
-                    return;
+                    @Override
+                    public void onCancelClick() {
+
+                    }
                 }
+        );
+        alert.show();
 
-                dialog.dismiss();
-                userInfo.createNewList(title);
-                mainDrawer.toggeLockDrawer(userInfo);
-            }
-        });
-
-        dialog.show();
     }
 
     @Override
