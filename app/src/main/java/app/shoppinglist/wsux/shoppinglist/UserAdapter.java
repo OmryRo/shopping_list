@@ -128,11 +128,11 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             public int compare(Collaborator o1, Collaborator o2) {
                 if (o1.getUserId().equals(shopList.getAuthor())) {
                     return -1;
-                } else if (o2.getUserId().equals(shopList.getAuthor())) {
+                } 
+                if (o2.getUserId().equals(shopList.getAuthor())) {
                     return 1;
-                } else {
-                    return o1.getName().compareTo(o2.getName());
-                }
+                } 
+                return o1.getName().compareTo(o2.getName());
             }
         });
         return collaborators;
