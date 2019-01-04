@@ -49,4 +49,5 @@
     <string name="users_who_are_can_edit_this_list">משתמשים היכולים לערוך רשימה זו:</string>
     <string name="verify_before_delete_task">האם אתה בטוח כי ברצונך למחוק את הפריט %s?</string>
     <string name="default_message">היי! הצטרפתי לקבוצה.</string>
+    <string name="cant_be_empty">לא ניתן להכניס ערך ריק.</string>
 </resources>
