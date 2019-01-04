@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import app.shoppinglist.wsux.shoppinglist.firebase.BaseCollectionItem;
 import app.shoppinglist.wsux.shoppinglist.firebase.Collaborator;
 import app.shoppinglist.wsux.shoppinglist.firebase.ShopList;
 
@@ -49,7 +50,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     UserAdapter(Context context, ShopList shopList) {
         this.context = context;
         this.shopList = shopList;
-        usersDataset = new ArrayList<>(getOrderedCollaborators(shopList));
+        this.usersDataset = new ArrayList<>(getOrderedCollaborators(shopList));
     }
 
     @NonNull
@@ -62,8 +63,22 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         return new UserViewHolder(view);
     }
 
-    public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
-        Collaborator collaborator = usersDataset.get(position);
+    public void onBindViewHolder(@NonNull final UserViewHolder holder, int position) {
+        final Collaborator collaborator = usersDataset.get(position);
+        collaborator.setOnChangeListener(new BaseCollectionItem.OnChangeListener() {
+            @Override
+            public void onChange() {
+                setValuesInHolder(holder, collaborator);
+            }
+        });
+    }
+
+    private void setValuesInHolder(UserViewHolder holder, Collaborator collaborator) {
+
+        if (holder == null || collaborator == null) {
+            return;
+        }
+
         holder.userName.setText(collaborator.getName());
         holder.userName.setTextColor(collaborator.getColor());
         holder.userImage.setImageBitmap(collaborator.getPicture());

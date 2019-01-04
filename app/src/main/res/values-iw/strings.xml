@@ -50,4 +50,7 @@
     <string name="verify_before_delete_task">האם אתה בטוח כי ברצונך למחוק את הפריט %s?</string>
     <string name="default_message">היי! הצטרפתי לקבוצה.</string>
     <string name="cant_be_empty">לא ניתן להכניס ערך ריק.</string>
+    <string name="change_personal_message">שנה הודעה אישית</string>
+    <string name="personal_message_hint">ההודעה שלך</string>
+    <string name="change">שנה</string>
 </resources>

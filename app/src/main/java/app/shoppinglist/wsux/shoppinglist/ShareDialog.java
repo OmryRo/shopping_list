@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import app.shoppinglist.wsux.shoppinglist.firebase.Collaborator;
 import app.shoppinglist.wsux.shoppinglist.firebase.FireBaseManager;
 import app.shoppinglist.wsux.shoppinglist.firebase.ShopList;
+import app.shoppinglist.wsux.shoppinglist.firebase.UserInfo;
 
 public class ShareDialog extends Dialog implements View.OnClickListener {
 
@@ -45,6 +46,35 @@ public class ShareDialog extends Dialog implements View.OnClickListener {
     private void defineSharedDialogButtons() {
         findViewById(R.id.share_layout_share_button).setOnClickListener(this);
         findViewById(R.id.share_layout_dismiss).setOnClickListener(this);
+        findViewById(R.id.share_layout_change_message_button).setOnClickListener(this);
+    }
+
+    private void onChangeMessageButtonClick() {
+        UserInfo currentUser = fireBaseManager.getLoginManager().getCurrentUserInfo();
+        final Collaborator collaborator = shopList.getCollaborators().get(currentUser.getUserId());
+
+        if (collaborator == null) {
+            return;
+        }
+
+        EditTitlePopup dialog = new EditTitlePopup(
+                this.getContext(), R.string.change_personal_message,
+                R.string.personal_message_hint, R.string.change,
+                new EditTitlePopup.ResultListener() {
+            @Override
+            public void onAcceptClick(String newTitle) {
+                collaborator.setMessage(newTitle);
+
+            }
+
+            @Override
+            public void onCancelClick() {
+
+            }
+        });
+
+        dialog.setValue(collaborator.getMessage());
+        dialog.show();
     }
 
     @Override
@@ -55,6 +85,9 @@ public class ShareDialog extends Dialog implements View.OnClickListener {
                 break;
             case R.id.share_layout_share_button:
                 fireBaseManager.getShareHandler().performShareList(shopList);
+                break;
+            case R.id.share_layout_change_message_button:
+                onChangeMessageButtonClick();
                 break;
         }
     }
