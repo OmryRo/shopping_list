@@ -1,8 +1,10 @@
 
 package app.shoppinglist.wsux.shoppinglist;
 
-import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,16 +14,17 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 import app.shoppinglist.wsux.shoppinglist.firebase.BaseCollectionItem;
 import app.shoppinglist.wsux.shoppinglist.firebase.FireBaseManager;
 import app.shoppinglist.wsux.shoppinglist.firebase.ShopList;
 import app.shoppinglist.wsux.shoppinglist.firebase.ShopTask;
+
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder>
         implements BaseCollectionItem.OnChildChangeListener {
@@ -35,9 +38,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     private FireBaseManager fireBaseManager;
 
     public TaskAdapter(FireBaseManager fireBaseManager) {
+
         shopTasks = new ArrayList<>();
         this.fireBaseManager = fireBaseManager;
     }
+
 
     public void setList(ShopList shopList) {
 
@@ -54,11 +59,16 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     }
 
     public void resetDataset() {
+
+        ArrayList<ShopTask> oldVersionList = new ArrayList<>(shopTasks);
+        ArrayList<ShopTask> newVersionList = getOrderedShopTasks();
+
+        DiffUtil.DiffResult result = DiffUtil.calculateDiff(new ShopTaskListDiffCallback(oldVersionList,newVersionList));
+
+        result.dispatchUpdatesTo(TaskAdapter.this);
         shopTasks.clear();
-        if (currentShopList != null) {
-            shopTasks.addAll(getOrderedShopTasks());
-            notifyDataSetChanged();
-        }
+        shopTasks.addAll(newVersionList);
+
     }
 
     private ArrayList<ShopTask> getOrderedShopTasks() {
@@ -88,6 +98,29 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     }
 
     @Override
+    public void onBindViewHolder(@NonNull TaskViewHolder holder, int position, @NonNull List<Object> payloads) {
+        if(payloads.isEmpty()) {
+            super.onBindViewHolder(holder, position, payloads);
+        }else {
+            Bundle o = (Bundle) payloads.get(0);
+            ShopTask shopTask=shopTasks.get(position);
+            for (String key : o.keySet()) {
+                switch (key) {
+                    case "Title":
+                        shopTask.setTitle(o.get(key).toString());
+                        break;
+                    case "Description":
+                        shopTask.setDescription(o.get(key).toString());
+                        break;
+                    case "State":
+                        shopTask.setState((Integer) o.get(key));
+                        break;
+                }
+            }
+        }
+    }
+
+    @Override
     public void onBindViewHolder(TaskViewHolder holder, int position) {
         holder.updateView(position);
     }
@@ -105,14 +138,12 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     class TaskViewHolder extends RecyclerView.ViewHolder
             implements BaseCollectionItem.OnChangeListener,
             CompoundButton.OnCheckedChangeListener, BaseCollectionItem.OnMediaDownload,
-            View.OnLongClickListener, View.OnClickListener {
+            View.OnLongClickListener {
 
-        private int numberOfTimePressed;
         private LinearLayout itemView;
         private TextView taskNameTv;
         private TextView taskNoteTv;
         private CheckBox statusCb;
-        private View statusContainer;
         private ImageView thumbnailIv;
         private ShopTask task;
 
@@ -123,16 +154,12 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             taskNoteTv = itemView.findViewById(R.id.task_note_tv);
             statusCb = itemView.findViewById(R.id.task_status);
             thumbnailIv = itemView.findViewById(R.id.task_thumbnail);
-            statusContainer = itemView.findViewById(R.id.task_status_container);
             itemView.setOnLongClickListener(this);
-            itemView.setOnClickListener(this);
-            statusContainer.setOnClickListener(this);
         }
 
         private void updateView(int position) {
 
             task = shopTasks.get(position);
-            this.numberOfTimePressed = 0;
 
             if (task == null) {
                 return;
@@ -199,28 +226,5 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             new TaskEditDialog(view.getContext(), task, fireBaseManager).show();
             return false;
         }
-
-        @Override
-        public void onClick(View view) {
-            if (view == itemView) {
-                onSingleClickOnView(view.getContext());
-            } else {
-                onCheckBoxAreaClick();
-            }
-        }
-
-        private void onSingleClickOnView(Context context) {
-            numberOfTimePressed++;
-
-            if (numberOfTimePressed % 3 == 0) {
-                Toast.makeText(context, "Long press to edit.", Toast.LENGTH_SHORT).show();
-            }
-        }
-
-        private void onCheckBoxAreaClick() {
-            statusCb.setChecked(!statusCb.isChecked());
-        }
-
-
     }
 }
