@@ -14,15 +14,6 @@ import java.util.HashMap;
 public class ShopTask extends BaseCollectionItem {
 
     private static final String TAG = "SHOP_TASK";
-    public static final String FIRESTORE_TABLE = "tasks";
-    public static final String FIRESTORE_FIELD_TITLE = "title";
-    public static final String FIRESTORE_FIELD_CREATOR = "creator";
-    public static final String FIRESTORE_FIELD_STATE = "state";
-    public static final String FIRESTORE_FIELD_DESCRIPTION = "description";
-    public static final String FIRESTORE_FIELD_IMAGE_URL = "image_url";
-
-    public static final int SHOP_TASK_NOT_DONE = 0;
-    public static final int SHOP_TASK_DONE = 1;
 
     private DocumentReference ref;
     private ShopList inList;

@@ -18,15 +18,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import app.shoppinglist.wsux.shoppinglist.firebase.db.ShopListActions;
+import app.shoppinglist.wsux.shoppinglist.firebase.db.ShopTaskActions;
+import app.shoppinglist.wsux.shoppinglist.firebase.db.TransactionWrapper;
+
 public class ShopList extends BaseCollectionItem {
 
     private final static String TAG = "SHOP_LIST";
-    public static final String FIRESTORE_TABLE = "lists";
-    private static final String FIRESTORE_FIELD_AUTHOR = "author";
-    private static final String FIRESTORE_FIELD_TITLE = "title";
-    private static final String FIRESTORE_FIELD_TASKS = "tasks";
-    private static final String FIRESTORE_FIELD_TOKENS = "tokens";
-    private static final String FIRESTORE_FIELD_COLLABORATORS = "collaborators";
 
     private static final long TIME_IN_A_WEEK_IN_MILIES_FACTOR = 604800000;
 
@@ -59,30 +57,26 @@ public class ShopList extends BaseCollectionItem {
         this.isReportedForReady = false;
         this.isReportedForShare = false;
 
-        this.ref = manager.getDb().collection(FIRESTORE_TABLE).document(listId);
+        this.ref = ShopListActions.getRef(manager.getDb(), listId);
         this.ref.addSnapshotListener(this);
     }
 
     public void addNewTask(String title, String description) {
-        ShopTask.addNewTask(this, title, description, userInfo)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        appendToList(ref, FIRESTORE_FIELD_TASKS, documentReference.getId())
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        manager.reportEvent(FireBaseManager.ON_TASK_CREATED, ShopList.this);
-                                    }
-                                });
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        manager.reportEvent(FireBaseManager.ON_TASK_FAILURE, e);
-                    }
-                });
+
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), new TransactionWrapper.ResultListener() {
+            @Override
+            public void onSuccess() {
+                manager.reportEvent(FireBaseManager.ON_TASK_CREATED, ShopList.this);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                manager.reportEvent(FireBaseManager.ON_TASK_FAILURE, e);
+            }
+        });
+
+        ShopTaskActions.newTask(transaction, ref, userInfo.getUserId(), title, description);
+        transaction.apply();
     }
 
     Task<Void> addToken(String token) {
@@ -325,8 +319,8 @@ public class ShopList extends BaseCollectionItem {
     @Override
     void specificOnEvent(DocumentSnapshot document) {
 
-        title = document.getString(FIRESTORE_FIELD_TITLE);
-        author = document.getString(FIRESTORE_FIELD_AUTHOR);
+        title = document.getString(ShopListActions.FIRESTORE_FIELD_TITLE);
+        author = document.getString(ShopListActions.FIRESTORE_FIELD_AUTHOR);
 
         loadTasksFromDB(document);
         refreshShopTaskData();
@@ -344,24 +338,24 @@ public class ShopList extends BaseCollectionItem {
 
     private void loadTokensFromDB(DocumentSnapshot document) {
         HashMap<String, Object> tokens = new HashMap<>();
-        if (document.contains(FIRESTORE_FIELD_TOKENS)) {
-            tokens.putAll((HashMap<String, Object>) document.get(FIRESTORE_FIELD_TOKENS));
+        if (document.contains(ShopListActions.FIRESTORE_FIELD_TOKENS)) {
+            tokens.putAll((HashMap<String, Object>) document.get(ShopListActions.FIRESTORE_FIELD_TOKENS));
         }
         this.tokens = tokens;
     }
 
     private void loadCollaboratorsFromDB(DocumentSnapshot document) {
         List<String> collaborators = new ArrayList<>();
-        if (document.contains(FIRESTORE_FIELD_COLLABORATORS)) {
-            collaborators.addAll((List<String>) document.get(FIRESTORE_FIELD_COLLABORATORS));
+        if (document.contains(ShopListActions.FIRESTORE_FIELD_COLLABORATORS)) {
+            collaborators.addAll((List<String>) document.get(ShopListActions.FIRESTORE_FIELD_COLLABORATORS));
         }
         this.collaborators = collaborators;
     }
 
     private void loadTasksFromDB(DocumentSnapshot document) {
         ArrayList<String> tasks = new ArrayList<>();
-        if (document.contains(FIRESTORE_FIELD_TASKS)) {
-            tasks.addAll((List<String>) document.get(FIRESTORE_FIELD_TASKS));
+        if (document.contains(ShopListActions.FIRESTORE_FIELD_TASKS)) {
+            tasks.addAll((List<String>) document.get(ShopListActions.FIRESTORE_FIELD_TASKS));
         }
         this.tasks = tasks;
     }

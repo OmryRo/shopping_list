@@ -27,6 +27,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         implements BaseCollectionItem.OnChildChangeListener {
 
     private static final String TAG = "TASK_ADAPTER";
+
     private static final int BACKGROUND_NORMAL = 0xffffffff;
     private static final int BACKGROUND_CHECKED = 0xffdddddd;
 
