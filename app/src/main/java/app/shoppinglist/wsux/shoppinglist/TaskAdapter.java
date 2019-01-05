@@ -14,6 +14,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,10 +26,13 @@ import app.shoppinglist.wsux.shoppinglist.firebase.FireBaseManager;
 import app.shoppinglist.wsux.shoppinglist.firebase.ShopList;
 import app.shoppinglist.wsux.shoppinglist.firebase.ShopTask;
 
+import static app.shoppinglist.wsux.shoppinglist.ShopTaskListDiffCallback.BUNDLE_ARG_DESCRIPTION;
+import static app.shoppinglist.wsux.shoppinglist.ShopTaskListDiffCallback.BUNDLE_ARG_STATE;
+import static app.shoppinglist.wsux.shoppinglist.ShopTaskListDiffCallback.BUNDLE_ARG_TITLE;
+
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder>
         implements BaseCollectionItem.OnChildChangeListener {
-
     private static final String TAG = "TASK_ADAPTER";
     private static final int BACKGROUND_NORMAL = 0xffffffff;
     private static final int BACKGROUND_CHECKED = 0xffdddddd;
@@ -38,14 +42,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     private FireBaseManager fireBaseManager;
 
     public TaskAdapter(FireBaseManager fireBaseManager) {
-
         shopTasks = new ArrayList<>();
         this.fireBaseManager = fireBaseManager;
     }
 
-
     public void setList(ShopList shopList) {
-
         if (shopList == currentShopList) {
             return;
         }
@@ -59,16 +60,15 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     }
 
     public void resetDataset() {
-
         ArrayList<ShopTask> oldVersionList = new ArrayList<>(shopTasks);
         ArrayList<ShopTask> newVersionList = getOrderedShopTasks();
 
-        DiffUtil.DiffResult result = DiffUtil.calculateDiff(new ShopTaskListDiffCallback(oldVersionList,newVersionList));
+        DiffUtil.DiffResult result = DiffUtil.calculateDiff(new ShopTaskListDiffCallback
+                (oldVersionList, newVersionList));
 
         result.dispatchUpdatesTo(TaskAdapter.this);
         shopTasks.clear();
         shopTasks.addAll(newVersionList);
-
     }
 
     private ArrayList<ShopTask> getOrderedShopTasks() {
@@ -88,7 +88,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
     @Override
     public TaskViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
         LinearLayout view = (LinearLayout) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.task_list_item, parent, false);
 
@@ -101,21 +100,25 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     public void onBindViewHolder(@NonNull TaskViewHolder holder, int position, @NonNull List<Object> payloads) {
         if(payloads.isEmpty()) {
             super.onBindViewHolder(holder, position, payloads);
-        }else {
-            Bundle o = (Bundle) payloads.get(0);
-            ShopTask shopTask=shopTasks.get(position);
-            for (String key : o.keySet()) {
-                switch (key) {
-                    case "Title":
-                        shopTask.setTitle(o.get(key).toString());
-                        break;
-                    case "Description":
-                        shopTask.setDescription(o.get(key).toString());
-                        break;
-                    case "State":
-                        shopTask.setState((Integer) o.get(key));
-                        break;
-                }
+        } else {
+            handleNotEmptyPayload(position, payloads);
+        }
+    }
+
+    private void handleNotEmptyPayload(int position, @NonNull List<Object> payloads){
+        Bundle o = (Bundle) payloads.get(0);
+        ShopTask shopTask = shopTasks.get(position);
+        for (String key : o.keySet()) {
+            switch (key) {
+                case BUNDLE_ARG_TITLE:
+                    shopTask.setTitle(o.get(key).toString());
+                    break;
+                case BUNDLE_ARG_DESCRIPTION:
+                    shopTask.setDescription(o.get(key).toString());
+                    break;
+                case BUNDLE_ARG_STATE:
+                    shopTask.setState((Integer) o.get(key));
+                    break;
             }
         }
     }
@@ -158,7 +161,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         }
 
         private void updateView(int position) {
-
             task = shopTasks.get(position);
 
             if (task == null) {
@@ -171,7 +173,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
         @Override
         public void onChange() {
-
             if (task == null) {
                 return;
             }
@@ -181,21 +182,17 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             if (itemView != null) {
                 itemView.setBackgroundColor(isChecked ? BACKGROUND_CHECKED : BACKGROUND_NORMAL);
             }
-
             if (taskNameTv != null) {
                 taskNameTv.setText(task.getTitle());
             }
-
             if (taskNoteTv != null) {
                 taskNoteTv.setText(task.getDescription());
             }
-
             if (statusCb != null) {
                 statusCb.setOnCheckedChangeListener(null);
                 statusCb.setChecked(isChecked);
                 statusCb.setOnCheckedChangeListener(this);
             }
-
             onMediaDownload();
         }
 
@@ -209,12 +206,10 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         @Override
 
         public void onMediaDownload() {
-
             Bitmap thumbnail = null;
             if (thumbnailIv != null && task.hasPicture()) {
                 thumbnail = task.getPicture();
             }
-
             if (thumbnail == null) {
                 thumbnailIv.setImageResource(R.mipmap.ic_launcher);
             } else {
