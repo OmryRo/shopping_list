@@ -50,11 +50,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         if (shopList == currentShopList) {
             return;
         }
-
         if (currentShopList != null) {
             currentShopList.removeAllListeners();
         }
-
         currentShopList = shopList;
         currentShopList.setOnChildChangeListener(this);
     }
@@ -65,7 +63,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
         DiffUtil.DiffResult result = DiffUtil.calculateDiff(new ShopTaskListDiffCallback
                 (oldVersionList, newVersionList));
-
         result.dispatchUpdatesTo(TaskAdapter.this);
         shopTasks.clear();
         shopTasks.addAll(newVersionList);
@@ -90,9 +87,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     public TaskViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LinearLayout view = (LinearLayout) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.task_list_item, parent, false);
-
         TaskViewHolder viewHolder = new TaskViewHolder(view);
-
         return viewHolder;
     }
 
@@ -162,11 +157,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
         private void updateView(int position) {
             task = shopTasks.get(position);
-
             if (task == null) {
                 return;
             }
-
             task.setOnChangeListener(this);
             task.setOnMediaDownload(this);
         }
@@ -176,9 +169,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             if (task == null) {
                 return;
             }
-
             boolean isChecked = task.getState() == ShopTask.SHOP_TASK_DONE;
-
             if (itemView != null) {
                 itemView.setBackgroundColor(isChecked ? BACKGROUND_CHECKED : BACKGROUND_NORMAL);
             }

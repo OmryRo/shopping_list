@@ -17,8 +17,8 @@ public class ShopTaskListDiffCallback extends DiffUtil.Callback {
 
 
     ShopTaskListDiffCallback(ArrayList<ShopTask> oldList, ArrayList<ShopTask> newList){
-        this.oldVersionList=oldList;
-        this.newVersionList=newList;
+        this.oldVersionList = oldList;
+        this.newVersionList = newList;
     }
 
     @Override
