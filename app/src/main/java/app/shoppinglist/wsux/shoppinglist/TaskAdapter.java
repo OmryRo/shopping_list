@@ -1,8 +1,9 @@
-
 package app.shoppinglist.wsux.shoppinglist;
 
-import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,15 +18,19 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 import app.shoppinglist.wsux.shoppinglist.firebase.BaseCollectionItem;
 import app.shoppinglist.wsux.shoppinglist.firebase.FireBaseManager;
 import app.shoppinglist.wsux.shoppinglist.firebase.ShopList;
 import app.shoppinglist.wsux.shoppinglist.firebase.ShopTask;
 
+import static app.shoppinglist.wsux.shoppinglist.ShopTaskListDiffCallback.BUNDLE_ARG_DESCRIPTION;
+import static app.shoppinglist.wsux.shoppinglist.ShopTaskListDiffCallback.BUNDLE_ARG_STATE;
+import static app.shoppinglist.wsux.shoppinglist.ShopTaskListDiffCallback.BUNDLE_ARG_TITLE;
+
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder>
         implements BaseCollectionItem.OnChildChangeListener {
-
     private static final String TAG = "TASK_ADAPTER";
     private static final int BACKGROUND_NORMAL = 0xffffffff;
     private static final int BACKGROUND_CHECKED = 0xffdddddd;
@@ -40,25 +45,25 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     }
 
     public void setList(ShopList shopList) {
-
         if (shopList == currentShopList) {
             return;
         }
-
         if (currentShopList != null) {
             currentShopList.removeAllListeners();
         }
-
         currentShopList = shopList;
         currentShopList.setOnChildChangeListener(this);
     }
 
     public void resetDataset() {
+        ArrayList<ShopTask> oldVersionList = new ArrayList<>(shopTasks);
+        ArrayList<ShopTask> newVersionList = getOrderedShopTasks();
+
+        DiffUtil.DiffResult result = DiffUtil.calculateDiff(
+                new ShopTaskListDiffCallback(oldVersionList, newVersionList));
+        result.dispatchUpdatesTo(TaskAdapter.this);
         shopTasks.clear();
-        if (currentShopList != null) {
-            shopTasks.addAll(getOrderedShopTasks());
-            notifyDataSetChanged();
-        }
+        shopTasks.addAll(newVersionList);
     }
 
     private ArrayList<ShopTask> getOrderedShopTasks() {
@@ -73,18 +78,43 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
                 return (int) (o1.getState() - o2.getState());
             }
         });
+
         return listOfLists;
     }
 
     @Override
     public TaskViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
         LinearLayout view = (LinearLayout) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.task_list_item, parent, false);
-
         TaskViewHolder viewHolder = new TaskViewHolder(view);
-
         return viewHolder;
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull TaskViewHolder holder, int position, @NonNull List<Object> payloads) {
+        if (payloads.isEmpty()) {
+            super.onBindViewHolder(holder, position, payloads);
+        } else {
+            handleNotEmptyPayload(position, payloads);
+        }
+    }
+
+    private void handleNotEmptyPayload(int position, @NonNull List<Object> payloads){
+        Bundle o = (Bundle) payloads.get(0);
+        ShopTask shopTask = shopTasks.get(position);
+        for (String key : o.keySet()) {
+            switch (key) {
+                case BUNDLE_ARG_TITLE:
+                    shopTask.setTitle(o.get(key).toString());
+                    break;
+                case BUNDLE_ARG_DESCRIPTION:
+                    shopTask.setDescription(o.get(key).toString());
+                    break;
+                case BUNDLE_ARG_STATE:
+                    shopTask.setState((Integer) o.get(key));
+                    break;
+            }
+        }
     }
 
     @Override
@@ -220,7 +250,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         private void onCheckBoxAreaClick() {
             statusCb.setChecked(!statusCb.isChecked());
         }
-
 
     }
 }
