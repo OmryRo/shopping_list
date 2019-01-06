@@ -1,4 +1,3 @@
-
 package app.shoppinglist.wsux.shoppinglist;
 
 import android.graphics.Bitmap;
@@ -30,7 +29,6 @@ import static app.shoppinglist.wsux.shoppinglist.ShopTaskListDiffCallback.BUNDLE
 import static app.shoppinglist.wsux.shoppinglist.ShopTaskListDiffCallback.BUNDLE_ARG_STATE;
 import static app.shoppinglist.wsux.shoppinglist.ShopTaskListDiffCallback.BUNDLE_ARG_TITLE;
 
-
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder>
         implements BaseCollectionItem.OnChildChangeListener {
     private static final String TAG = "TASK_ADAPTER";
@@ -61,8 +59,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         ArrayList<ShopTask> oldVersionList = new ArrayList<>(shopTasks);
         ArrayList<ShopTask> newVersionList = getOrderedShopTasks();
 
-        DiffUtil.DiffResult result = DiffUtil.calculateDiff(new ShopTaskListDiffCallback
-                (oldVersionList, newVersionList));
+        DiffUtil.DiffResult result = DiffUtil.calculateDiff(
+                new ShopTaskListDiffCallback(oldVersionList, newVersionList));
         result.dispatchUpdatesTo(TaskAdapter.this);
         shopTasks.clear();
         shopTasks.addAll(newVersionList);
@@ -80,6 +78,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
                 return (int) (o1.getState() - o2.getState());
             }
         });
+
         return listOfLists;
     }
 
@@ -93,7 +92,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull TaskViewHolder holder, int position, @NonNull List<Object> payloads) {
-        if(payloads.isEmpty()) {
+        if (payloads.isEmpty()) {
             super.onBindViewHolder(holder, position, payloads);
         } else {
             handleNotEmptyPayload(position, payloads);
@@ -169,21 +168,26 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             if (task == null) {
                 return;
             }
+
             boolean isChecked = task.getState() == ShopTask.SHOP_TASK_DONE;
             if (itemView != null) {
                 itemView.setBackgroundColor(isChecked ? BACKGROUND_CHECKED : BACKGROUND_NORMAL);
             }
+
             if (taskNameTv != null) {
                 taskNameTv.setText(task.getTitle());
             }
+
             if (taskNoteTv != null) {
                 taskNoteTv.setText(task.getDescription());
             }
+
             if (statusCb != null) {
                 statusCb.setOnCheckedChangeListener(null);
                 statusCb.setChecked(isChecked);
                 statusCb.setOnCheckedChangeListener(this);
             }
+
             onMediaDownload();
         }
 
@@ -195,12 +199,12 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         }
 
         @Override
-
         public void onMediaDownload() {
             Bitmap thumbnail = null;
             if (thumbnailIv != null && task.hasPicture()) {
                 thumbnail = task.getPicture();
             }
+
             if (thumbnail == null) {
                 thumbnailIv.setImageResource(R.mipmap.ic_launcher);
             } else {

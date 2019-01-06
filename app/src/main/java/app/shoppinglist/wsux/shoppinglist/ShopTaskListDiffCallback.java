@@ -15,7 +15,6 @@ public class ShopTaskListDiffCallback extends DiffUtil.Callback {
     static final String BUNDLE_ARG_DESCRIPTION = "d";
     static final String BUNDLE_ARG_STATE = "s";
 
-
     ShopTaskListDiffCallback(ArrayList<ShopTask> oldList, ArrayList<ShopTask> newList){
         this.oldVersionList = oldList;
         this.newVersionList = newList;
@@ -43,9 +42,10 @@ public class ShopTaskListDiffCallback extends DiffUtil.Callback {
         ShopTask oldShopTask = oldVersionList.get(oldShopTaskPosition);
         ShopTask newShopTask = newVersionList.get(newShopTaskPosition);
 
-        if(oldShopTask.getDescription() == null){
+        if (oldShopTask.getDescription() == null) {
             return newShopTask.getDescription() == null;
         }
+
         return oldShopTask.getTitle().equals(newShopTask.getTitle()) &&
                 oldShopTask.getDescription().equals(newShopTask.getDescription());
     }
@@ -56,24 +56,29 @@ public class ShopTaskListDiffCallback extends DiffUtil.Callback {
         ShopTask oldShopTask = oldVersionList.get(oldShopTaskPosition);
         ShopTask newShopTask = newVersionList.get(newShopTaskPosition);
         Bundle diff = manageShopTasks(oldShopTask, newShopTask);
-        if(diff.size() == 0) {
+        if (diff.size() == 0) {
             return null;
         }
+
         return diff;
     }
 
     private Bundle manageShopTasks(ShopTask oldShopTask, ShopTask newShopTask){
         Bundle diff = new Bundle();
-        if(!newShopTask.getTitle().equals(oldShopTask.getTitle())){
+
+        if (!newShopTask.getTitle().equals(oldShopTask.getTitle())){
             diff.putString(BUNDLE_ARG_TITLE, newShopTask.getTitle());
         }
-        if(newShopTask.getDescription() != null &&
+
+        if (newShopTask.getDescription() != null &&
                 !newShopTask.getDescription().equals(oldShopTask.getDescription())){
             diff.putString(BUNDLE_ARG_DESCRIPTION, newShopTask.getDescription());
         }
-        if(newShopTask.getState() != oldShopTask.getState()){
+
+        if (newShopTask.getState() != oldShopTask.getState()){
             diff.putLong(BUNDLE_ARG_STATE, newShopTask.getState());
         }
+
         return diff;
     }
 }
