@@ -22,14 +22,13 @@
     <string name="not_available">N/A</string>
     <string name="verify_before_quit">Are you sure you want to quit the list %s?</string>
     <string name="verify_before_delete_task">Are you sure you want to delete the task %s?</string>
-
+    <string name="verify_before_remove_collaborator">Are you sure you want to remove %s from the list?</string>
     <string name="pre_sign_in_message">Hello!\nPlease sign in using your Google account to start using this application.</string>
     <string name="list_title">List title</string>
     <string name="create">Create</string>
     <string name="add">Add</string>
-    <string name="Note">NOTE</string>
+    <string name="Note">Note</string>
     <string name="add_task">what to add?</string>
-    <string name="shared_with">shared with</string>
     <string name="request_picture">Choose Picture</string>
     <string name="request_camera">Take a Picture</string>
     <string name="rename">rename</string>
@@ -46,4 +45,14 @@
     <string name="notes_or_details">Notes or Details</string>
     <string name="tap_to_add_an_image">Tap to add an image</string>
     <string name="long_press_to_edit">Long press to edit.</string>
+    <string name="cancel">Cancel</string>
+    <string name="done">Done</string>
+    <string name="delete">Delete</string>
+    <string name="sharing_options">Sharing Options</string>
+    <string name="users_who_are_can_edit_this_list">Users who can edit this list:</string>
+    <string name="default_message">Hi! I\'ve just joined this list.</string>
+    <string name="cant_be_empty">Value can\'t be empty.</string>
+    <string name="change_personal_message">Change Personal Message</string>
+    <string name="personal_message_hint">Your message</string>
+    <string name="change">Change</string>
 </resources>

@@ -22,6 +22,8 @@ import java.net.URLConnection;
 import java.util.Date;
 import java.util.HashMap;
 
+import app.shoppinglist.wsux.shoppinglist.R;
+
 public class Collaborator extends BaseCollectionItem {
 
     private static final String TAG = "COLLABORATOR";
@@ -64,7 +66,7 @@ public class Collaborator extends BaseCollectionItem {
         HashMap<String, Object> fields = new HashMap<>();
         fields.put(FIRESTORE_FIELD_NAME, userInfo.getDisplayName());
         fields.put(FIRESTORE_FIELD_EMAIL, userInfo.getEmail());
-        fields.put(FIRESTORE_FIELD_MESSAGE, "");
+        fields.put(FIRESTORE_FIELD_MESSAGE, userInfo.manager.context.getString(R.string.default_message));
         fields.put(FIRESTORE_FIELD_PICTURE, userInfo.getPictureURL());
         fields.put(FIRESTORE_FIELD_TTL, getTTLObject());
         return ref.collection(FIRESTORE_TABLE).document(userInfo.getUserId()).set(fields);

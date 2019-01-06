@@ -135,12 +135,14 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     class TaskViewHolder extends RecyclerView.ViewHolder
             implements BaseCollectionItem.OnChangeListener,
             CompoundButton.OnCheckedChangeListener, BaseCollectionItem.OnMediaDownload,
-            View.OnLongClickListener {
+            View.OnLongClickListener, View.OnClickListener {
 
+        private int numberOfTimePressed;
         private LinearLayout itemView;
         private TextView taskNameTv;
         private TextView taskNoteTv;
         private CheckBox statusCb;
+        private View statusContainer;
         private ImageView thumbnailIv;
         private ShopTask task;
 
@@ -151,25 +153,34 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             taskNoteTv = itemView.findViewById(R.id.task_note_tv);
             statusCb = itemView.findViewById(R.id.task_status);
             thumbnailIv = itemView.findViewById(R.id.task_thumbnail);
+            statusContainer = itemView.findViewById(R.id.task_status_container);
             itemView.setOnLongClickListener(this);
+            itemView.setOnClickListener(this);
+            statusContainer.setOnClickListener(this);
         }
 
         private void updateView(int position) {
+
             task = shopTasks.get(position);
+            this.numberOfTimePressed = 0;
+
             if (task == null) {
                 return;
             }
+
             task.setOnChangeListener(this);
             task.setOnMediaDownload(this);
         }
 
         @Override
         public void onChange() {
+
             if (task == null) {
                 return;
             }
 
             boolean isChecked = task.getState() == ShopTask.SHOP_TASK_DONE;
+
             if (itemView != null) {
                 itemView.setBackgroundColor(isChecked ? BACKGROUND_CHECKED : BACKGROUND_NORMAL);
             }
@@ -199,7 +210,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         }
 
         @Override
+
         public void onMediaDownload() {
+
             Bitmap thumbnail = null;
             if (thumbnailIv != null && task.hasPicture()) {
                 thumbnail = task.getPicture();
@@ -216,5 +229,27 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             new TaskEditDialog(view.getContext(), task, fireBaseManager).show();
             return false;
         }
+
+        @Override
+        public void onClick(View view) {
+            if (view == itemView) {
+                onSingleClickOnView(view.getContext());
+            } else {
+                onCheckBoxAreaClick();
+            }
+        }
+
+        private void onSingleClickOnView(Context context) {
+            numberOfTimePressed++;
+
+            if (numberOfTimePressed % 3 == 0) {
+                Toast.makeText(context, R.string.long_press_to_edit, Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        private void onCheckBoxAreaClick() {
+            statusCb.setChecked(!statusCb.isChecked());
+        }
+
     }
 }

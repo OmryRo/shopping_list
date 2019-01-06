@@ -14,7 +14,7 @@
             android:layout_width="match_parent"
             android:clickable="true"
             android:background="#ffaaaaaa"
-            android:layout_height="180dp">
+            android:layout_height="140dp">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -43,6 +43,7 @@
                 android:clickable="false"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:scaleType="centerCrop"
                 android:visibility="gone"/>
 
             <LinearLayout
@@ -82,6 +83,10 @@
             android:layout_height="wrap_content"
             android:inputType="text"
             android:maxLines="1"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
             android:hint="@string/what_to_buy" />
 
         <EditText
@@ -89,34 +94,132 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="text"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
             android:hint="@string/notes_or_details" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/colorPrimary"
+            android:layout_marginTop="20dp"
             android:orientation="horizontal">
 
-            <ImageButton
-                android:id="@+id/task_delete_ib"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:src="@drawable/ic_edit_delete_item" />
+            <RelativeLayout
+            android:id="@+id/task_delete_ib"
+            android:layout_width="0dp"
+            android:layout_height="35dp"
+            android:layout_margin="5dp"
+            android:orientation="horizontal"
+            android:clickable="true"
+            android:layout_weight="1"
+            android:background="@drawable/button_background"
+            >
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_centerInParent="true"
+                    >
+                    <ImageView
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="1dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_edit_delete_item"
+                        android:tint="@drawable/button_text"
+                        />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="15dp"
+                        android:layout_marginStart="3dp"
+                        android:textSize="12dp"
+                        android:layout_gravity="center"
+                        android:textColor="@drawable/button_text"
+                        android:text="@string/delete"
+                        />
+                </LinearLayout>
 
-            <ImageButton
+            </RelativeLayout>
+
+            <RelativeLayout
                 android:id="@+id/task_edit_done_ib"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_height="35dp"
+                android:layout_margin="5dp"
+                android:orientation="horizontal"
+                android:clickable="true"
                 android:layout_weight="1"
-                android:src="@drawable/ic_edit_done" />
+                android:background="@drawable/button_background"
+                >
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_centerInParent="true"
+                    >
+                    <ImageView
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="1dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_edit_done"
+                        android:tint="@drawable/button_text"
+                        />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="15dp"
+                        android:layout_marginStart="3dp"
+                        android:textSize="12dp"
+                        android:layout_gravity="center"
+                        android:textColor="@drawable/button_text"
+                        android:text="@string/done"
+                        />
+                </LinearLayout>
 
-            <ImageButton
+            </RelativeLayout>
+
+            <RelativeLayout
                 android:id="@+id/task_edit_cancel_ib"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_height="35dp"
+                android:layout_margin="5dp"
+                android:orientation="horizontal"
+                android:clickable="true"
                 android:layout_weight="1"
-                android:src="@drawable/ic_edit_cancel" />
+                android:background="@drawable/button_background"
+                >
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_centerInParent="true"
+                    >
+                    <ImageView
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="1dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_edit_cancel"
+                        android:tint="@drawable/button_text"
+                        />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="15dp"
+                        android:layout_marginStart="3dp"
+                        android:textSize="12dp"
+                        android:layout_gravity="center"
+                        android:textColor="@drawable/button_text"
+                        android:text="@string/cancel"
+                        />
+                </LinearLayout>
+
+            </RelativeLayout>
 
         </LinearLayout>
 

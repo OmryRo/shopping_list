@@ -8,7 +8,7 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
 public class FireBaseManager {
 
-    private Activity context;
+    Activity context;
     private LoginManager loginManager;
     private ShareHandler shareHandler;
     private FireBaseEventsInterface eventsInterface;
@@ -64,12 +64,14 @@ public class FireBaseManager {
     public static final int RC_CAMERA_PERMISSION = 0x1003;
 
     public FireBaseManager(Activity context, FireBaseEventsInterface eventsInterface) {
-        initialEventsInterface(eventsInterface);
-        initialContextFields(context);
+        this.context = context;
+        this.eventsInterface = eventsInterface;
+
+        initFireStore();
+        initHandlers();
     }
 
-    private void initialEventsInterface(FireBaseEventsInterface eventsInterface) {
-        this.eventsInterface = eventsInterface;
+    private void initFireStore() {
         this.db = FirebaseFirestore.getInstance();
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
                 .setTimestampsInSnapshotsEnabled(true)
@@ -77,8 +79,7 @@ public class FireBaseManager {
         this.db.setFirestoreSettings(settings);
     }
 
-    private void initialContextFields(Activity context) {
-        this.context = context;
+    private void initHandlers() {
         this.loginManager = new LoginManager(context, this);
         this.shareHandler = new ShareHandler(context, this);
         this.imageManager = new ImageManager(context, this);
