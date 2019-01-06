@@ -1,5 +1,6 @@
 package app.shoppinglist.wsux.shoppinglist;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
