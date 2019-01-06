@@ -63,10 +63,6 @@ public class ShopList extends BaseCollectionItem {
         this.ref.addSnapshotListener(this);
     }
 
-    public ShopList(ShopList other){
-        this(other.manager, other.userInfo, other.listId);
-    }
-
     public void addNewTask(String title, String description) {
         ShopTask.addNewTask(this, title, description, userInfo)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
