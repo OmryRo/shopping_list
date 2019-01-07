@@ -202,7 +202,7 @@ public class UserInfo extends BaseCollectionItem {
         TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), new TransactionWrapper.ResultListener() {
             @Override
             public void onSuccess() {
-                createColloberatorDataByRef(listRef);
+                createCollaboratorDataByRef(listRef);
                 manager.reportEvent(FireBaseManager.ON_LIST_CREATED);
             }
 
@@ -219,7 +219,7 @@ public class UserInfo extends BaseCollectionItem {
 
     }
 
-    private void createColloberatorDataByRef(DocumentReference listRef) {
+    private void createCollaboratorDataByRef(DocumentReference listRef) {
         TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), UserInfo.this);
         ShopListActions.addCollaboratorData(
                 transaction, ShopListActions.getRef(manager.getDb(), listRef.getId()), getUserId(), getDisplayName(), getEmail(), getPictureURL());

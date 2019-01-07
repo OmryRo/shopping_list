@@ -201,7 +201,7 @@ public class ShopList extends BaseCollectionItem {
     }
 
     private void removeCollaboratorData(String userId) {
-        Collaborator collaborator = collaboratorsData.get(userInfo.getUserId());
+        Collaborator collaborator = collaboratorsData.get(userId);
         if (collaborator != null) {
             collaborator.remove();
         }
@@ -214,7 +214,7 @@ public class ShopList extends BaseCollectionItem {
         }
 
         TransactionWrapper transaction= new TransactionWrapper(manager.getDb(), this);
-        ShopListActions.setTitle(transaction, ref, title).apply();
+        ShopListActions.setTitle(transaction, ref, newTitle).apply();
     }
 
     public String getAuthor() {
