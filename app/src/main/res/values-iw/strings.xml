@@ -14,10 +14,12 @@
     <string name="action_rename_list">שנה כותרת הרשימה</string>
     <string name="action_quit_list">עזוב רשימה</string>
     <string name="create_new_list">צור רשימה חדשה</string>
+    <string name="chage_list_name">שנה שם רשימה</string>
     <string name="sign_out">התנתק</string>
-    <string name="menu_sublist_lists">רשימות</string>
+    <string name="menu_sublist_lists">הרשימות שלי</string>
     <string name="not_available">לא זמין</string>
     <string name="verify_before_quit">האם אתה בטוח כי ברצונך לעזוב את הרשימה %s?</string>
+    <string name="verify_before_remove_collaborator">האם אתה בטוח כי ברצונך להסיר את %s מהרשימה?</string>
     <string name="pre_sign_in_message">שלום!\nבבקשה התחבר על מנת שתוכל להתחיל להשתמש באפליקציה.</string>
     <string name="list_title">כותרת הרשימה</string>
     <string name="create">צור</string>
@@ -36,4 +38,19 @@
     <string name="progress_sign_in">מתחבר…</string>
     <string name="progress_sign_out">מתנתק…</string>
     <string name="progress_quiting">יוצא…</string>
+    <string name="what_to_buy">מה לקנות?</string>
+    <string name="notes_or_details">הערות או פרטים</string>
+    <string name="tap_to_add_an_image">לחץ להוספת תמונה</string>
+    <string name="long_press_to_edit">לחיצה ארוכה לעריכה.</string>
+    <string name="cancel">בטל</string>
+    <string name="done">בצע</string>
+    <string name="delete">מחק</string>
+    <string name="sharing_options">אפשרויות שיתוף</string>
+    <string name="users_who_are_can_edit_this_list">משתמשים היכולים לערוך רשימה זו:</string>
+    <string name="verify_before_delete_task">האם אתה בטוח כי ברצונך למחוק את הפריט %s?</string>
+    <string name="default_message">היי! הצטרפתי לקבוצה.</string>
+    <string name="cant_be_empty">לא ניתן להכניס ערך ריק.</string>
+    <string name="change_personal_message">שנה הודעה אישית</string>
+    <string name="personal_message_hint">ההודעה שלך</string>
+    <string name="change">שנה</string>
 </resources>

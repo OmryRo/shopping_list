@@ -75,8 +75,9 @@ public class TaskEditDialog extends Dialog implements View.OnClickListener,
                 imageUpload == null ? shopTask.getPicture() : imageUpload.getImagePreview();
 
         if (taskImage == null) {
-            editThumbnailIv.setImageResource(R.drawable.luncher_icon);
+            editThumbnailIv.setVisibility(View.GONE);
         } else {
+            editThumbnailIv.setVisibility(View.VISIBLE);
             editThumbnailIv.setImageBitmap(taskImage);
         }
 

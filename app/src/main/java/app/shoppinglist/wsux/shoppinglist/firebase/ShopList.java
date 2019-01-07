@@ -225,6 +225,14 @@ public class ShopList extends BaseCollectionItem {
         updateField(ref, FIRESTORE_FIELD_TITLE, newTitle);
     }
 
+    public String getAuthor() {
+        return author;
+    }
+
+    public boolean isAuthor() {
+        return userInfo.getUserId().equals(author);
+    }
+
     private void setAuthor(String author) {
 
         if (author == null || author.equals(this.author)) {
