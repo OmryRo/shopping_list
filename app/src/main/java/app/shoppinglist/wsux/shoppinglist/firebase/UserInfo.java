@@ -1,11 +1,8 @@
 package app.shoppinglist.wsux.shoppinglist.firebase;
 
 import android.graphics.Bitmap;
-import android.support.annotation.NonNull;
 import android.util.Pair;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -15,12 +12,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import app.shoppinglist.wsux.shoppinglist.firebase.db.ShopListActions;
+import app.shoppinglist.wsux.shoppinglist.firebase.db.TransactionWrapper;
+import app.shoppinglist.wsux.shoppinglist.firebase.db.UserInfoActions;
+
 public class UserInfo extends BaseCollectionItem {
     private static final String TAG = "USER_INFO";
-    public static final String FIRESTORE_TABLE = "users";
-    private static final String FIRESTORE_FIELD_LISTS = "lists";
-    private static final String FIRESTORE_FIELD_TOKENS = "tokens";
-    private static final String FIRESTORE_FIELD_LAST_LIST = "last_list";
 
     private String userId;
     private String email;
@@ -46,10 +43,11 @@ public class UserInfo extends BaseCollectionItem {
         lists = new HashMap<>();
         tokens = new HashMap<>();
 
-        ref = manager.getDb().collection(FIRESTORE_TABLE).document(userId);
+        ref = UserInfoActions.getRef(manager.getDb(), userId);
         ref.addSnapshotListener(this);
     }
 
+    public DocumentReference getRef(){return ref;}
     public String getUserId() {
         return userId;
     }
@@ -93,14 +91,14 @@ public class UserInfo extends BaseCollectionItem {
     @Override
     void specificOnEvent(DocumentSnapshot document) {
 
-        if (document.contains(FIRESTORE_FIELD_LAST_LIST)) {
-            lastList = document.getString(FIRESTORE_FIELD_LAST_LIST);
+        if (document.contains(UserInfoActions.FIRESTORE_FIELD_LAST_LIST)) {
+            lastList = document.getString(UserInfoActions.FIRESTORE_FIELD_LAST_LIST);
         }
 
         loadListNamesFromDB(document);
 
-        if (document.contains(FIRESTORE_FIELD_TOKENS)) {
-            tokens.putAll((Map<String, String>) document.get(FIRESTORE_FIELD_TOKENS));
+        if (document.contains(UserInfoActions.FIRESTORE_FIELD_TOKENS)) {
+            tokens.putAll((Map<String, String>) document.get(UserInfoActions.FIRESTORE_FIELD_TOKENS));
         }
 
         setReady();
@@ -116,8 +114,8 @@ public class UserInfo extends BaseCollectionItem {
 
     private void loadListNamesFromDB(DocumentSnapshot document) {
         ArrayList<String> listNames = new ArrayList<>();
-        if (document.contains(FIRESTORE_FIELD_LISTS)) {
-            listNames.addAll((List<String>) document.get(FIRESTORE_FIELD_LISTS));
+        if (document.contains(UserInfoActions.FIRESTORE_FIELD_LISTS)) {
+            listNames.addAll((List<String>) document.get(UserInfoActions.FIRESTORE_FIELD_LISTS));
 
             for (String listId : listNames) {
                 if (!lists.containsKey(listId)) {
@@ -145,12 +143,14 @@ public class UserInfo extends BaseCollectionItem {
 
     public void addKnownList(String listId) {
         setLastList(listId);
-        appendToList(ref, FIRESTORE_FIELD_LISTS, listId);
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
+        UserInfoActions.addKnownList(transaction, ref, listId).apply();
         reportChildChange();
     }
 
     public void removeKnownList(String listId) {
-        removeFromList(ref, FIRESTORE_FIELD_LISTS, listId);
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
+        UserInfoActions.removeKnownList(transaction, ref, listId).apply();
         manager.reportEvent(FireBaseManager.ON_LIST_DELETED, lists.get(listId));
         lists.remove(listId);
     }
@@ -161,7 +161,8 @@ public class UserInfo extends BaseCollectionItem {
             return;
         }
 
-        updateField(ref, FIRESTORE_FIELD_LAST_LIST, lastList);
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
+        UserInfoActions.setLastList(transaction, ref, lastList).apply();
     }
 
     public String getLastList() {
@@ -179,12 +180,9 @@ public class UserInfo extends BaseCollectionItem {
             return;
         }
 
-        addToMap(ref, FIRESTORE_FIELD_TOKENS, listId, token).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                addKnownList(listId);
-            }
-        });
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
+        UserInfoActions.addToken(transaction, ref, listId, token).apply();
+        addKnownList(listId);
     }
 
     public void removeToken(String listId) {
@@ -193,46 +191,44 @@ public class UserInfo extends BaseCollectionItem {
             return;
         }
 
-        removeFromMap(ref, FIRESTORE_FIELD_TOKENS, listId);
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
+        UserInfoActions.removeToken(transaction, ref, listId).apply();
     }
 
     public void createNewList(String listTitle) {
-        ShopList.createNewList(manager, this, listTitle)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(final DocumentReference documentReference) {
-                        Collaborator.addNewCollaborator(documentReference, UserInfo.this)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        addKnownList(documentReference.getId());
-                                        manager.reportEvent(FireBaseManager.ON_LIST_CREATED);
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        manager.reportEvent(FireBaseManager.ON_LIST_FAILURE, e);
-                                    }
-                                });
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        manager.reportEvent(FireBaseManager.ON_LIST_FAILURE, e);
-                    }
-                });
+
+        final DocumentReference listRef = ShopListActions.getNewRef(manager.getDb());
+
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), new TransactionWrapper.ResultListener() {
+            @Override
+            public void onSuccess() {
+                createColloberatorDataByRef(listRef);
+                manager.reportEvent(FireBaseManager.ON_LIST_CREATED);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                UserInfo.this.onFailure(e);
+            }
+        });
+
+        ShopListActions.createNewList(transaction, listRef, userId, listTitle);
+        UserInfoActions.addKnownList(transaction, ref, listRef.getId());
+        UserInfoActions.setLastList(transaction, ref, listRef.getId());
+        transaction.apply();
+
+    }
+
+    private void createColloberatorDataByRef(DocumentReference listRef) {
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), UserInfo.this);
+        ShopListActions.addCollaboratorData(
+                transaction, ShopListActions.getRef(manager.getDb(), listRef.getId()), getUserId(), getDisplayName(), getEmail(), getPictureURL());
+        transaction.apply();
     }
 
     private void initInfoInDB() {
-        listNames = new ArrayList<>();
-        tokens = new HashMap<>();
-
-        Map<String, Object> params = new HashMap<>();
-        params.put(FIRESTORE_FIELD_LISTS, listNames);
-        params.put(FIRESTORE_FIELD_TOKENS, tokens);
-        ref.set(params).addOnSuccessListener(this).addOnFailureListener(this);
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
+        UserInfoActions.initUser(transaction, ref).apply();
     }
 
     @Override

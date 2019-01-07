@@ -44,9 +44,9 @@ public class TransactionWrapper {
 
     TransactionWrapper update(DocumentReference reference, String key, Object value) {
 
-        Operation lastOperation = operations.getLast();
-        if ( lastOperation instanceof UpdateOperation &&
-                lastOperation.ref == reference) {
+        Operation lastOperation = operations.size() == 0 ? null : operations.getLast();
+
+        if (lastOperation instanceof UpdateOperation && lastOperation.ref == reference) {
 
             ((UpdateOperation) lastOperation).addParameter(key, value);
 

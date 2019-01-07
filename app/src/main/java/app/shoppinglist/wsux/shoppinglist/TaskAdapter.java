@@ -1,4 +1,3 @@
-
 package app.shoppinglist.wsux.shoppinglist;
 
 import android.content.Context;
@@ -16,7 +15,6 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 
 import app.shoppinglist.wsux.shoppinglist.firebase.BaseCollectionItem;
 import app.shoppinglist.wsux.shoppinglist.firebase.FireBaseManager;
@@ -64,16 +62,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
     private ArrayList<ShopTask> getOrderedShopTasks() {
         ArrayList<ShopTask> listOfLists = new ArrayList<>(currentShopList.getTasks().values());
-        Collections.sort(listOfLists, new Comparator<ShopTask>() {
-            @Override
-            public int compare(ShopTask o1, ShopTask o2) {
-                if (o1.getState() == o2.getState()) {
-                    return o1.getTitle().compareTo(o2.getTitle());
-                }
-
-                return (int) (o1.getState() - o2.getState());
-            }
-        });
+        Collections.sort(listOfLists);
         return listOfLists;
     }
 
@@ -120,14 +109,18 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         private TaskViewHolder(LinearLayout itemView) {
             super(itemView);
             this.itemView = itemView;
+            initFieldFindViewById(itemView);
+            itemView.setOnLongClickListener(this);
+            itemView.setOnClickListener(this);
+            statusContainer.setOnClickListener(this);
+        }
+
+        private void initFieldFindViewById(LinearLayout itemView) {
             taskNameTv = itemView.findViewById(R.id.task_name_tv);
             taskNoteTv = itemView.findViewById(R.id.task_note_tv);
             statusCb = itemView.findViewById(R.id.task_status);
             thumbnailIv = itemView.findViewById(R.id.task_thumbnail);
             statusContainer = itemView.findViewById(R.id.task_status_container);
-            itemView.setOnLongClickListener(this);
-            itemView.setOnClickListener(this);
-            statusContainer.setOnClickListener(this);
         }
 
         private void updateView(int position) {
@@ -150,10 +143,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
                 return;
             }
 
-            boolean isChecked = task.getState() == ShopTask.SHOP_TASK_DONE;
-
             if (itemView != null) {
-                itemView.setBackgroundColor(isChecked ? BACKGROUND_CHECKED : BACKGROUND_NORMAL);
+                itemView.setBackgroundColor(task.isDone() ? BACKGROUND_CHECKED : BACKGROUND_NORMAL);
             }
 
             if (taskNameTv != null) {
@@ -166,7 +157,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
             if (statusCb != null) {
                 statusCb.setOnCheckedChangeListener(null);
-                statusCb.setChecked(isChecked);
+                statusCb.setChecked(task.isDone());
                 statusCb.setOnCheckedChangeListener(this);
             }
 
@@ -176,7 +167,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         @Override
         public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
             if (task != null) {
-                task.setState(checked ? ShopTask.SHOP_TASK_DONE : ShopTask.SHOP_TASK_NOT_DONE);
+                task.setState(checked);
             }
         }
 
@@ -221,7 +212,5 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         private void onCheckBoxAreaClick() {
             statusCb.setChecked(!statusCb.isChecked());
         }
-
-
     }
 }

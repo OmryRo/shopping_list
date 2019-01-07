@@ -1,40 +1,17 @@
 package app.shoppinglist.wsux.shoppinglist.firebase;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.os.AsyncTask;
-import android.util.Log;
 
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Date;
-import java.util.HashMap;
-
-import app.shoppinglist.wsux.shoppinglist.R;
+import app.shoppinglist.wsux.shoppinglist.firebase.db.CollaboratorActions;
+import app.shoppinglist.wsux.shoppinglist.firebase.db.TransactionWrapper;
 
 public class Collaborator extends BaseCollectionItem {
 
     private static final String TAG = "COLLABORATOR";
-    public static final String FIRESTORE_TABLE = "collaborators";
-    public static final String FIRESTORE_FIELD_NAME = "name";
-    public static final String FIRESTORE_FIELD_EMAIL = "email";
-    public static final String FIRESTORE_FIELD_MESSAGE = "message";
-    public static final String FIRESTORE_FIELD_TTL = "ttl";
-    public static final String FIRESTORE_FIELD_PICTURE = "picture";
-
-    private static final long TIME_IN_A_DAY = 86400000;
     private static final int[] COLORS = {
             0xff224f96, 0xff1f918f, 0xff16a03f, 0xff74a518, 0xffa8a51c, 0xffa8721b,
             0xffa8241a, 0xffa81a57, 0xffa81a8d, 0xff821aa8, 0xff461aa8
@@ -58,24 +35,8 @@ public class Collaborator extends BaseCollectionItem {
         this.userId = userId;
 
         hasStartedPictureDownload = false;
-        ref = inList.getRef().collection(FIRESTORE_TABLE).document(userId);
+        ref = CollaboratorActions.getRef(inList.getRef(), userId);
         ref.addSnapshotListener(this);
-    }
-
-    static Task<Void> addNewCollaborator(DocumentReference ref, UserInfo userInfo) {
-        HashMap<String, Object> fields = new HashMap<>();
-        fields.put(FIRESTORE_FIELD_NAME, userInfo.getDisplayName());
-        fields.put(FIRESTORE_FIELD_EMAIL, userInfo.getEmail());
-        fields.put(FIRESTORE_FIELD_MESSAGE, userInfo.manager.context.getString(R.string.default_message));
-        fields.put(FIRESTORE_FIELD_PICTURE, userInfo.getPictureURL());
-        fields.put(FIRESTORE_FIELD_TTL, getTTLObject());
-        return ref.collection(FIRESTORE_TABLE).document(userInfo.getUserId()).set(fields);
-    }
-
-    private static Timestamp getTTLObject() {
-        Date tomorrow = new Date();
-        tomorrow.setTime(System.currentTimeMillis() + TIME_IN_A_DAY);
-        return new Timestamp(tomorrow);
     }
 
     /*
@@ -84,16 +45,16 @@ public class Collaborator extends BaseCollectionItem {
      */
     @Override
     void specificOnEvent(DocumentSnapshot document) {
-        name = document.getString(FIRESTORE_FIELD_NAME);
-        email = document.getString(FIRESTORE_FIELD_EMAIL);
-        message = document.getString(FIRESTORE_FIELD_MESSAGE);
+        name = document.getString(CollaboratorActions.FIRESTORE_FIELD_NAME);
+        email = document.getString(CollaboratorActions.FIRESTORE_FIELD_EMAIL);
+        message = document.getString(CollaboratorActions.FIRESTORE_FIELD_MESSAGE);
 
-        if (document.contains(FIRESTORE_FIELD_PICTURE)) {
-            pictureURL = document.getString(FIRESTORE_FIELD_PICTURE);
+        if (document.contains(CollaboratorActions.FIRESTORE_FIELD_PICTURE)) {
+            pictureURL = document.getString(CollaboratorActions.FIRESTORE_FIELD_PICTURE);
         }
 
-        if (document.contains(FIRESTORE_FIELD_TTL)) {
-            ttl = document.getTimestamp(FIRESTORE_FIELD_TTL);
+        if (document.contains(CollaboratorActions.FIRESTORE_FIELD_TTL)) {
+            ttl = document.getTimestamp(CollaboratorActions.FIRESTORE_FIELD_TTL);
         }
 
         color = COLORS[Math.abs(userId.hashCode()) % COLORS.length];
@@ -130,14 +91,13 @@ public class Collaborator extends BaseCollectionItem {
         name = currentUser.getDisplayName();
         email = currentUser.getEmail();
         pictureURL = currentUser.getPictureURL();
-        ttl = getTTLObject();
-        ref.update(
-                FIRESTORE_FIELD_NAME, name,
-                FIRESTORE_FIELD_EMAIL, email,
-                FIRESTORE_FIELD_PICTURE, pictureURL,
-                FIRESTORE_FIELD_TTL, ttl)
-                .addOnSuccessListener(this)
-                .addOnFailureListener(this);
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
+        CollaboratorActions.setName(transaction, ref, name);
+        CollaboratorActions.setEmail(transaction, ref, email);
+        CollaboratorActions.setPictureUrl(transaction, ref, pictureURL);
+        CollaboratorActions.setTTL(transaction, ref);
+        transaction.apply();
+
     }
 
     public Bitmap getPicture() {
@@ -169,7 +129,8 @@ public class Collaborator extends BaseCollectionItem {
             return;
         }
 
-        updateField(ref, FIRESTORE_FIELD_NAME, name);
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
+        CollaboratorActions.setName(transaction, ref, name).apply();
     }
 
     public void setMessage(String message) {
@@ -177,7 +138,8 @@ public class Collaborator extends BaseCollectionItem {
             return;
         }
 
-        updateField(ref, FIRESTORE_FIELD_MESSAGE, message);
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
+        CollaboratorActions.setMessage(transaction, ref, message).apply();
     }
 
     public ShopList getInList() {
@@ -195,7 +157,8 @@ public class Collaborator extends BaseCollectionItem {
     }
 
     void remove() {
-        ref.delete();
+        removeAllListeners();
+        setNotReady();
     }
 
     @Override
