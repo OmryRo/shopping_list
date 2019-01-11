@@ -1,5 +1,7 @@
 package app.shoppinglist.wsux.shoppinglist.firebase;
 
+import android.util.Log;
+
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -87,26 +89,26 @@ public class ShopList extends BaseCollectionItem {
                 userInfo.getPictureURL()
         );
         ShopListActions.removeToken(transaction, ref, token);
-        UserInfoActions.removeToken(transaction, userInfo.getRef(), listId);
+        UserInfoActions.removeToken(transaction, userInfo.getRef(), listId).apply();
     }
 
     public void removeCollaborators(String userId) {
-        removeCollaborators(userId, false);
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
+        removeCollaborators(transaction, userId, false);
+        transaction.apply();
     }
 
-    public void removeCollaborators(String userId, boolean removeData) {
+    public void removeCollaborators(TransactionWrapper transaction, String userId, boolean removeData) {
         if (!collaborators.contains(userId)) {
             return;
         }
 
-        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
         ShopListActions.removeCollaborators(transaction, ref, userId);
 
         if (removeData) {
             CollaboratorActions.remove(transaction, CollaboratorActions.getRef(ref, userId));
         }
 
-        transaction.apply();
     }
 
     void removeTaskFromList(final ShopTask shopTask) {
@@ -119,7 +121,7 @@ public class ShopList extends BaseCollectionItem {
                     onChildChangeListener.onChildChange();
                 }
 
-                onSuccess();
+//                this.onSuccess();
             }
 
             @Override
@@ -141,16 +143,16 @@ public class ShopList extends BaseCollectionItem {
         }
 
         manager.reportEvent(FireBaseManager.ON_PROGRESS_START_DELETE);
-
-        removeAllTasks();
-        removeCollaboratorData(userInfo.getUserId());
-
-        setNotReady();
-        removeAllListeners();
-        ref.delete();
-
         TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
-        UserInfoActions.removeKnownList(transaction, ref, listId).apply();
+        removeAllTasks(transaction);
+        removeCollaboratorData(transaction, userInfo.getUserId());
+//        setNotReady();
+//        removeAllListeners();
+//        ref.delete();
+        ShopListActions.remove(transaction, ref);
+        Log.d(TAG, "removeListAsAuthor: "+ author);
+//        UserInfoActions.removeKnownList(transaction, ref, listId);
+        transaction.apply();
         userInfo.reportChildChange();
 
         return true;
@@ -162,19 +164,21 @@ public class ShopList extends BaseCollectionItem {
         }
 
         manager.reportEvent(FireBaseManager.ON_PROGRESS_START_QUIT);
-
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
         String firstCollaboratorFound = collaborators.get(0);
-        removeCollaborators(firstCollaboratorFound);
-        removeCollaboratorData(userInfo.getUserId());
+        removeCollaborators(transaction, firstCollaboratorFound, true);
+        Log.d(TAG, "quitListAsAuthor: "+ firstCollaboratorFound +" new Author: "+ author);
+//        removeCollaboratorData(transaction, userInfo.getUserId());
 
         if (author.equals(firstCollaboratorFound)) {
             return remove();
         }
-
-        setAuthor(author);
-        removeAllListeners();
-        userInfo.removeKnownList(listId);
-
+        ShopListActions.setAuthor(transaction, ref, author);
+//        setAuthor(author);
+//        removeAllListeners();
+        UserInfoActions.removeKnownList(transaction, ref, listId);
+//        userInfo.removeKnownList(listId);
+        transaction.apply();
         return true;
     }
 
@@ -184,26 +188,28 @@ public class ShopList extends BaseCollectionItem {
         }
 
         manager.reportEvent(FireBaseManager.ON_PROGRESS_START_QUIT);
-
-        removeCollaboratorData(userInfo.getUserId());
-        removeCollaborators(userInfo.getUserId());
-
-        removeAllListeners();
-        userInfo.removeKnownList(listId);
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
+//        removeCollaboratorData(transaction, userInfo.getUserId());
+//        removeCollaborators(transaction, userInfo.getUserId());
+        removeCollaborators(transaction, userInfo.getUserId(), true);
+//        removeAllListeners();
+        UserInfoActions.removeKnownList(transaction, ref, listId).apply();
 
         return true;
     }
 
-    private void removeAllTasks() {
+    private void removeAllTasks(TransactionWrapper transaction) {
         for (ShopTask task : shopTasks.values()) {
-            task.remove();
+            ShopListActions.removeTask(transaction, ref, task.getRef());
+//            task.remove();
         }
     }
 
-    private void removeCollaboratorData(String userId) {
+    private void removeCollaboratorData(TransactionWrapper transaction, String userId) {
         Collaborator collaborator = collaboratorsData.get(userId);
         if (collaborator != null) {
-            collaborator.remove();
+            CollaboratorActions.remove(transaction, CollaboratorActions.getRef(ref, userId));
+//                        collaborator.remove();
         }
     }
 

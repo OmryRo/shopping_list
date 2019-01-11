@@ -71,6 +71,11 @@ public class ShopListActions {
         return transaction.removeFromList(listRef, FIRESTORE_FIELD_TASKS, taskRef.getId());
     }
 
+    public static TransactionWrapper remove(
+            TransactionWrapper transaction, DocumentReference listRef) {
+
+        return transaction.delete(listRef);
+    }
     public static TransactionWrapper addCollaborator(
             TransactionWrapper transaction, DocumentReference listRef, String userId) {
 
@@ -98,7 +103,6 @@ public class ShopListActions {
         fields.put(FIRESTORE_FIELD_TOKENS, new HashMap<>());
         return transaction.create(ref, fields);
     }
-
 
     public static TransactionWrapper addCollaboratorData(
             TransactionWrapper transactionWrapper,

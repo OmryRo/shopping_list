@@ -186,6 +186,8 @@ public class ShopTask extends BaseCollectionItem implements Comparable<ShopTask>
     }
 
     public void remove() {
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
+        ShopTaskActions.remove(transaction, ref);
         inList.removeTaskFromList(this);
         removeAllListeners();
         setNotReady();
