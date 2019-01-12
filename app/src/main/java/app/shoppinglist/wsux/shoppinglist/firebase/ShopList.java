@@ -111,7 +111,7 @@ public class ShopList extends BaseCollectionItem {
         ShopListActions.removeCollaborators(transaction, ref, userId);
 
         if (removeData) {
-            CollaboratorActions.remove(transaction, CollaboratorActions.getRef(ref, userId));
+              removeCollaboratorData(transaction, userId);
         }
 
         return transaction;
@@ -179,8 +179,7 @@ public class ShopList extends BaseCollectionItem {
         TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
 
         if (collaborators.contains(author)) {
-            removeCollaborator(transaction, author, false);
-            transaction.apply();
+            removeCollaborator(transaction, author, false).apply();
             return remove();
         }
 
@@ -188,9 +187,7 @@ public class ShopList extends BaseCollectionItem {
         removeCollaborator(transaction, firstCollaboratorFound, false);
         removeCollaboratorData(transaction, author);
         ShopListActions.setAuthor(transaction, ref, firstCollaboratorFound);
-        userInfo.removeKnownList(transaction, listId);
-
-        transaction.apply();
+        userInfo.removeKnownList(transaction, listId).apply();
         return true;
     }
 
@@ -202,8 +199,7 @@ public class ShopList extends BaseCollectionItem {
         manager.reportEvent(FireBaseManager.ON_PROGRESS_START_QUIT);
         TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
         removeCollaborator(transaction, userInfo.getUserId(), true);
-        userInfo.removeKnownList(transaction, listId);
-        transaction.apply();
+        userInfo.removeKnownList(transaction, listId).apply();
 
         return true;
     }
@@ -217,13 +213,10 @@ public class ShopList extends BaseCollectionItem {
         return transaction;
     }
 
-    private TransactionWrapper removeCollaboratorData(TransactionWrapper transaction, String userId) {
+    public TransactionWrapper removeCollaboratorData(
+            TransactionWrapper transaction, String userId) {
 
-        Collaborator collaborator = collaboratorsData.get(userId);
-
-        if (collaborator != null) {
             CollaboratorActions.remove(transaction, CollaboratorActions.getRef(ref, userId));
-        }
 
         return transaction;
     }

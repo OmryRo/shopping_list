@@ -95,7 +95,7 @@ public class TransactionWrapper {
             this.ref = ref;
         }
 
-        public abstract Transaction execute(Transaction transaction);
+        public abstract Transaction execute(Transaction transaction) throws FirebaseFirestoreException;
     }
 
     private class CreateOperation extends Operation {
@@ -107,7 +107,7 @@ public class TransactionWrapper {
         }
 
         @Override
-        public Transaction execute(Transaction transaction) {
+        public Transaction execute(Transaction transaction) throws FirebaseFirestoreException {
             return transaction.set(ref, parameters);
         }
     }
@@ -126,7 +126,7 @@ public class TransactionWrapper {
         }
 
         @Override
-        public Transaction execute(Transaction transaction) {
+        public Transaction execute(Transaction transaction) throws FirebaseFirestoreException {
             return transaction.update(ref, parameters);
         }
     }
@@ -138,8 +138,16 @@ public class TransactionWrapper {
         }
 
         @Override
-        public Transaction execute(Transaction transaction) {
-            return transaction.delete(ref);
+        public Transaction execute(Transaction transaction) throws FirebaseFirestoreException {
+
+            // if not exist anymore, don't do anything.
+            // it may throw FirebaesFirestoreException if you don't have premission
+            //      to remove, and we would like to stop the action if such exception throws.
+            if (transaction.get(ref).exists()) {
+                transaction.delete(ref);
+            }
+
+            return transaction;
         }
     }
 
