@@ -110,11 +110,7 @@ public class ShopList extends BaseCollectionItem {
 
         ShopListActions.removeCollaborators(transaction, ref, userId);
 
-        if (removeData) {
-              removeCollaboratorData(transaction, userId);
-        }
-
-        return transaction;
+        return removeData ? removeCollaboratorData(transaction, userId) : transaction;
     }
 
     void removeTaskFromList(final ShopTask shopTask) {
@@ -144,7 +140,7 @@ public class ShopList extends BaseCollectionItem {
 
     private boolean removeListAsAuthor() {
 
-        if (!userInfo.getUserId().equals(author) || collaborators.size() != 0) {
+        if (!isAuthor() || collaborators.size() != 0) {
             return false;
         }
 
@@ -165,13 +161,12 @@ public class ShopList extends BaseCollectionItem {
         removeAllTasks(transaction);
         removeCollaboratorData(transaction, userInfo.getUserId());
         ShopListActions.remove(transaction, ref);
-        userInfo.removeKnownList(transaction, listId);
-        transaction.apply();
+        userInfo.removeKnownList(transaction, listId).apply();
         return true;
     }
 
     private boolean quitListAsAuthor() {
-        if (!userInfo.getUserId().equals(author) || collaborators.size() == 0) {
+        if (!isAuthor() || collaborators.size() == 0) {
             return false;
         }
 
@@ -186,8 +181,9 @@ public class ShopList extends BaseCollectionItem {
         String firstCollaboratorFound = collaborators.get(0);
         removeCollaborator(transaction, firstCollaboratorFound, false);
         removeCollaboratorData(transaction, author);
-        ShopListActions.setAuthor(transaction, ref, firstCollaboratorFound);
-        userInfo.removeKnownList(transaction, listId).apply();
+
+        userInfo.removeKnownList(transaction, listId);
+        ShopListActions.setAuthor(transaction, ref, firstCollaboratorFound).apply();
         return true;
     }
 
@@ -213,12 +209,9 @@ public class ShopList extends BaseCollectionItem {
         return transaction;
     }
 
-    public TransactionWrapper removeCollaboratorData(
-            TransactionWrapper transaction, String userId) {
+    TransactionWrapper removeCollaboratorData(TransactionWrapper transaction, String userId) {
 
-            CollaboratorActions.remove(transaction, CollaboratorActions.getRef(ref, userId));
-
-        return transaction;
+     return CollaboratorActions.remove(transaction, CollaboratorActions.getRef(ref, userId));
     }
 
     public void setTitle(String newTitle) {
@@ -264,9 +257,7 @@ public class ShopList extends BaseCollectionItem {
     public HashMap<String, ShopTask> getTasks() {
         HashMap<String, ShopTask> readyTasks = new HashMap<>();
         for (HashMap.Entry<String, ShopTask> entry : shopTasks.entrySet()) {
-            if (entry.getValue().isReady()) {
-                readyTasks.put(entry.getKey(), entry.getValue());
-            }
+            addReady(readyTasks, entry, entry.getValue().isReady());
         }
 
         return readyTasks;
@@ -274,10 +265,8 @@ public class ShopList extends BaseCollectionItem {
 
     public HashMap<String, Collaborator> getCollaborators() {
         HashMap<String, Collaborator> readyCollaborators = new HashMap<>();
-        for (HashMap.Entry<String, Collaborator> entry : collaboratorsData.entrySet()) {
-            if (entry.getValue().isReady()) {
-                readyCollaborators.put(entry.getKey(), entry.getValue());
-            }
+        for (Map.Entry<String, Collaborator> entry : collaboratorsData.entrySet()) {
+            addReady(readyCollaborators, entry, entry.getValue().isReady());
         }
 
         return readyCollaborators;
@@ -292,11 +281,7 @@ public class ShopList extends BaseCollectionItem {
         List<String> tasksToRemove = new ArrayList<>(shopTasks.keySet());
 
         for (String taskId : tasks) {
-            if (!shopTasks.containsKey(taskId)) {
-                shopTasks.put(taskId, new ShopTask(manager, this, taskId));
-            } else {
-                tasksToRemove.remove(taskId);
-            }
+            filterTasksToRemove(tasksToRemove, taskId);
         }
 
         for (String taskId : tasksToRemove) {
@@ -304,27 +289,37 @@ public class ShopList extends BaseCollectionItem {
         }
     }
 
+    private void filterTasksToRemove(List<String> tasksToRemove, String taskId) {
+        if (shopTasks.containsKey(taskId)) {
+            tasksToRemove.remove(taskId);
+        } else {
+            shopTasks.put(taskId, new ShopTask(manager, this, taskId));
+        }
+    }
+
     private void refreshCollaboratorData() {
 
-        List<String> colloboratorsToRemove = new ArrayList<>(collaboratorsData.keySet());
+        List<String> collaboratorsToRemove = new ArrayList<>(collaboratorsData.keySet());
 
-        if (!collaboratorsData.containsKey(author)) {
-            collaboratorsData.put(author, new Collaborator(manager, this, author));
-        } else {
-            colloboratorsToRemove.remove(author);
-        }
+        filterCollaboratorToRemove(collaboratorsToRemove, author);
 
         for (String collaboratorId : collaborators) {
-            if (!collaboratorsData.containsKey(collaboratorId)) {
-                collaboratorsData.put(
-                        collaboratorId, new Collaborator(manager, this, collaboratorId));
-            } else {
-                colloboratorsToRemove.remove(collaboratorId);
-            }
+            filterCollaboratorToRemove(collaboratorsToRemove, collaboratorId);
         }
 
-        for (String colloboratorId : colloboratorsToRemove) {
-            collaboratorsData.remove(colloboratorId);
+        for (String collaboratorId : collaboratorsToRemove) {
+            collaboratorsData.remove(collaboratorId);
+        }
+    }
+
+    private void filterCollaboratorToRemove(
+            List<String> collaboratorsToRemove, String collaboratorId) {
+
+        if (collaboratorsData.containsKey(collaboratorId)) {
+            collaboratorsToRemove.remove(collaboratorId);
+        } else {
+            collaboratorsData.put(
+                    collaboratorId, new Collaborator(manager, this, collaboratorId));
         }
     }
 

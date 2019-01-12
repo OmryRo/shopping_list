@@ -6,6 +6,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.annotation.Nullable;
 
 import app.shoppinglist.wsux.shoppinglist.firebase.db.TransactionWrapper;
@@ -137,6 +140,13 @@ public abstract class BaseCollectionItem implements
 
     protected void setNotReady() {
         isReady = false;
+    }
+
+    <T> void addReady(HashMap<String, T> collection, Map.Entry<String, T> entry, Boolean flag) {
+
+        if (flag) {
+            collection.put(entry.getKey(), entry.getValue());
+        }
     }
 
     public interface OnChildChangeListener {

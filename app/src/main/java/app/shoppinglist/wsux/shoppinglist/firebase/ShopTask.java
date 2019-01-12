@@ -186,8 +186,6 @@ public class ShopTask extends BaseCollectionItem implements Comparable<ShopTask>
     }
 
     public void remove() {
-        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
-        ShopTaskActions.remove(transaction, ref);
         inList.removeTaskFromList(this);
         removeAllListeners();
         setNotReady();
@@ -210,10 +208,7 @@ public class ShopTask extends BaseCollectionItem implements Comparable<ShopTask>
 
     @Override
     public int compareTo(ShopTask other) {
-        if (state == other.state) {
-            return title.compareTo(other.title);
-        }
 
-        return (int) (state - other.state);
+        return state == other.state ? title.compareTo(other.title) : (int) (state - other.state);
     }
 }
