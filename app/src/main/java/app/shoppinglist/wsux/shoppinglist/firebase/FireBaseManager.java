@@ -71,6 +71,10 @@ public class FireBaseManager {
         initHandlers();
     }
 
+    Activity getAppContext() {
+        return context;
+    }
+
     private void initFireStore() {
         this.db = FirebaseFirestore.getInstance();
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
@@ -80,17 +84,19 @@ public class FireBaseManager {
     }
 
     private void initHandlers() {
-        this.loginManager = new LoginManager(context, this);
-        this.shareHandler = new ShareHandler(context, this);
-        this.imageManager = new ImageManager(context, this);
-        this.uploadManager = new UploadManager(context, this);
+        this.loginManager = new LoginManager(this);
+        this.shareHandler = new ShareHandler(this);
+        this.imageManager = new ImageManager(this);
+        this.uploadManager = new UploadManager(this);
     }
 
     public void onCreate() {
         loginManager.onCreate();
     }
 
-    public void onStart() {
+    public void onStart(Activity context) {
+        this.context = context;
+
         loginManager.onStart();
 
         UserInfo currentUser = loginManager.getCurrentUserInfo();

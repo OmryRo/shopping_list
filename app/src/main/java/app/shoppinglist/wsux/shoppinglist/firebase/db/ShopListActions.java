@@ -110,13 +110,14 @@ public class ShopListActions {
             String userId,
             String name,
             String email,
-            String picture
+            String picture,
+            String message
     ) {
         DocumentReference collaboratorRef = CollaboratorActions.getRef(listRef, userId);
         CollaboratorActions.newCollaborator(
                 transactionWrapper,
                 collaboratorRef,
-                name, email, picture);
+                name, email, picture, message);
 
         return transactionWrapper;
     }

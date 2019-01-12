@@ -221,14 +221,28 @@ public class UserInfo extends BaseCollectionItem {
 
     private void createCollaboratorDataByRef(DocumentReference listRef) {
         TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), UserInfo.this);
-        ShopListActions.addCollaboratorData(
-                transaction, ShopListActions.getRef(manager.getDb(), listRef.getId()), getUserId(), getDisplayName(), getEmail(), getPictureURL());
+        ShopList.addColloboratorDataByRef(transaction, manager, listRef, this);
         transaction.apply();
     }
 
     private void initInfoInDB() {
         TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
         UserInfoActions.initUser(transaction, ref).apply();
+    }
+
+    TransactionWrapper removeKnownList(TransactionWrapper transaction, String listId) {
+        UserInfoActions.removeKnownList(transaction, ref, listId);
+
+        List<String> remainingLists = new ArrayList<>(listNames);
+        remainingLists.remove(listId);
+
+        if (remainingLists.size() > 0) {
+            UserInfoActions.setLastList(transaction, ref, remainingLists.get(0));
+        } else {
+            UserInfoActions.clearLastList(transaction, ref);
+        }
+
+        return transaction;
     }
 
     @Override

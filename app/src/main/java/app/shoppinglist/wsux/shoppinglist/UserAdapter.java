@@ -50,6 +50,10 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     UserAdapter(Context context, ShopList shopList) {
         this.context = context;
         this.shopList = shopList;
+        updateDataSet();
+    }
+
+    private void updateDataSet() {
         this.usersDataset = new ArrayList<>(getOrderedCollaborators(shopList));
     }
 
@@ -99,13 +103,19 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     }
 
     private void removeCollaborator(final Collaborator collaborator) {
-
         new AlertDialog.Builder(context)
                 .setTitle(context.getString(R.string.verify_before_remove_collaborator, collaborator.getName()))
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        shopList.removeCollaborators(collaborator.getUserId());
+                        collaborator.remove(new Collaborator.RemoveListener() {
+                            @Override
+                            public void onCollaboratorRemoved() {
+                                updateDataSet();
+                                notifyDataSetChanged();
+
+                            }
+                        });
                     }
                 })
                 .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {

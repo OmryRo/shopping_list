@@ -205,7 +205,7 @@ public class ShopTask extends BaseCollectionItem implements Comparable<ShopTask>
 
     @Override
     public String toString() {
-        return String.format("ShopTask: %s", taskId);
+        return String.format("ShopTask: %s -> %s", inList.getListId(), taskId);
     }
 
     @Override

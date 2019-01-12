@@ -47,6 +47,12 @@ public class UserInfoActions {
         return transaction.update(ref, FIRESTORE_FIELD_LAST_LIST, lastList);
     }
 
+    public static TransactionWrapper clearLastList(
+            TransactionWrapper transaction, DocumentReference ref) {
+
+        return transaction.removeKey(ref, FIRESTORE_FIELD_LAST_LIST);
+    }
+
     public static TransactionWrapper initUser(
             TransactionWrapper transaction, DocumentReference ref) {
 

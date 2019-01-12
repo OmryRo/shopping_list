@@ -1,6 +1,7 @@
 package app.shoppinglist.wsux.shoppinglist.firebase;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
@@ -156,13 +157,34 @@ public class Collaborator extends BaseCollectionItem {
         manager.reportEvent(FireBaseManager.ON_COLLABORATOR_FAILURE, this, e);
     }
 
-    void remove() {
-        removeAllListeners();
-        setNotReady();
+    public void remove(final RemoveListener listener) {
+        TransactionWrapper transactionWrapper =
+                new TransactionWrapper(manager.getDb(), new TransactionWrapper.ResultListener() {
+            @Override
+            public void onSuccess() {
+                if (listener != null) {
+                    listener.onCollaboratorRemoved();
+                }
+                Collaborator.this.onSuccess();
+                Log.d(TAG, "onSuccess: " + this);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Collaborator.this.onFailure(e);
+                Log.d(TAG, "onFailure: "+ this);
+            }
+        });
+
+        inList.removeCollaborator(transactionWrapper, userId, true).apply();
     }
 
     @Override
     public String toString() {
-        return String.format("Collaborator: %s", userId);
+        return String.format("Collaborator: %s -> %s", inList.getListId(), userId);
+    }
+
+    public interface RemoveListener {
+        void onCollaboratorRemoved();
     }
 }

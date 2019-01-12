@@ -26,13 +26,15 @@ public class CollaboratorActions {
             DocumentReference ref,
             String name,
             String email,
-            String picture
+            String picture,
+            String message
     ) {
         HashMap<String, Object> fields = new HashMap<>();
         fields.put(FIRESTORE_FIELD_NAME, name);
         fields.put(FIRESTORE_FIELD_EMAIL, email);
         fields.put(FIRESTORE_FIELD_PICTURE, picture);
         fields.put(FIRESTORE_FIELD_TTL, createTTLObject());
+        fields.put(FIRESTORE_FIELD_MESSAGE, message);
 
         return transactionWrapper.create(ref, fields);
     }

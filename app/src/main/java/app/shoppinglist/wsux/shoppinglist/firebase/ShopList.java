@@ -1,7 +1,5 @@
 package app.shoppinglist.wsux.shoppinglist.firebase;
 
-import android.util.Log;
-
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -11,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import app.shoppinglist.wsux.shoppinglist.R;
 import app.shoppinglist.wsux.shoppinglist.firebase.db.CollaboratorActions;
 import app.shoppinglist.wsux.shoppinglist.firebase.db.ShopListActions;
 import app.shoppinglist.wsux.shoppinglist.firebase.db.TransactionWrapper;
@@ -80,27 +79,33 @@ public class ShopList extends BaseCollectionItem {
     public void replaceTokenByCollaborators(final String token) {
         TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
         ShopListActions.addCollaborator(transaction, ref, userInfo.getUserId());
-        ShopListActions.addCollaboratorData(
+        addColloboratorDataByRef(transaction, manager, ref, userInfo);
+        ShopListActions.removeToken(transaction, ref, token);
+        UserInfoActions.removeToken(transaction, userInfo.getRef(), listId).apply();
+    }
+
+    static TransactionWrapper addColloboratorDataByRef(
+            TransactionWrapper transaction,
+            FireBaseManager manager,
+            DocumentReference ref,
+            UserInfo userInfo) {
+
+        return ShopListActions.addCollaboratorData(
                 transaction,
                 ref,
                 userInfo.getUserId(),
                 userInfo.getDisplayName(),
                 userInfo.getEmail(),
-                userInfo.getPictureURL()
+                userInfo.getPictureURL(),
+                manager.getAppContext().getString(R.string.default_message)
         );
-        ShopListActions.removeToken(transaction, ref, token);
-        UserInfoActions.removeToken(transaction, userInfo.getRef(), listId).apply();
     }
 
-    public void removeCollaborators(String userId) {
-        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
-        removeCollaborators(transaction, userId, false);
-        transaction.apply();
-    }
+    TransactionWrapper removeCollaborator(
+            TransactionWrapper transaction, String userId, boolean removeData) {
 
-    public void removeCollaborators(TransactionWrapper transaction, String userId, boolean removeData) {
         if (!collaborators.contains(userId)) {
-            return;
+            return transaction;
         }
 
         ShopListActions.removeCollaborators(transaction, ref, userId);
@@ -109,6 +114,7 @@ public class ShopList extends BaseCollectionItem {
             CollaboratorActions.remove(transaction, CollaboratorActions.getRef(ref, userId));
         }
 
+        return transaction;
     }
 
     void removeTaskFromList(final ShopTask shopTask) {
@@ -120,13 +126,12 @@ public class ShopList extends BaseCollectionItem {
                 if (onChildChangeListener != null) {
                     onChildChangeListener.onChildChange();
                 }
-
-//                this.onSuccess();
+                ShopList.this.onSuccess();
             }
 
             @Override
             public void onFailure(Exception e) {
-                onFailure(e);
+                ShopList.this.onFailure(e);
             }
         });
 
@@ -138,23 +143,30 @@ public class ShopList extends BaseCollectionItem {
     }
 
     private boolean removeListAsAuthor() {
+
         if (!userInfo.getUserId().equals(author) || collaborators.size() != 0) {
             return false;
         }
 
         manager.reportEvent(FireBaseManager.ON_PROGRESS_START_DELETE);
-        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
+        TransactionWrapper transaction =
+                new TransactionWrapper(manager.getDb(), new TransactionWrapper.ResultListener() {
+            @Override
+            public void onSuccess() {
+                userInfo.reportChildChange();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                ShopList.this.onFailure(e);
+            }
+        });
+
         removeAllTasks(transaction);
         removeCollaboratorData(transaction, userInfo.getUserId());
-//        setNotReady();
-//        removeAllListeners();
-//        ref.delete();
         ShopListActions.remove(transaction, ref);
-        Log.d(TAG, "removeListAsAuthor: "+ author);
-//        UserInfoActions.removeKnownList(transaction, ref, listId);
+        userInfo.removeKnownList(transaction, listId);
         transaction.apply();
-        userInfo.reportChildChange();
-
         return true;
     }
 
@@ -165,19 +177,19 @@ public class ShopList extends BaseCollectionItem {
 
         manager.reportEvent(FireBaseManager.ON_PROGRESS_START_QUIT);
         TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
-        String firstCollaboratorFound = collaborators.get(0);
-        removeCollaborators(transaction, firstCollaboratorFound, true);
-        Log.d(TAG, "quitListAsAuthor: "+ firstCollaboratorFound +" new Author: "+ author);
-//        removeCollaboratorData(transaction, userInfo.getUserId());
 
-        if (author.equals(firstCollaboratorFound)) {
+        if (collaborators.contains(author)) {
+            removeCollaborator(transaction, author, false);
+            transaction.apply();
             return remove();
         }
-        ShopListActions.setAuthor(transaction, ref, author);
-//        setAuthor(author);
-//        removeAllListeners();
-        UserInfoActions.removeKnownList(transaction, ref, listId);
-//        userInfo.removeKnownList(listId);
+
+        String firstCollaboratorFound = collaborators.get(0);
+        removeCollaborator(transaction, firstCollaboratorFound, false);
+        removeCollaboratorData(transaction, author);
+        ShopListActions.setAuthor(transaction, ref, firstCollaboratorFound);
+        userInfo.removeKnownList(transaction, listId);
+
         transaction.apply();
         return true;
     }
@@ -189,28 +201,31 @@ public class ShopList extends BaseCollectionItem {
 
         manager.reportEvent(FireBaseManager.ON_PROGRESS_START_QUIT);
         TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
-//        removeCollaboratorData(transaction, userInfo.getUserId());
-//        removeCollaborators(transaction, userInfo.getUserId());
-        removeCollaborators(transaction, userInfo.getUserId(), true);
-//        removeAllListeners();
-        UserInfoActions.removeKnownList(transaction, ref, listId).apply();
+        removeCollaborator(transaction, userInfo.getUserId(), true);
+        userInfo.removeKnownList(transaction, listId);
+        transaction.apply();
 
         return true;
     }
 
-    private void removeAllTasks(TransactionWrapper transaction) {
+    private TransactionWrapper removeAllTasks(TransactionWrapper transaction) {
+
         for (ShopTask task : shopTasks.values()) {
             ShopListActions.removeTask(transaction, ref, task.getRef());
-//            task.remove();
         }
+
+        return transaction;
     }
 
-    private void removeCollaboratorData(TransactionWrapper transaction, String userId) {
+    private TransactionWrapper removeCollaboratorData(TransactionWrapper transaction, String userId) {
+
         Collaborator collaborator = collaboratorsData.get(userId);
+
         if (collaborator != null) {
             CollaboratorActions.remove(transaction, CollaboratorActions.getRef(ref, userId));
-//                        collaborator.remove();
         }
+
+        return transaction;
     }
 
     public void setTitle(String newTitle) {
@@ -280,17 +295,14 @@ public class ShopList extends BaseCollectionItem {
     }
 
     private void refreshShopTaskData() {
+
+        List<String> tasksToRemove = new ArrayList<>(shopTasks.keySet());
+
         for (String taskId : tasks) {
             if (!shopTasks.containsKey(taskId)) {
                 shopTasks.put(taskId, new ShopTask(manager, this, taskId));
-            }
-        }
-
-        List<String> tasksToRemove = new ArrayList<>();
-
-        for (String taskId : shopTasks.keySet()) {
-            if (!tasks.contains(taskId)) {
-                tasksToRemove.add(taskId);
+            } else {
+                tasksToRemove.remove(taskId);
             }
         }
 
@@ -300,15 +312,26 @@ public class ShopList extends BaseCollectionItem {
     }
 
     private void refreshCollaboratorData() {
+
+        List<String> colloboratorsToRemove = new ArrayList<>(collaboratorsData.keySet());
+
         if (!collaboratorsData.containsKey(author)) {
             collaboratorsData.put(author, new Collaborator(manager, this, author));
+        } else {
+            colloboratorsToRemove.remove(author);
         }
 
         for (String collaboratorId : collaborators) {
             if (!collaboratorsData.containsKey(collaboratorId)) {
                 collaboratorsData.put(
                         collaboratorId, new Collaborator(manager, this, collaboratorId));
+            } else {
+                colloboratorsToRemove.remove(collaboratorId);
             }
+        }
+
+        for (String colloboratorId : colloboratorsToRemove) {
+            collaboratorsData.remove(colloboratorId);
         }
     }
 
