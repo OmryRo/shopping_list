@@ -83,9 +83,15 @@ public class TransactionWrapper {
     }
 
     private Object runTransaction(Transaction transaction) throws FirebaseFirestoreException {
+
+        for (Operation operation : operations) {
+            transaction = operation.prepare(transaction);
+        }
+
         for (Operation operation : operations) {
             transaction = operation.execute(transaction);
         }
+
         return null;
     }
 
@@ -93,6 +99,10 @@ public class TransactionWrapper {
         public DocumentReference ref;
         protected Operation(DocumentReference ref) {
             this.ref = ref;
+        }
+
+        public Transaction prepare(Transaction transaction) throws FirebaseFirestoreException {
+            return transaction;
         }
 
         public abstract Transaction execute(Transaction transaction) throws FirebaseFirestoreException;
@@ -133,17 +143,29 @@ public class TransactionWrapper {
 
     private class DeleteOperation extends Operation {
 
+        private boolean exists = false;
+
         private DeleteOperation(DocumentReference ref) {
             super(ref);
         }
 
         @Override
-        public Transaction execute(Transaction transaction) throws FirebaseFirestoreException {
+        public Transaction prepare(Transaction transaction) throws FirebaseFirestoreException {
 
             // if not exist anymore, don't do anything.
             // it may throw FirebaesFirestoreException if you don't have premission
             //      to remove, and we would like to stop the action if such exception throws.
             if (transaction.get(ref).exists()) {
+                exists = true;
+            }
+
+            return transaction;
+        }
+
+        @Override
+        public Transaction execute(Transaction transaction) throws FirebaseFirestoreException {
+
+            if (exists) {
                 transaction.delete(ref);
             }
 

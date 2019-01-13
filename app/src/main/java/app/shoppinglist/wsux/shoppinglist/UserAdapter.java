@@ -98,6 +98,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             @Override
             public void onClick(View v) {
                 removeCollaborator(collaborator);
+
+
             }
         });
     }
@@ -113,6 +115,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                             public void onCollaboratorRemoved() {
                                 updateDataSet();
                                 notifyDataSetChanged();
+
 
                             }
                         });

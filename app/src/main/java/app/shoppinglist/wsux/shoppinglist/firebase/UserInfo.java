@@ -33,10 +33,7 @@ public class UserInfo extends BaseCollectionItem {
 
     UserInfo(FireBaseManager manager, FirebaseUser user) {
         super(manager);
-        userId = user.getUid();
-        email = user.getEmail();
-        displayName = user.getDisplayName();
-        pictureURL = user.getPhotoUrl().toString();
+        initUserInfo(user);
 
         hasStartedPictureDownload = false;
         listNames = new ArrayList<>();
@@ -45,6 +42,13 @@ public class UserInfo extends BaseCollectionItem {
 
         ref = UserInfoActions.getRef(manager.getDb(), userId);
         ref.addSnapshotListener(this);
+    }
+
+    private void initUserInfo(FirebaseUser user) {
+        userId = user.getUid();
+        email = user.getEmail();
+        displayName = user.getDisplayName();
+        pictureURL = user.getPhotoUrl().toString();
     }
 
     public DocumentReference getRef(){return ref;}
@@ -199,7 +203,8 @@ public class UserInfo extends BaseCollectionItem {
 
         final DocumentReference listRef = ShopListActions.getNewRef(manager.getDb());
 
-        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), new TransactionWrapper.ResultListener() {
+        TransactionWrapper transaction =
+                new TransactionWrapper(manager.getDb(), new TransactionWrapper.ResultListener() {
             @Override
             public void onSuccess() {
                 createCollaboratorDataByRef(listRef);
@@ -214,13 +219,12 @@ public class UserInfo extends BaseCollectionItem {
 
         ShopListActions.createNewList(transaction, listRef, userId, listTitle);
         UserInfoActions.addKnownList(transaction, ref, listRef.getId());
-        UserInfoActions.setLastList(transaction, ref, listRef.getId());
-        transaction.apply();
-
+        UserInfoActions.setLastList(transaction, ref, listRef.getId()).apply();
     }
 
     private void createCollaboratorDataByRef(DocumentReference listRef) {
-        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), UserInfo.this);
+        TransactionWrapper transaction =
+                new TransactionWrapper(manager.getDb(), UserInfo.this);
         ShopList.addColloboratorDataByRef(transaction, manager, listRef, this);
         transaction.apply();
     }

@@ -210,8 +210,9 @@ public class ShopList extends BaseCollectionItem {
     }
 
     TransactionWrapper removeCollaboratorData(TransactionWrapper transaction, String userId) {
-
-     return CollaboratorActions.remove(transaction, CollaboratorActions.getRef(ref, userId));
+        Collaborator collaborator = collaboratorsData.get(userId);
+        if (collaborator == null) {return transaction;}
+        return CollaboratorActions.remove(transaction, CollaboratorActions.getRef(ref, userId));
     }
 
     public void setTitle(String newTitle) {
