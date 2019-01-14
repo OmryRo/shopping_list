@@ -104,13 +104,14 @@ public class ShopList extends BaseCollectionItem {
     TransactionWrapper removeCollaborator(
             TransactionWrapper transaction, String userId, boolean removeData) {
 
-        if (!collaborators.contains(userId)) {
-            return transaction;
-        }
-
         ShopListActions.removeCollaborators(transaction, ref, userId);
 
-        return removeData ? removeCollaboratorData(transaction, userId) : transaction;
+        if (removeData) {
+//            CollaboratorActions.remove(transaction, myRef);
+                       return removeCollaboratorData(transaction, userId);
+        }
+
+        return transaction;
     }
 
     void removeTaskFromList(final ShopTask shopTask) {
@@ -210,8 +211,6 @@ public class ShopList extends BaseCollectionItem {
     }
 
     TransactionWrapper removeCollaboratorData(TransactionWrapper transaction, String userId) {
-        Collaborator collaborator = collaboratorsData.get(userId);
-        if (collaborator == null) {return transaction;}
         return CollaboratorActions.remove(transaction, CollaboratorActions.getRef(ref, userId));
     }
 

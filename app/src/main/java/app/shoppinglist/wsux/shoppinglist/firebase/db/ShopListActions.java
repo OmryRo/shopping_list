@@ -86,8 +86,7 @@ public class ShopListActions {
     public static TransactionWrapper removeCollaborators(
             TransactionWrapper transaction, DocumentReference listRef, String userId) {
 
-        transaction.removeFromList(listRef, FIRESTORE_FIELD_COLLABORATORS, userId);
-        return transaction;
+        return transaction.removeFromList(listRef, FIRESTORE_FIELD_COLLABORATORS, userId);
     }
 
     public static TransactionWrapper createNewList(
