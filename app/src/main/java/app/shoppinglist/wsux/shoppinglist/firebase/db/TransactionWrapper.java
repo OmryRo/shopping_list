@@ -2,7 +2,6 @@ package app.shoppinglist.wsux.shoppinglist.firebase.db;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -79,26 +78,19 @@ public class TransactionWrapper {
     }
 
     TransactionWrapper delete(DocumentReference reference) {
-        Log.d("TESTTESTETEST", "delete: " +reference.getPath());
         operations.add(new DeleteOperation(reference));
         return this;
     }
 
     private Object runTransaction(Transaction transaction) throws FirebaseFirestoreException {
 
-        Log.d("TESTTESTETEST", "runTransaction: starts");
-
         for (Operation operation : operations) {
-            Log.d("TESTTESTETEST", "runTransaction: prepare " + operation.getClass().toString() + " " + operation.ref.getPath());
             transaction = operation.prepare(transaction);
         }
 
         for (Operation operation : operations) {
-            Log.d("TESTTESTETEST", "runTransaction: execute " + operation.getClass().toString() + " " + operation.ref.getPath());
             transaction = operation.execute(transaction);
         }
-
-        Log.d("TESTTESTETEST", "runTransaction: ends");
 
         return null;
     }
@@ -163,12 +155,9 @@ public class TransactionWrapper {
             // if not exist anymore, don't do anything.
             // it may throw FirebaesFirestoreException if you don't have premission
             //      to remove, and we would like to stop the action if such exception throws.
-            Log.d("TESTTESTETEST", "prepare: " + ref.getPath());
             if (transaction.get(ref).exists()) {
-                Log.d("TESTTESTETEST", "prepare: exists!");
                 exists = true;
             }
-            Log.d("TESTTESTETEST", "prepare: not exists!");
 
             return transaction;
         }
@@ -176,14 +165,8 @@ public class TransactionWrapper {
         @Override
         public Transaction execute(Transaction transaction) throws FirebaseFirestoreException {
 
-            try {
-                if (exists) {
-                    Log.d("TESTTESTETEST", "execute: trying to remove");
-                    transaction.delete(ref);
-                }
-            } catch (Exception e) {
-                Log.e("TESTTESTETEST", "execute: ", e);
-                throw e;
+            if (exists) {
+                transaction.delete(ref);
             }
 
             return transaction;

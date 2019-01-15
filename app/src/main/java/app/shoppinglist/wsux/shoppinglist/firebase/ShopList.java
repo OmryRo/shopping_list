@@ -107,8 +107,7 @@ public class ShopList extends BaseCollectionItem {
         ShopListActions.removeCollaborators(transaction, ref, userId);
 
         if (removeData) {
-//            CollaboratorActions.remove(transaction, myRef);
-                       return removeCollaboratorData(transaction, userId);
+            return removeCollaboratorData(transaction, userId);
         }
 
         return transaction;
@@ -220,7 +219,7 @@ public class ShopList extends BaseCollectionItem {
             return;
         }
 
-        TransactionWrapper transaction= new TransactionWrapper(manager.getDb(), this);
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
         ShopListActions.setTitle(transaction, ref, newTitle).apply();
     }
 
@@ -238,7 +237,7 @@ public class ShopList extends BaseCollectionItem {
             return;
         }
 
-        TransactionWrapper transaction= new TransactionWrapper(manager.getDb(), this);
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
         ShopListActions.setAuthor(transaction, ref, author).apply();
     }
 
