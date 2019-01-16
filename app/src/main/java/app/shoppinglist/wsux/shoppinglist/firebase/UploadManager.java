@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -220,15 +222,22 @@ public class UploadManager {
         }
 
     }
+    private static Bitmap rotateImage(Bitmap img, int degree) {
+        if (degree == 0) {
+            return img;
+        }
+        Matrix matrix = new Matrix();
+        matrix.postRotate(degree);
+        return Bitmap.createBitmap(img, 0, 0,img.getWidth(), img.getHeight(), matrix, true);
+    }
 
     public class ImageUpload {
         private Bitmap bitmap;
-
         ImageUpload(Uri path) {
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), path);
                 if (bitmap != null) {
-                    this.bitmap = reScale(bitmap);
+                    this.bitmap = reScale(bitmap, path.toString());
                 }
 
             } catch (IOException e) {
@@ -249,7 +258,7 @@ public class UploadManager {
                 return;
             }
 
-            bitmap = reScale(bitmap);
+            bitmap = reScale(bitmap, shopTask.getPictureUrl());
             byte[] imageBytes = toByteArray(bitmap);
 
             final StorageReference ref = getStorageReference(shopTask);
@@ -273,7 +282,7 @@ public class UploadManager {
             });
         }
 
-        private Bitmap reScale(Bitmap bitmap) {
+        private Bitmap reScale(Bitmap bitmap, String madiaString) {
             float ratio = Math.min(
                     ((float) MAX_WIDTH) / bitmap.getWidth(),
                     ((float) MAX_HEIGHT) / bitmap.getHeight()
@@ -282,7 +291,45 @@ public class UploadManager {
             int width = Math.round(ratio * bitmap.getWidth());
             int height = Math.round(ratio * bitmap.getHeight());
 
-            return Bitmap.createScaledBitmap(bitmap, width, height, true);
+            Bitmap image = Bitmap.createScaledBitmap(bitmap, width, height, true);
+
+
+
+
+            return image;
+
+        }
+        private Bitmap rotate(Bitmap img)
+        {
+            ExifInterface exit = null;
+            try {
+                exit = new ExifInterface(currentFileImage.getAbsolutePath());
+            } catch (IOException e) {
+                Log.e(TAG, "rotate image", e);
+                return img;
+            }
+            int orientation = exit.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+            int degrees = getDegree(orientation);
+
+
+            return rotateImage(img, degrees);
+        }
+
+        private int getDegree(int orientation) {
+            int degrees = 0;
+            switch (orientation){
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    degrees = 90;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    degrees = 180;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    degrees = 2170;
+                    break;
+            }
+            return degrees;
         }
 
         private byte[] toByteArray(Bitmap bitmap) {
