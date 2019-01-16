@@ -46,13 +46,13 @@ public class ShopTaskActions {
     }
 
     public static TransactionWrapper setDescription(
-            TransactionWrapper transactionWrapper, DocumentReference ref, String description){
+            TransactionWrapper transactionWrapper, DocumentReference ref, String description) {
 
         return transactionWrapper.update(ref, FIRESTORE_FIELD_DESCRIPTION, description);
     }
 
     public static TransactionWrapper setState(
-            TransactionWrapper transactionWrapper, DocumentReference ref, int state){
+            TransactionWrapper transactionWrapper, DocumentReference ref, int state) {
 
         return transactionWrapper.update(ref, FIRESTORE_FIELD_STATE, state);
     }
@@ -62,11 +62,13 @@ public class ShopTaskActions {
 
         return transactionWrapper.update(ref, FIRESTORE_FIELD_IMAGE_URL, imageUrl);
     }
+
     public static TransactionWrapper removeImageUrl(
             TransactionWrapper transactionWrapper, DocumentReference ref) {
 
         return transactionWrapper.removeKey(ref, FIRESTORE_FIELD_IMAGE_URL);
     }
+
     public static TransactionWrapper remove(
             TransactionWrapper transactionWrapper, DocumentReference ref) {
 

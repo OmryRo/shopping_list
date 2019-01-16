@@ -45,26 +45,17 @@ public class Collaborator extends BaseCollectionItem {
      */
     @Override
     void specificOnEvent(DocumentSnapshot document) {
-        name = document.getString(CollaboratorActions.FIRESTORE_FIELD_NAME);
-        email = document.getString(CollaboratorActions.FIRESTORE_FIELD_EMAIL);
-        message = document.getString(CollaboratorActions.FIRESTORE_FIELD_MESSAGE);
-
-        if (document.contains(CollaboratorActions.FIRESTORE_FIELD_PICTURE)) {
-            pictureURL = document.getString(CollaboratorActions.FIRESTORE_FIELD_PICTURE);
-        }
-
-        if (document.contains(CollaboratorActions.FIRESTORE_FIELD_TTL)) {
-            ttl = document.getTimestamp(CollaboratorActions.FIRESTORE_FIELD_TTL);
-        }
+        getUserInfo(document);
+        getPictureUrl(document);
+        getTtl(document);
 
         color = COLORS[Math.abs(userId.hashCode()) % COLORS.length];
 
-        if (!hasStartedPictureDownload && pictureURL != null) {
-            hasStartedPictureDownload = true;
-            manager.getImageManager().downloadPicture(this, pictureURL);
-        }
         setReady();
+        reportEventChange();
+    }
 
+    private void reportEventChange() {
         inList.reportChildChange();
         manager.reportEvent(FireBaseManager.ON_COLLABORATOR_UPDATED, this);
 
@@ -75,6 +66,28 @@ public class Collaborator extends BaseCollectionItem {
         if (isUpdateRequire()) {
             updateData();
         }
+    }
+
+    private void getTtl(DocumentSnapshot document) {
+        if (document.contains(CollaboratorActions.FIRESTORE_FIELD_TTL)) {
+            ttl = document.getTimestamp(CollaboratorActions.FIRESTORE_FIELD_TTL);
+        }
+    }
+
+    private void getPictureUrl(DocumentSnapshot document) {
+        if (document.contains(CollaboratorActions.FIRESTORE_FIELD_PICTURE)) {
+            pictureURL = document.getString(CollaboratorActions.FIRESTORE_FIELD_PICTURE);
+        }
+        if (!hasStartedPictureDownload && pictureURL != null) {
+            hasStartedPictureDownload = true;
+            manager.getImageManager().downloadPicture(this, pictureURL);
+        }
+    }
+
+    private void getUserInfo(DocumentSnapshot document) {
+        name = document.getString(CollaboratorActions.FIRESTORE_FIELD_NAME);
+        email = document.getString(CollaboratorActions.FIRESTORE_FIELD_EMAIL);
+        message = document.getString(CollaboratorActions.FIRESTORE_FIELD_MESSAGE);
     }
 
     private boolean isUpdateRequire() {
@@ -88,16 +101,25 @@ public class Collaborator extends BaseCollectionItem {
             return;
         }
 
+        getCurrentInfo(currentUser);
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
+        setOnCollaborator(transaction);
+
+        transaction.apply();
+
+    }
+
+    private void getCurrentInfo(UserInfo currentUser) {
         name = currentUser.getDisplayName();
         email = currentUser.getEmail();
         pictureURL = currentUser.getPictureURL();
-        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
+    }
+
+    private void setOnCollaborator(TransactionWrapper transaction) {
         CollaboratorActions.setName(transaction, ref, name);
         CollaboratorActions.setEmail(transaction, ref, email);
         CollaboratorActions.setPictureUrl(transaction, ref, pictureURL);
         CollaboratorActions.setTTL(transaction, ref);
-        transaction.apply();
-
     }
 
     public Bitmap getPicture() {

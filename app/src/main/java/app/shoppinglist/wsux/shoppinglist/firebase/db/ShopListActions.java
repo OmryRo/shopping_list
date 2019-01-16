@@ -76,6 +76,7 @@ public class ShopListActions {
 
         return transaction.delete(listRef);
     }
+
     public static TransactionWrapper addCollaborator(
             TransactionWrapper transaction, DocumentReference listRef, String userId) {
 
