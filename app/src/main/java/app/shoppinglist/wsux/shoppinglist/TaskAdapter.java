@@ -91,21 +91,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     }
 
     private void handleNotEmptyPayload(int position, @NonNull List<Object> payloads){
-        Bundle o = (Bundle) payloads.get(0);
+        Bundle taskData = (Bundle) payloads.get(0);
         ShopTask shopTask = shopTasks.get(position);
-        for (String key : o.keySet()) {
-            switch (key) {
-                case BUNDLE_ARG_TITLE:
-                    shopTask.setTitle(o.get(key).toString());
-                    break;
-                case BUNDLE_ARG_DESCRIPTION:
-                    shopTask.setDescription(o.get(key).toString());
-                    break;
-                case BUNDLE_ARG_STATE:
-                    shopTask.setState((Integer) o.get(key));
-                    break;
-            }
-        }
+        shopTask.setTitle(taskData.getString(BUNDLE_ARG_TITLE));
+        shopTask.setDescription(taskData.getString(BUNDLE_ARG_DESCRIPTION));
+        shopTask.setState(taskData.getInt(BUNDLE_ARG_STATE) == 1);
     }
 
     @Override

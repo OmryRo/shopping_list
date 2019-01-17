@@ -75,8 +75,8 @@ public class ShopTaskListDiffCallback extends DiffUtil.Callback {
             diff.putString(BUNDLE_ARG_DESCRIPTION, newShopTask.getDescription());
         }
 
-        if (newShopTask.getState() != oldShopTask.getState()){
-            diff.putLong(BUNDLE_ARG_STATE, newShopTask.getState());
+        if (newShopTask.isDone() != oldShopTask.isDone()){
+            diff.putInt(BUNDLE_ARG_STATE, newShopTask.isDone() ? 1 : 0);
         }
 
         return diff;
