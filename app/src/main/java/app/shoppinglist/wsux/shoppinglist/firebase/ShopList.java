@@ -256,7 +256,10 @@ public class ShopList extends BaseCollectionItem {
     public HashMap<String, ShopTask> getTasks() {
         HashMap<String, ShopTask> readyTasks = new HashMap<>();
         for (HashMap.Entry<String, ShopTask> entry : shopTasks.entrySet()) {
-            addReady(readyTasks, entry, entry.getValue().isReady());
+
+            if (entry.getValue().isReady()) {
+                readyTasks.put(entry.getKey(), entry.getValue());
+            }
         }
 
         return readyTasks;
@@ -265,7 +268,10 @@ public class ShopList extends BaseCollectionItem {
     public HashMap<String, Collaborator> getCollaborators() {
         HashMap<String, Collaborator> readyCollaborators = new HashMap<>();
         for (Map.Entry<String, Collaborator> entry : collaboratorsData.entrySet()) {
-            addReady(readyCollaborators, entry, entry.getValue().isReady());
+
+            if (entry.getValue().isReady()) {
+                readyCollaborators.put(entry.getKey(), entry.getValue());
+            }
         }
 
         return readyCollaborators;
