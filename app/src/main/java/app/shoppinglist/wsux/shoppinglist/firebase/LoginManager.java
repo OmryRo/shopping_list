@@ -1,9 +1,6 @@
 package app.shoppinglist.wsux.shoppinglist.firebase;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -24,7 +21,6 @@ public class LoginManager {
 
     private final static String TAG = "FIRE_BASE_LOGIN_MANAGER";
 
-    private Activity context;
     private GoogleSignInClient googleSignInClient;
     private FirebaseAuth firebaseAuth;
     private FirebaseUser currentUser;
@@ -32,17 +28,16 @@ public class LoginManager {
     private FireBaseManager manager;
 
 
-    LoginManager(Activity context, FireBaseManager manager) {
-        this.context = context;
+    LoginManager(FireBaseManager manager) {
         this.manager = manager;
     }
 
     void onCreate() {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(context.getString(R.string.default_web_client_id))
+                .requestIdToken(manager.getAppContext().getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
-        googleSignInClient = GoogleSignIn.getClient(context, gso);
+        googleSignInClient = GoogleSignIn.getClient(manager.getAppContext(), gso);
         firebaseAuth = FirebaseAuth.getInstance();
     }
 
@@ -64,14 +59,14 @@ public class LoginManager {
     public void requestLogin() {
         manager.reportEvent(FireBaseManager.ON_SIGN_IN_START);
         Intent signInIntent = googleSignInClient.getSignInIntent();
-        context.startActivityForResult(signInIntent, FireBaseManager.RC_SIGN_IN);
+        manager.getAppContext().startActivityForResult(signInIntent, FireBaseManager.RC_SIGN_IN);
     }
 
     public void requestLogout() {
         manager.reportEvent(FireBaseManager.ON_SIGN_OUT_START);
         setCurrentUser(null);
         firebaseAuth.signOut();
-        googleSignInClient.signOut().addOnCompleteListener((Activity) context, new LogoutCompleteListener());
+        googleSignInClient.signOut().addOnCompleteListener(manager.getAppContext(), new LogoutCompleteListener());
     }
 
     public void onSignInIntentReceived(Intent data) {
@@ -82,7 +77,7 @@ public class LoginManager {
     private void fireBaseAuthWithGoogle(GoogleSignInAccount account) {
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
         firebaseAuth.signInWithCredential(credential)
-                .addOnCompleteListener((Activity) context, new FireBaseAuthWithGoogleOnCompleteListener());
+                .addOnCompleteListener(manager.getAppContext(), new FireBaseAuthWithGoogleOnCompleteListener());
     }
 
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {

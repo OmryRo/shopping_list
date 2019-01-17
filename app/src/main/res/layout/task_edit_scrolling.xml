@@ -26,6 +26,7 @@
             android:imeOptions="actionGo"
             android:inputType="text"
             android:maxLines="1"
+            android:maxLength="@integer/max_input_value"
             android:text="@string/add" />
 
         <EditText

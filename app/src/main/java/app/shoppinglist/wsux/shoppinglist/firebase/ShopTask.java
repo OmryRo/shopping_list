@@ -1,28 +1,16 @@
 package app.shoppinglist.wsux.shoppinglist.firebase;
 
-
 import android.graphics.Bitmap;
 
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 
-import java.util.HashMap;
+import app.shoppinglist.wsux.shoppinglist.firebase.db.ShopTaskActions;
+import app.shoppinglist.wsux.shoppinglist.firebase.db.TransactionWrapper;
 
-public class ShopTask extends BaseCollectionItem {
+public class ShopTask extends BaseCollectionItem implements Comparable<ShopTask> {
 
     private static final String TAG = "SHOP_TASK";
-    public static final String FIRESTORE_TABLE = "tasks";
-    public static final String FIRESTORE_FIELD_TITLE = "title";
-    public static final String FIRESTORE_FIELD_CREATOR = "creator";
-    public static final String FIRESTORE_FIELD_STATE = "state";
-    public static final String FIRESTORE_FIELD_DESCRIPTION = "description";
-    public static final String FIRESTORE_FIELD_IMAGE_URL = "image_url";
-
-    public static final int SHOP_TASK_NOT_DONE = 0;
-    public static final int SHOP_TASK_DONE = 1;
 
     private DocumentReference ref;
     private ShopList inList;
@@ -41,15 +29,15 @@ public class ShopTask extends BaseCollectionItem {
         this.inList = inList;
         this.taskId = taskId;
 
-        this.ref = inList.getRef().collection(FIRESTORE_TABLE).document(taskId);
+        this.ref = ShopTaskActions.getRef(inList.getRef(), taskId);
         this.ref.addSnapshotListener(this);
     }
 
     @Override
     void specificOnEvent(DocumentSnapshot document) {
-        setTaskFields(document);
+        fillDataFromDb(document);
 
-        if (document.contains(FIRESTORE_FIELD_IMAGE_URL)) {
+        if (document.contains(ShopTaskActions.FIRESTORE_FIELD_IMAGE_URL)) {
             downloadImageFromFireStoreUrl(document);
         }
 
@@ -58,7 +46,7 @@ public class ShopTask extends BaseCollectionItem {
     }
 
     private void downloadImageFromFireStoreUrl(DocumentSnapshot document) {
-        imageUrl = document.getString(FIRESTORE_FIELD_IMAGE_URL);
+        imageUrl = document.getString(ShopTaskActions.FIRESTORE_FIELD_IMAGE_URL);
 
         if (isValidImageUrl()) {
             downloadedImage = imageUrl;
@@ -70,11 +58,11 @@ public class ShopTask extends BaseCollectionItem {
         return imageUrl != null && imageUrl.length() > 0 && !imageUrl.equals(downloadedImage);
     }
 
-    private void setTaskFields(DocumentSnapshot document) {
-        title = document.getString(FIRESTORE_FIELD_TITLE);
-        state = document.getLong(FIRESTORE_FIELD_STATE);
-        creator = document.getString(FIRESTORE_FIELD_CREATOR);
-        description = document.getString(FIRESTORE_FIELD_DESCRIPTION);
+    private void fillDataFromDb(DocumentSnapshot document) {
+        title = document.getString(ShopTaskActions.FIRESTORE_FIELD_TITLE);
+        state = document.getLong(ShopTaskActions.FIRESTORE_FIELD_STATE);
+        creator = document.getString(ShopTaskActions.FIRESTORE_FIELD_CREATOR);
+        description = document.getString(ShopTaskActions.FIRESTORE_FIELD_DESCRIPTION);
     }
 
     private void reportOnChangeEvent() {
@@ -113,13 +101,15 @@ public class ShopTask extends BaseCollectionItem {
         return inList.getCollaborators().get(creator);
     }
 
-    public long getState() {
-        return state;
+    public boolean isDone() {
+        return state == ShopTaskActions.SHOP_TASK_DONE;
     }
 
     public ShopList getInList() {
         return inList;
     }
+
+    DocumentReference getRef() { return ref; }
 
     public void setTitle(String title) {
 
@@ -127,7 +117,8 @@ public class ShopTask extends BaseCollectionItem {
             return;
         }
 
-        updateField(ref, FIRESTORE_FIELD_TITLE, title);
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
+        ShopTaskActions.setTitle(transaction, ref, title).apply();
     }
 
     public void setDescription(String description) {
@@ -136,16 +127,22 @@ public class ShopTask extends BaseCollectionItem {
             return;
         }
 
-        updateField(ref, FIRESTORE_FIELD_DESCRIPTION, description);
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
+        ShopTaskActions.setDescription(transaction, ref, description).apply();
     }
 
-    public void setState(int state) {
+    public void setState(boolean isDone) {
+        setState(isDone ? ShopTaskActions.SHOP_TASK_DONE : ShopTaskActions.SHOP_TASK_NOT_DONE);
+    }
+
+    private void setState(int state) {
 
         if (this.state == state) {
             return;
         }
 
-        updateField(ref, FIRESTORE_FIELD_STATE, state);
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
+        ShopTaskActions.setState(transaction, ref, state).apply();
     }
 
     @Override
@@ -164,7 +161,8 @@ public class ShopTask extends BaseCollectionItem {
             imageUrl = "";
         }
 
-        updateField(ref, FIRESTORE_FIELD_IMAGE_URL, imageUrl);
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
+        ShopTaskActions.setImageUrl(transaction, ref, imageUrl).apply();
     }
 
     private void removeImageUrl() {
@@ -174,18 +172,8 @@ public class ShopTask extends BaseCollectionItem {
         }
 
         imageUrl = null;
-        updateField(ref, FIRESTORE_FIELD_IMAGE_URL, FieldValue.delete());
-
-    }
-
-    static Task<DocumentReference> addNewTask(ShopList inList, String title, String description, UserInfo userInfo) {
-        inList.manager.reportEvent(FireBaseManager.ON_PROGRESS_START_CREATE);
-        HashMap<String, Object> fields = new HashMap<>();
-        fields.put(FIRESTORE_FIELD_CREATOR, userInfo.getUserId());
-        fields.put(FIRESTORE_FIELD_TITLE, title);
-        fields.put(FIRESTORE_FIELD_DESCRIPTION, description);
-        fields.put(FIRESTORE_FIELD_STATE, SHOP_TASK_NOT_DONE);
-        return inList.getRef().collection(FIRESTORE_TABLE).add(fields);
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
+        ShopTaskActions.removeImageUrl(transaction, ref).apply();
     }
 
     public void removeImage() {
@@ -198,13 +186,9 @@ public class ShopTask extends BaseCollectionItem {
     }
 
     public void remove() {
-        manager.reportEvent(FireBaseManager.ON_PROGRESS_START_DELETE);
-        ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                inList.removeTaskFromList(ShopTask.this);
-            }
-        });
+        inList.removeTaskFromList(this);
+        removeAllListeners();
+        setNotReady();
     }
 
     @Override
@@ -219,6 +203,12 @@ public class ShopTask extends BaseCollectionItem {
 
     @Override
     public String toString() {
-        return String.format("ShopTask: %s", taskId);
+        return String.format("ShopTask: %s -> %s", inList.getListId(), taskId);
+    }
+
+    @Override
+    public int compareTo(ShopTask other) {
+
+        return state == other.state ? title.compareTo(other.title) : (int) (state - other.state);
     }
 }

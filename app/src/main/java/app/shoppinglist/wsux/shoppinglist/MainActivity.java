@@ -12,7 +12,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 
 import app.shoppinglist.wsux.shoppinglist.firebase.FireBaseManager;
 import app.shoppinglist.wsux.shoppinglist.firebase.ShopList;
@@ -76,7 +75,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        fireBaseManager.onStart();
+        fireBaseManager.onStart(this);
     }
 
     @Override
@@ -161,7 +160,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void onLastListDownloaded(ShopList shopList) {
-        mainDrawer.setSelectedList((ShopList) shopList);
+        mainDrawer.setSelectedList(shopList);
         selectedList(shopList);
     }
 

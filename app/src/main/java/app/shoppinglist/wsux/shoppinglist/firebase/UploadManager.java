@@ -2,6 +2,7 @@ package app.shoppinglist.wsux.shoppinglist.firebase;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -49,15 +50,13 @@ public class UploadManager {
     private static final int JPEG_COMPRESS = 70;
     private static final String CAMERA_INTENT_EXTRA_DATA = "data";
 
-    private Activity context;
     private FireBaseManager manager;
     private FirebaseStorage storage;
     private File currentFileImage;
 
     private OnChooseMediaResultListener resultListener;
 
-    UploadManager(Activity context, FireBaseManager manager) {
-        this.context = context;
+    UploadManager(FireBaseManager manager) {
         this.manager = manager;
         this.storage = FirebaseStorage.getInstance();
     }
@@ -95,7 +94,7 @@ public class UploadManager {
         }
 
         this.resultListener = resultListener;
-        context.startActivityForResult(createChoosePictureIntent(), FireBaseManager.RC_FILE);
+        manager.getAppContext().startActivityForResult(createChoosePictureIntent(), FireBaseManager.RC_FILE);
         return true;
     }
 
@@ -124,12 +123,13 @@ public class UploadManager {
             return false;
         }
 
-        context.startActivityForResult(cameraIntent, FireBaseManager.RC_CAMERA);
+        manager.getAppContext().startActivityForResult(cameraIntent, FireBaseManager.RC_CAMERA);
         return true;
     }
 
     private Intent createCamaraIntent(){
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        Context context = manager.getAppContext();
 
         if (cameraIntent.resolveActivity(context.getPackageManager()) == null) {
             this.resultListener = null;
@@ -142,7 +142,7 @@ public class UploadManager {
         return cameraIntent;
     }
     private File createImageFile() throws IOException {
-        File cacheDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File cacheDir = manager.getAppContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         return File.createTempFile(CAMERA_TMP_NAME, ".jpg", cacheDir);
     }
 
@@ -156,6 +156,7 @@ public class UploadManager {
     }
 
     private boolean requestCameraPermissions() {
+        Activity context = manager.getAppContext();
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
 
             ActivityCompat.requestPermissions(
@@ -174,7 +175,7 @@ public class UploadManager {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        return Intent.createChooser(intent, context.getString(R.string.request_picture));
+        return Intent.createChooser(intent, manager.getAppContext().getString(R.string.request_picture));
     }
 
     private OnChooseMediaResultListener getMediaResultListener() {
@@ -226,7 +227,7 @@ public class UploadManager {
 
         ImageUpload(Uri path) {
             try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), path);
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(manager.getAppContext().getContentResolver(), path);
                 if (bitmap != null) {
                     this.bitmap = reScale(bitmap);
                 }

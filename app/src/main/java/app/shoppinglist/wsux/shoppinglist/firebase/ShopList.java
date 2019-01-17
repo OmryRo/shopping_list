@@ -1,34 +1,23 @@
 package app.shoppinglist.wsux.shoppinglist.firebase;
 
-import android.support.annotation.NonNull;
-import android.util.Log;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import app.shoppinglist.wsux.shoppinglist.R;
+import app.shoppinglist.wsux.shoppinglist.firebase.db.CollaboratorActions;
+import app.shoppinglist.wsux.shoppinglist.firebase.db.ShopListActions;
+import app.shoppinglist.wsux.shoppinglist.firebase.db.TransactionWrapper;
+import app.shoppinglist.wsux.shoppinglist.firebase.db.UserInfoActions;
+
 public class ShopList extends BaseCollectionItem {
 
     private final static String TAG = "SHOP_LIST";
-    public static final String FIRESTORE_TABLE = "lists";
-    private static final String FIRESTORE_FIELD_AUTHOR = "author";
-    private static final String FIRESTORE_FIELD_TITLE = "title";
-    private static final String FIRESTORE_FIELD_TASKS = "tasks";
-    private static final String FIRESTORE_FIELD_TOKENS = "tokens";
-    private static final String FIRESTORE_FIELD_COLLABORATORS = "collaborators";
-
-    private static final long TIME_IN_A_WEEK_IN_MILIES_FACTOR = 604800000;
 
     private UserInfo userInfo;
     private String listId;
@@ -42,10 +31,8 @@ public class ShopList extends BaseCollectionItem {
     private Map<String, Collaborator> collaboratorsData;
     private DocumentReference ref;
 
-
     private boolean isReportedForShare;
     private boolean isReportedForReady;
-
 
     ShopList(FireBaseManager manager, UserInfo userInfo, String listId) {
         super(manager);
@@ -59,83 +46,92 @@ public class ShopList extends BaseCollectionItem {
         this.isReportedForReady = false;
         this.isReportedForShare = false;
 
-        this.ref = manager.getDb().collection(FIRESTORE_TABLE).document(listId);
+        this.ref = ShopListActions.getRef(manager.getDb(), listId);
         this.ref.addSnapshotListener(this);
     }
 
     public void addNewTask(String title, String description) {
-        ShopTask.addNewTask(this, title, description, userInfo)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        appendToList(ref, FIRESTORE_FIELD_TASKS, documentReference.getId())
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        manager.reportEvent(FireBaseManager.ON_TASK_CREATED, ShopList.this);
-                                    }
-                                });
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        manager.reportEvent(FireBaseManager.ON_TASK_FAILURE, e);
-                    }
-                });
+
+        manager.reportEvent(FireBaseManager.ON_PROGRESS_START_CREATE);
+
+        TransactionWrapper transaction = new TransactionWrapper(
+                manager.getDb(), new TransactionWrapper.ResultListener() {
+            @Override
+            public void onSuccess() {
+                manager.reportEvent(FireBaseManager.ON_TASK_CREATED, ShopList.this);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                manager.reportEvent(FireBaseManager.ON_TASK_FAILURE, e);
+            }
+        });
+
+        ShopListActions.addTask(transaction, ref, userInfo.getUserId(), title, description);
+        transaction.apply();
     }
 
-    Task<Void> addToken(String token) {
-        Date dateInWeek = new Date();
-        dateInWeek.setTime(System.currentTimeMillis() + TIME_IN_A_WEEK_IN_MILIES_FACTOR);
-        return addToMap(ref, FIRESTORE_FIELD_TOKENS, token, new Timestamp(dateInWeek));
+    void addToken(String token) {
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
+        ShopListActions.addToken(transaction, ref, token).apply();
     }
 
     public void replaceTokenByCollaborators(final String token) {
-
-        appendToList(ref, FIRESTORE_FIELD_COLLABORATORS, userInfo.getUserId())
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Collaborator.addNewCollaborator(ref, userInfo).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                removeFromMap(ref, FIRESTORE_FIELD_TOKENS, token).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        userInfo.removeToken(listId);
-                                    }
-                                });
-                            }
-                        });
-                    }
-                });
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
+        ShopListActions.addCollaborator(transaction, ref, userInfo.getUserId());
+        addColloboratorDataByRef(transaction, manager, ref, userInfo);
+        ShopListActions.removeToken(transaction, ref, token);
+        UserInfoActions.removeToken(transaction, userInfo.getRef(), listId).apply();
     }
 
-    public void removeCollaborators(String userId) {
-        removeCollaborators(userId, false);
+    static TransactionWrapper addColloboratorDataByRef(
+            TransactionWrapper transaction,
+            FireBaseManager manager,
+            DocumentReference ref,
+            UserInfo userInfo) {
+
+        return ShopListActions.addCollaboratorData(
+                transaction,
+                ref,
+                userInfo.getUserId(),
+                userInfo.getDisplayName(),
+                userInfo.getEmail(),
+                userInfo.getPictureURL(),
+                manager.getAppContext().getString(R.string.default_message)
+        );
     }
 
-    public void removeCollaborators(String userId, boolean removeData) {
-        if (!collaborators.contains(userId)) {
-            return;
+    TransactionWrapper removeCollaborator(
+            TransactionWrapper transaction, String userId, boolean removeData) {
+
+        ShopListActions.removeCollaborators(transaction, ref, userId);
+
+        if (removeData) {
+            return removeCollaboratorData(transaction, userId);
         }
 
-        removeFromList(ref, FIRESTORE_FIELD_COLLABORATORS, userId);
-        removeCollaboratorData(userId);
+        return transaction;
     }
 
-    /**
-     * this function doesn't remove the task from the collection!
-     * call shopTask.remove() instead.
-     */
     void removeTaskFromList(final ShopTask shopTask) {
-        removeFromList(ref, FIRESTORE_FIELD_TASKS, shopTask.getTaskId());
-        shopTasks.remove(shopTask.getTaskId());
 
-        if (onChildChangeListener != null) {
-            onChildChangeListener.onChildChange();
-        }
+        TransactionWrapper transaction = new TransactionWrapper(
+                manager.getDb(), new TransactionWrapper.ResultListener() {
+            @Override
+            public void onSuccess() {
+                if (onChildChangeListener != null) {
+                    onChildChangeListener.onChildChange();
+                }
+                ShopList.this.onSuccess();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                ShopList.this.onFailure(e);
+            }
+        });
+
+        ShopListActions.removeTask(transaction, ref, shopTask.getRef()).apply();
     }
 
     public boolean remove() {
@@ -143,47 +139,51 @@ public class ShopList extends BaseCollectionItem {
     }
 
     private boolean removeListAsAuthor() {
-        if (!userInfo.getUserId().equals(author) || collaborators.size() != 0) {
+
+        if (!isAuthor() || collaborators.size() != 0) {
             return false;
         }
 
         manager.reportEvent(FireBaseManager.ON_PROGRESS_START_DELETE);
-
-        removeAllTasks();
-        removeCollaboratorData(userInfo.getUserId());
-
-        ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+        TransactionWrapper transaction =
+                new TransactionWrapper(manager.getDb(), new TransactionWrapper.ResultListener() {
             @Override
-            public void onSuccess(Void aVoid) {
-                setNotReady();
-                removeAllListeners();
-                userInfo.removeKnownList(listId);
+            public void onSuccess() {
                 userInfo.reportChildChange();
             }
-        }).addOnFailureListener(this);
 
+            @Override
+            public void onFailure(Exception e) {
+                ShopList.this.onFailure(e);
+            }
+        });
+
+        removeAllTasks(transaction);
+        removeCollaboratorData(transaction, userInfo.getUserId());
+        ShopListActions.remove(transaction, ref);
+        userInfo.removeKnownList(transaction, listId).apply();
         return true;
     }
 
     private boolean quitListAsAuthor() {
-        if (!userInfo.getUserId().equals(author) || collaborators.size() == 0) {
+        if (!isAuthor() || collaborators.size() == 0) {
             return false;
         }
 
         manager.reportEvent(FireBaseManager.ON_PROGRESS_START_QUIT);
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
 
-        String firstCollaboratorFound = collaborators.get(0);
-        removeCollaborators(firstCollaboratorFound);
-        removeCollaboratorData(userInfo.getUserId());
-
-        if (author.equals(firstCollaboratorFound)) {
+        if (collaborators.contains(author)) {
+            removeCollaborator(transaction, author, false).apply();
             return remove();
         }
 
-        setAuthor(author);
-        removeAllListeners();
-        userInfo.removeKnownList(listId);
+        String firstCollaboratorFound = collaborators.get(0);
+        removeCollaborator(transaction, firstCollaboratorFound, false);
+        removeCollaboratorData(transaction, author);
 
+        userInfo.removeKnownList(transaction, listId);
+        ShopListActions.setAuthor(transaction, ref, firstCollaboratorFound).apply();
         return true;
     }
 
@@ -193,27 +193,24 @@ public class ShopList extends BaseCollectionItem {
         }
 
         manager.reportEvent(FireBaseManager.ON_PROGRESS_START_QUIT);
-
-        removeCollaboratorData(userInfo.getUserId());
-        removeCollaborators(userInfo.getUserId());
-
-        removeAllListeners();
-        userInfo.removeKnownList(listId);
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
+        removeCollaborator(transaction, userInfo.getUserId(), true);
+        userInfo.removeKnownList(transaction, listId).apply();
 
         return true;
     }
 
-    private void removeAllTasks() {
+    private TransactionWrapper removeAllTasks(TransactionWrapper transaction) {
+
         for (ShopTask task : shopTasks.values()) {
-            task.remove();
+            ShopListActions.removeTask(transaction, ref, task.getRef());
         }
+
+        return transaction;
     }
 
-    private void removeCollaboratorData(String userId) {
-        Collaborator collaborator = collaboratorsData.get(userInfo.getUserId());
-        if (collaborator != null) {
-            collaborator.remove();
-        }
+    TransactionWrapper removeCollaboratorData(TransactionWrapper transaction, String userId) {
+        return CollaboratorActions.remove(transaction, CollaboratorActions.getRef(ref, userId));
     }
 
     public void setTitle(String newTitle) {
@@ -222,7 +219,8 @@ public class ShopList extends BaseCollectionItem {
             return;
         }
 
-        updateField(ref, FIRESTORE_FIELD_TITLE, newTitle);
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
+        ShopListActions.setTitle(transaction, ref, newTitle).apply();
     }
 
     public String getAuthor() {
@@ -239,7 +237,8 @@ public class ShopList extends BaseCollectionItem {
             return;
         }
 
-        updateField(ref, FIRESTORE_FIELD_AUTHOR, author);
+        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
+        ShopListActions.setAuthor(transaction, ref, author).apply();
     }
 
     public boolean isMember() {
@@ -257,6 +256,7 @@ public class ShopList extends BaseCollectionItem {
     public HashMap<String, ShopTask> getTasks() {
         HashMap<String, ShopTask> readyTasks = new HashMap<>();
         for (HashMap.Entry<String, ShopTask> entry : shopTasks.entrySet()) {
+
             if (entry.getValue().isReady()) {
                 readyTasks.put(entry.getKey(), entry.getValue());
             }
@@ -267,7 +267,8 @@ public class ShopList extends BaseCollectionItem {
 
     public HashMap<String, Collaborator> getCollaborators() {
         HashMap<String, Collaborator> readyCollaborators = new HashMap<>();
-        for (HashMap.Entry<String, Collaborator> entry : collaboratorsData.entrySet()) {
+        for (Map.Entry<String, Collaborator> entry : collaboratorsData.entrySet()) {
+
             if (entry.getValue().isReady()) {
                 readyCollaborators.put(entry.getKey(), entry.getValue());
             }
@@ -276,57 +277,62 @@ public class ShopList extends BaseCollectionItem {
         return readyCollaborators;
     }
 
-    static Task<DocumentReference> createNewList(FireBaseManager manager, UserInfo userInfo, String title) {
-        manager.reportEvent(FireBaseManager.ON_PROGRESS_START_CREATE);
-        HashMap<String, Object> fields = new HashMap<>();
-        fields.put(FIRESTORE_FIELD_AUTHOR, userInfo.getUserId());
-        fields.put(FIRESTORE_FIELD_TITLE, title);
-        fields.put(FIRESTORE_FIELD_COLLABORATORS, new ArrayList<>());
-        fields.put(FIRESTORE_FIELD_TOKENS, new HashMap<>());
-        return manager.getDb().collection(FIRESTORE_TABLE).add(fields);
-    }
-
     DocumentReference getRef() {
         return ref;
     }
 
     private void refreshShopTaskData() {
+
+        List<String> tasksToRemove = new ArrayList<>(shopTasks.keySet());
+
         for (String taskId : tasks) {
-            if (!shopTasks.containsKey(taskId)) {
-                shopTasks.put(taskId, new ShopTask(manager, this, taskId));
-            }
+            filterTasksToRemove(tasksToRemove, taskId);
         }
 
-        List<String> tasksToRemove = new ArrayList<>();
-        
-        for (String taskId : shopTasks.keySet()) {
-            if (!tasks.contains(taskId)) {
-                tasksToRemove.add(taskId);
-            }
-        }
-        
         for (String taskId : tasksToRemove) {
             shopTasks.remove(taskId);
         }
     }
 
-    private void refreshCollaboratorData() {
-        if (!collaboratorsData.containsKey(author)) {
-            collaboratorsData.put(author, new Collaborator(manager, this, author));
+    private void filterTasksToRemove(List<String> tasksToRemove, String taskId) {
+        if (shopTasks.containsKey(taskId)) {
+            tasksToRemove.remove(taskId);
+        } else {
+            shopTasks.put(taskId, new ShopTask(manager, this, taskId));
         }
+    }
+
+    private void refreshCollaboratorData() {
+
+        List<String> collaboratorsToRemove = new ArrayList<>(collaboratorsData.keySet());
+
+        filterCollaboratorToRemove(collaboratorsToRemove, author);
 
         for (String collaboratorId : collaborators) {
-            if (!collaboratorsData.containsKey(collaboratorId)) {
-                collaboratorsData.put(collaboratorId, new Collaborator(manager, this, collaboratorId));
-            }
+            filterCollaboratorToRemove(collaboratorsToRemove, collaboratorId);
+        }
+
+        for (String collaboratorId : collaboratorsToRemove) {
+            collaboratorsData.remove(collaboratorId);
+        }
+    }
+
+    private void filterCollaboratorToRemove(
+            List<String> collaboratorsToRemove, String collaboratorId) {
+
+        if (collaboratorsData.containsKey(collaboratorId)) {
+            collaboratorsToRemove.remove(collaboratorId);
+        } else {
+            collaboratorsData.put(
+                    collaboratorId, new Collaborator(manager, this, collaboratorId));
         }
     }
 
     @Override
     void specificOnEvent(DocumentSnapshot document) {
 
-        title = document.getString(FIRESTORE_FIELD_TITLE);
-        author = document.getString(FIRESTORE_FIELD_AUTHOR);
+        title = document.getString(ShopListActions.FIRESTORE_FIELD_TITLE);
+        author = document.getString(ShopListActions.FIRESTORE_FIELD_AUTHOR);
 
         loadTasksFromDB(document);
         refreshShopTaskData();
@@ -336,7 +342,8 @@ public class ShopList extends BaseCollectionItem {
 
         loadTokensFromDB(document);
 
-        isMember = userInfo.getUserId().equals(author) || collaborators.contains(userInfo.getUserId());
+        isMember = userInfo.getUserId().equals(author) ||
+                collaborators.contains(userInfo.getUserId());
         setReady();
 
         reportChanges();
@@ -344,25 +351,30 @@ public class ShopList extends BaseCollectionItem {
 
     private void loadTokensFromDB(DocumentSnapshot document) {
         HashMap<String, Object> tokens = new HashMap<>();
-        if (document.contains(FIRESTORE_FIELD_TOKENS)) {
-            tokens.putAll((HashMap<String, Object>) document.get(FIRESTORE_FIELD_TOKENS));
+        if (document.contains(ShopListActions.FIRESTORE_FIELD_TOKENS)) {
+            tokens.putAll(
+                    (HashMap<String, Object>) document.get(ShopListActions.FIRESTORE_FIELD_TOKENS));
         }
+
         this.tokens = tokens;
     }
 
     private void loadCollaboratorsFromDB(DocumentSnapshot document) {
         List<String> collaborators = new ArrayList<>();
-        if (document.contains(FIRESTORE_FIELD_COLLABORATORS)) {
-            collaborators.addAll((List<String>) document.get(FIRESTORE_FIELD_COLLABORATORS));
+        if (document.contains(ShopListActions.FIRESTORE_FIELD_COLLABORATORS)) {
+            collaborators.addAll(
+                    (List<String>) document.get(ShopListActions.FIRESTORE_FIELD_COLLABORATORS));
         }
+
         this.collaborators = collaborators;
     }
 
     private void loadTasksFromDB(DocumentSnapshot document) {
         ArrayList<String> tasks = new ArrayList<>();
-        if (document.contains(FIRESTORE_FIELD_TASKS)) {
-            tasks.addAll((List<String>) document.get(FIRESTORE_FIELD_TASKS));
+        if (document.contains(ShopListActions.FIRESTORE_FIELD_TASKS)) {
+            tasks.addAll((List<String>) document.get(ShopListActions.FIRESTORE_FIELD_TASKS));
         }
+
         this.tasks = tasks;
     }
 
@@ -426,5 +438,4 @@ public class ShopList extends BaseCollectionItem {
     public String toString() {
         return String.format("ShopList: %s", listId);
     }
-
 }

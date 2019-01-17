@@ -1,6 +1,6 @@
 package app.shoppinglist.wsux.shoppinglist.firebase;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.Nullable;
@@ -9,12 +9,10 @@ import app.shoppinglist.wsux.shoppinglist.R;
 
 public class ShareHandler {
 
-    private Activity context;
     private FireBaseManager manager;
     private Intent handledIntent;
 
-    ShareHandler(Activity context, FireBaseManager manager) {
-        this.context = context;
+    ShareHandler(FireBaseManager manager) {
         this.manager = manager;
     }
 
@@ -23,7 +21,7 @@ public class ShareHandler {
         shopList.addToken(token);
 
         Intent sendIntent = generateShareIntent(shopList, token);
-        context.startActivity(sendIntent);
+        manager.getAppContext().startActivity(sendIntent);
     }
     
     private Intent generateShareIntent(ShopList shopList, String token) {
@@ -43,6 +41,7 @@ public class ShareHandler {
     }
     
     private String getShareMessage(ShopList shopList, String token) {
+        Context context = manager.getAppContext();
         String shareDomain = context.getString(R.string.share_domain);
         String url = context.getString(R.string.share_url, shareDomain, shopList.getListId(), token);
         String appName = context.getString(R.string.app_name);
@@ -50,7 +49,7 @@ public class ShareHandler {
     }
 
     private String[] checkForIncomingIntent() {
-        Intent startIntent = ((Activity) context).getIntent();
+        Intent startIntent = (manager.getAppContext()).getIntent();
 
         if (startIntent == null || startIntent == handledIntent) {
             return null;
@@ -89,7 +88,7 @@ public class ShareHandler {
 
     private boolean isIntentDataHostValid(Uri data) {
         return (data.getHost() == null ||
-                !data.getHost().equals(context.getString(R.string.share_domain)));
+                !data.getHost().equals(manager.getAppContext().getString(R.string.share_domain)));
     }
 
     public void checkIncomingShare(UserInfo userInfo) {
@@ -108,7 +107,7 @@ public class ShareHandler {
     }
 
     public void handleCancelJoinList(UserInfo userInfo, ShopList shopList) {
-        userInfo.removeKnownList(shopList.getListId());
         userInfo.removeToken(shopList.getListId());
+        userInfo.removeKnownList(shopList.getListId());
     }
 }

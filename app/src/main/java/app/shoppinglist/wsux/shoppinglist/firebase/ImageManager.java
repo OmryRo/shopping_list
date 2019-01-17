@@ -1,6 +1,5 @@
 package app.shoppinglist.wsux.shoppinglist.firebase;
 
-import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -19,16 +18,14 @@ public class ImageManager {
     private static final String COLLABORATOR_FILE_PATH = "nodpi_user_picture_cache_%s";
     private static final String TASK_FILE_PATH = "nodpi_item_cache_%s_%s_%s";
 
-    private Activity context;
-    private FireBaseManager fireBaseManager;
+    private FireBaseManager manager;
 
-    ImageManager(Activity context, FireBaseManager fireBaseManager) {
-        this.context = context;
-        this.fireBaseManager = fireBaseManager;
+    ImageManager(FireBaseManager manager) {
+        this.manager = manager;
     }
 
     private File getFireBaseCache() {
-        File firebaseCache = new File(context.getCacheDir(), FIREBASE_CACHE_DIR);
+        File firebaseCache = new File(manager.getAppContext().getCacheDir(), FIREBASE_CACHE_DIR);
 
         if (!firebaseCache.exists()) {
             firebaseCache.mkdir();

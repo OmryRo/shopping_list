@@ -1,26 +1,18 @@
 package app.shoppinglist.wsux.shoppinglist.firebase;
 
-import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.SetOptions;
-
-import java.util.HashMap;
 
 import javax.annotation.Nullable;
 
+import app.shoppinglist.wsux.shoppinglist.firebase.db.TransactionWrapper;
+
 public abstract class BaseCollectionItem implements
         EventListener<DocumentSnapshot>,
-        OnSuccessListener<Void>,
-        OnFailureListener {
+        TransactionWrapper.ResultListener {
 
     private static final String TAG = "COLLECTION_ITEM";
     private boolean isReady = false;
@@ -36,58 +28,19 @@ public abstract class BaseCollectionItem implements
         this.manager = manager;
     }
 
-    protected Task<Void> updateField(DocumentReference ref, String field, Object data) {
-        manager.reportEvent(FireBaseManager.ON_PROGRESS_START_UPDATE);
-
-        HashMap<String, Object> params = new HashMap<>();
-        params.put(field, data);
-        return ref.update(params)
-                .addOnSuccessListener(this)
-                .addOnFailureListener(this);
-    }
-
-    protected Task<Void> appendToList(DocumentReference ref, String field, Object data) {
-        manager.reportEvent(FireBaseManager.ON_PROGRESS_START_UPDATE);
-
-        return ref.update(field, FieldValue.arrayUnion(data))
-                .addOnSuccessListener(this)
-                .addOnFailureListener(this);
-    }
-
-    protected Task<Void> removeFromList(DocumentReference ref, String field, Object data) {
-        manager.reportEvent(FireBaseManager.ON_PROGRESS_START_UPDATE);
-
-        return ref.update(field, FieldValue.arrayRemove(data))
-                .addOnSuccessListener(this)
-                .addOnFailureListener(this);
-    }
-
-    protected Task<Void> addToMap(DocumentReference ref, String field, String key, Object data) {
-        manager.reportEvent(FireBaseManager.ON_PROGRESS_START_UPDATE);
-
-        return ref.update(String.format("%s.%s", field, key), data)
-                .addOnSuccessListener(this)
-                .addOnFailureListener(this);
-    }
-
-    protected Task<Void> removeFromMap(DocumentReference ref, String field, String key) {
-        manager.reportEvent(FireBaseManager.ON_PROGRESS_START_UPDATE);
-
-        return ref.update(String.format("%s.%s", field, key), FieldValue.delete())
-                .addOnSuccessListener(this)
-                .addOnFailureListener(this);
-    }
-
     public void onQueryError(DocumentSnapshot document, FirebaseFirestoreException e) {
-        Log.e(TAG, String.format("onQueryError: %s", this) , e);
+        Log.e(TAG, String.format("onQueryError: %s", this), e);
+        this.isReady = false;
     }
 
     public void onNotFound(DocumentSnapshot document) {
         Log.e(TAG, String.format("onEvent: not exists: %s", this));
+        this.isReady = false;
     }
 
     @Override
     public void onEvent(@Nullable DocumentSnapshot document, @Nullable FirebaseFirestoreException e) {
+        Log.d(TAG, "onEvent: " + this);
         if (e != null) {
             onQueryError(document, e);
             return;
@@ -104,7 +57,7 @@ public abstract class BaseCollectionItem implements
     abstract void specificOnSuccess();
 
     @Override
-    public void onSuccess(Void aVoid) {
+    public void onSuccess() {
         specificOnSuccess();
 
         if (onActionListener != null) {
@@ -115,7 +68,7 @@ public abstract class BaseCollectionItem implements
     abstract void specificOnFailure(Exception e);
 
     @Override
-    public void onFailure(@NonNull Exception e) {
+    public void onFailure(Exception e) {
         specificOnFailure(e);
 
         if (onActionListener != null) {
