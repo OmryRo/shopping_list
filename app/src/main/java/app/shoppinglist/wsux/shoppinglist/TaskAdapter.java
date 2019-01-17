@@ -102,7 +102,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
                     shopTask.setDescription(o.get(key).toString());
                     break;
                 case BUNDLE_ARG_STATE:
-                    shopTask.setState((Integer) o.get(key));
+                    shopTask.setState((int)o.get(key) == 1);
                     break;
             }
         }
