@@ -5,7 +5,7 @@ import com.google.firebase.firestore.DocumentReference;
 import java.util.HashMap;
 
 public class ShopTaskActions {
-    public static final String FIRESTORE_TABLE = "dev.tasks";
+    public static final String FIRESTORE_TABLE = "tasks";
     public static final String FIRESTORE_FIELD_TITLE = "title";
     public static final String FIRESTORE_FIELD_CREATOR = "creator";
     public static final String FIRESTORE_FIELD_STATE = "state";
