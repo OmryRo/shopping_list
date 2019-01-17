@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class UserInfoActions {
-    public static final String FIRESTORE_TABLE = "dev.users";
+    public static final String FIRESTORE_TABLE = "users";
     public static final String FIRESTORE_FIELD_LISTS = "lists";
     public static final String FIRESTORE_FIELD_TOKENS = "tokens";
     public static final String FIRESTORE_FIELD_LAST_LIST = "last_list";

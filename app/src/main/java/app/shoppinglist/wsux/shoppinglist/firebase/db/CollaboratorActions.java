@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 
 public class CollaboratorActions {
-    public static final String FIRESTORE_TABLE = "dev.collaborators";
+    public static final String FIRESTORE_TABLE = "collaborators";
     public static final String FIRESTORE_FIELD_NAME = "name";
     public static final String FIRESTORE_FIELD_EMAIL = "email";
     public static final String FIRESTORE_FIELD_MESSAGE = "message";

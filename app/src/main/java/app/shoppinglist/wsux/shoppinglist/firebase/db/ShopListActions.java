@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 public class ShopListActions {
-    public static final String FIRESTORE_TABLE = "dev.lists";
+    public static final String FIRESTORE_TABLE = "lists";
     public static final String FIRESTORE_FIELD_AUTHOR = "author";
     public static final String FIRESTORE_FIELD_TITLE = "title";
     public static final String FIRESTORE_FIELD_TASKS = "tasks";
