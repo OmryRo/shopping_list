@@ -222,12 +222,6 @@ public class UserInfo extends BaseCollectionItem {
         UserInfoActions.setLastList(transaction, ref, listRef.getId()).apply();
     }
 
-    private void createCollaboratorDataByRef(DocumentReference listRef) {
-        TransactionWrapper transaction =
-                new TransactionWrapper(manager.getDb(), UserInfo.this);
-        ShopList.addColloboratorDataByRef(transaction, manager, listRef, this);
-        transaction.apply();
-    }
 
     private void initInfoInDB() {
         TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
