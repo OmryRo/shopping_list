@@ -4,12 +4,9 @@ import android.app.Activity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import app.shoppinglist.wsux.shoppinglist.firebase.BaseCollectionItem;
 import app.shoppinglist.wsux.shoppinglist.firebase.FireBaseManager;
@@ -110,10 +107,6 @@ public class ShopListView implements View.OnClickListener, BaseCollectionItem.On
 
         addTextEt.setText("");
         currentShopList.addNewTask(taskTitle, "");
-    }
-
-    public void updateTaskList() {
-
     }
 
     @Override

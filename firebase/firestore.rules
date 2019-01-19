@@ -62,7 +62,8 @@ service cloud.firestore {
       
       match /collaborators/{collaborator} {
       	allow read: if hasReadAccess(get(/databases/$(database)/documents/lists/$(list)));
-        allow write: if hasReadAccess(get(/databases/$(database)/documents/lists/$(list))) && request.auth != null && request.auth.uid == collaborator; 
+      	allow create: if hasCreateAccess(resource);
+        allow write: if request.auth != null && (request.auth.uid == collaborator || hasDeleteAccess(get(/databases/$(database)/documents/lists/$(list))));
       }
     }
   }

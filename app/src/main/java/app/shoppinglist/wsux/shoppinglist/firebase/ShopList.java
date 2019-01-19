@@ -231,16 +231,6 @@ public class ShopList extends BaseCollectionItem {
         return userInfo.getUserId().equals(author);
     }
 
-    private void setAuthor(String author) {
-
-        if (author == null || author.equals(this.author)) {
-            return;
-        }
-
-        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
-        ShopListActions.setAuthor(transaction, ref, author).apply();
-    }
-
     public boolean isMember() {
         return isMember;
     }

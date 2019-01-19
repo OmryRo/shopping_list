@@ -207,7 +207,6 @@ public class UserInfo extends BaseCollectionItem {
                 new TransactionWrapper(manager.getDb(), new TransactionWrapper.ResultListener() {
             @Override
             public void onSuccess() {
-                createCollaboratorDataByRef(listRef);
                 manager.reportEvent(FireBaseManager.ON_LIST_CREATED);
             }
 
@@ -218,16 +217,11 @@ public class UserInfo extends BaseCollectionItem {
         });
 
         ShopListActions.createNewList(transaction, listRef, userId, listTitle);
+        ShopList.addColloboratorDataByRef(transaction, manager, listRef, this);
         UserInfoActions.addKnownList(transaction, ref, listRef.getId());
         UserInfoActions.setLastList(transaction, ref, listRef.getId()).apply();
     }
 
-    private void createCollaboratorDataByRef(DocumentReference listRef) {
-        TransactionWrapper transaction =
-                new TransactionWrapper(manager.getDb(), UserInfo.this);
-        ShopList.addColloboratorDataByRef(transaction, manager, listRef, this);
-        transaction.apply();
-    }
 
     private void initInfoInDB() {
         TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
