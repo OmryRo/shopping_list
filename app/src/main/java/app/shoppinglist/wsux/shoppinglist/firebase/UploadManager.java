@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -118,7 +120,7 @@ public class UploadManager {
             return false;
         }
 
-        Intent cameraIntent = createCamaraIntent();
+        Intent cameraIntent = createCameraIntent();
         if (cameraIntent == null) {
             return false;
         }
@@ -127,7 +129,7 @@ public class UploadManager {
         return true;
     }
 
-    private Intent createCamaraIntent(){
+    private Intent createCameraIntent(){
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         Context context = manager.getAppContext();
 
@@ -157,7 +159,8 @@ public class UploadManager {
 
     private boolean requestCameraPermissions() {
         Activity context = manager.getAppContext();
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
 
             ActivityCompat.requestPermissions(
                     context,
@@ -196,7 +199,7 @@ public class UploadManager {
         }
 
         if (resultCode == Activity.RESULT_OK) {
-            listener.onSelectSuccess(new ImageUpload( Uri.fromFile(currentFileImage)));
+            listener.onSelectSuccess(new ImageUpload(Uri.fromFile(currentFileImage)));
 
         } else {
             listener.onSelectFailed(null);
@@ -221,13 +224,24 @@ public class UploadManager {
         }
 
     }
+    private static Bitmap rotateImage(Bitmap img, int degree) {
+        if (degree == 0) {
+            return img;
+        }
+
+        Matrix matrix = new Matrix();
+        matrix.postRotate(degree);
+        return Bitmap.createBitmap(
+                img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
+    }
 
     public class ImageUpload {
         private Bitmap bitmap;
 
         ImageUpload(Uri path) {
             try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(manager.getAppContext().getContentResolver(), path);
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(
+                        manager.getAppContext().getContentResolver(), path);
                 if (bitmap != null) {
                     this.bitmap = reScale(bitmap);
                 }
@@ -239,6 +253,23 @@ public class UploadManager {
 
         public Bitmap getImagePreview() {
             return bitmap;
+        }
+
+        private int getDegree(int orientation) {
+            int degrees = 0;
+            switch (orientation){
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    degrees = 90;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    degrees = 180;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    degrees = 270;
+                    break;
+            }
+            Log.d(TAG, "getDegree: "+ degrees);
+            return degrees;
         }
 
         public void uploadFile(final ShopTask shopTask, final OnUploadMediaResultListener listener) {
@@ -283,7 +314,27 @@ public class UploadManager {
             int width = Math.round(ratio * bitmap.getWidth());
             int height = Math.round(ratio * bitmap.getHeight());
 
-            return Bitmap.createScaledBitmap(bitmap, width, height, true);
+            Bitmap image = Bitmap.createScaledBitmap(bitmap, width, height, true);
+
+            return rotate(image);
+        }
+
+        private Bitmap rotate(Bitmap img)
+        {
+            ExifInterface exit = null;
+            try {
+                exit = new ExifInterface(currentFileImage.getAbsolutePath());
+            } catch (IOException e) {
+                Log.e(TAG, "rotate image", e);
+                return img;
+            }
+
+            int orientation = exit.getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+            int degrees = getDegree(orientation);
+
+            return rotateImage(img, degrees);
         }
 
         private byte[] toByteArray(Bitmap bitmap) {
