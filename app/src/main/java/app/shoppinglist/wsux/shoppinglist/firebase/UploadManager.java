@@ -316,7 +316,7 @@ public class UploadManager {
 
             Bitmap image = Bitmap.createScaledBitmap(bitmap, width, height, true);
 
-            return rotate(image);
+            return currentFileImage == null ? image : rotate(image);
         }
 
         private Bitmap rotate(Bitmap img)
