@@ -224,7 +224,26 @@ public class UploadManager {
         }
 
     }
-    private static Bitmap rotateImage(Bitmap img, int degree) {
+
+    private static int getDegree(int orientation) {
+        int degrees = 0;
+        switch (orientation){
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                degrees = 90;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                degrees = 180;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                degrees = 270;
+                break;
+        }
+        return degrees;
+    }
+
+    private static Bitmap rotateImage(Bitmap img, int orientation) {
+
+        int degree = getDegree(orientation);
         if (degree == 0) {
             return img;
         }
@@ -253,23 +272,6 @@ public class UploadManager {
 
         public Bitmap getImagePreview() {
             return bitmap;
-        }
-
-        private int getDegree(int orientation) {
-            int degrees = 0;
-            switch (orientation){
-                case ExifInterface.ORIENTATION_ROTATE_90:
-                    degrees = 90;
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_180:
-                    degrees = 180;
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_270:
-                    degrees = 270;
-                    break;
-            }
-            Log.d(TAG, "getDegree: "+ degrees);
-            return degrees;
         }
 
         public void uploadFile(final ShopTask shopTask, final OnUploadMediaResultListener listener) {
@@ -325,16 +327,13 @@ public class UploadManager {
             try {
                 exit = new ExifInterface(currentFileImage.getAbsolutePath());
             } catch (IOException e) {
-                Log.e(TAG, "rotate image", e);
+                Log.e(TAG, "rotate image error", e);
                 return img;
             }
 
             int orientation = exit.getAttributeInt(
                     ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-
-            int degrees = getDegree(orientation);
-
-            return rotateImage(img, degrees);
+            return rotateImage(img, orientation);
         }
 
         private byte[] toByteArray(Bitmap bitmap) {
