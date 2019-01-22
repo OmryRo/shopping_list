@@ -129,7 +129,7 @@ public class UploadManager {
         return true;
     }
 
-    private Intent createCameraIntent(){
+    private Intent createCameraIntent() {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         Context context = manager.getAppContext();
 
@@ -143,6 +143,7 @@ public class UploadManager {
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
         return cameraIntent;
     }
+
     private File createImageFile() throws IOException {
         File cacheDir = manager.getAppContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         return File.createTempFile(CAMERA_TMP_NAME, ".jpg", cacheDir);
@@ -256,6 +257,7 @@ public class UploadManager {
 
     public class ImageUpload {
         private Bitmap bitmap;
+
         ImageUpload(Uri path) {
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(
@@ -322,8 +324,7 @@ public class UploadManager {
             return Bitmap.createScaledBitmap(bitmap, width, height, true);
         }
 
-        private Bitmap rotate(Bitmap img)
-        {
+        private Bitmap rotate(Bitmap img) {
             ExifInterface exit = null;
             try {
                 exit = new ExifInterface(currentFileImage.getAbsolutePath());
