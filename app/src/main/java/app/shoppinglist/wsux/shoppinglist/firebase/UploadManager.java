@@ -228,7 +228,7 @@ public class UploadManager {
 
     private static int getDegree(int orientation) {
         int degrees = 0;
-        switch (orientation){
+        switch (orientation) {
             case ExifInterface.ORIENTATION_ROTATE_90:
                 degrees = 90;
                 break;
