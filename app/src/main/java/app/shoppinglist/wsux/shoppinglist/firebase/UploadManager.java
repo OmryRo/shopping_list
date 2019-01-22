@@ -256,13 +256,16 @@ public class UploadManager {
 
     public class ImageUpload {
         private Bitmap bitmap;
-
         ImageUpload(Uri path) {
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(
                         manager.getAppContext().getContentResolver(), path);
                 if (bitmap != null) {
                     this.bitmap = reScale(bitmap);
+
+                    if (currentFileImage != null) {
+                        this.bitmap = rotate(this.bitmap);
+                    }
                 }
 
             } catch (IOException e) {
@@ -316,9 +319,7 @@ public class UploadManager {
             int width = Math.round(ratio * bitmap.getWidth());
             int height = Math.round(ratio * bitmap.getHeight());
 
-            Bitmap image = Bitmap.createScaledBitmap(bitmap, width, height, true);
-
-            return currentFileImage == null ? image : rotate(image);
+            return Bitmap.createScaledBitmap(bitmap, width, height, true);
         }
 
         private Bitmap rotate(Bitmap img)
