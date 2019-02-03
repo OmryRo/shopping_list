@@ -1,11 +1,13 @@
 package app.shoppinglist.wsux.shoppinglist;
 
 import android.app.Activity;
+import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 import app.shoppinglist.wsux.shoppinglist.firebase.BaseCollectionItem;
@@ -48,16 +50,16 @@ public class ShopListView implements View.OnClickListener, BaseCollectionItem.On
     private void setBottomToolbar() {
         addTaskContainer = context.findViewById(R.id.bar_add_task_container);
         toggleToolbar();
-        addTextBt();
-        addTextEt();
+        setAddTextButtonView();
+        setAddTextEditTextView();
     }
 
-    private void addTextBt() {
+    private void setAddTextButtonView() {
         final View addTextBt = context.findViewById(R.id.bar_add_task_bt);
         addTextBt.setOnClickListener(this);
     }
 
-    private void addTextEt() {
+    private void setAddTextEditTextView() {
         addTextEt = context.findViewById(R.id.bar_add_task_et);
         addTextEt.setOnKeyListener(new View.OnKeyListener() {
             @Override
@@ -102,11 +104,19 @@ public class ShopListView implements View.OnClickListener, BaseCollectionItem.On
         String taskTitle = addTextEt.getText().toString();
 
         if (taskTitle.length() == 0) {
+            showKeyboard();
             return;
         }
 
         addTextEt.setText("");
         currentShopList.addNewTask(taskTitle, "");
+    }
+
+    private void showKeyboard(){
+        addTextEt.requestFocus();
+
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(addTextEt, InputMethodManager.SHOW_FORCED);
     }
 
     @Override
