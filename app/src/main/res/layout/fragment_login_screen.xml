@@ -5,12 +5,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/login"
     android:clickable="true"
     >
 
+    <android.support.v4.view.ViewPager
+        android:id="@+id/background_slider"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#aaaaaa"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true">
+    </LinearLayout>
+
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/login_app_icon"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_marginStart="8dp"
@@ -22,14 +38,14 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <android.support.constraint.ConstraintLayout
-        android:id="@+id/constraintLayout"
+        android:id="@+id/login_lower_layout"
         android:layout_width="match_parent"
         android:layout_height="180dp"
         android:background="#ccffffff"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView2"
+        app:layout_constraintTop_toBottomOf="@+id/login_app_icon"
         app:layout_constraintVertical_bias="1.0">
 
         <com.google.android.gms.common.SignInButton
@@ -45,7 +61,7 @@
             app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/login_bottom_text"
             android:layout_width="278dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
