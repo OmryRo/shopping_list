@@ -23,7 +23,7 @@
     <string name="verify_before_quit">Are you sure you want to quit the list %s?</string>
     <string name="verify_before_delete_task">Are you sure you want to delete the task %s?</string>
     <string name="verify_before_remove_collaborator">Are you sure you want to remove %s from the list?</string>
-    <string name="pre_sign_in_message">Hello!\nPlease sign in using your Google account to start using this application.</string>
+    <string name="pre_sign_in_message">Hello! welcome to Shop List.\nPlease sign in using your Google account to start using this application.</string>
     <string name="list_title">List title</string>
     <string name="create">Create</string>
     <string name="add">Add</string>
