@@ -20,7 +20,7 @@
     <string name="not_available">לא זמין</string>
     <string name="verify_before_quit">האם אתה בטוח כי ברצונך לעזוב את הרשימה %s?</string>
     <string name="verify_before_remove_collaborator">האם אתה בטוח כי ברצונך להסיר את %s מהרשימה?</string>
-    <string name="pre_sign_in_message">שלום!\nבבקשה התחבר על מנת שתוכל להתחיל להשתמש באפליקציה.</string>
+    <string name="pre_sign_in_message">שלום! ברוכים הבאים ל-Shop List\nבבקשה התחבר על מנת שתוכל להתחיל להשתמש באפליקציה.</string>
     <string name="list_title">כותרת הרשימה</string>
     <string name="create">צור</string>
     <string name="add">הוסף</string>
