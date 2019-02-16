@@ -97,14 +97,14 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         holder.remove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                removeCollaborator(collaborator);
+                showAndRemoveCollaboratorDialog(collaborator);
 
 
             }
         });
     }
 
-    private void removeCollaborator(final Collaborator collaborator) {
+    private void showAndRemoveCollaboratorDialog(final Collaborator collaborator) {
         new AlertDialog.Builder(context)
                 .setTitle(context.getString(R.string.verify_before_remove_collaborator, collaborator.getName()))
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {

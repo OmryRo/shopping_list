@@ -55,7 +55,7 @@ public class ShopTaskListDiffCallback extends DiffUtil.Callback {
     public Object getChangePayload(int oldShopTaskPosition, int newShopTaskPosition) {
         ShopTask oldShopTask = oldVersionList.get(oldShopTaskPosition);
         ShopTask newShopTask = newVersionList.get(newShopTaskPosition);
-        Bundle diff = manageShopTasks(oldShopTask, newShopTask);
+        Bundle diff = getShopTasksDiff(oldShopTask, newShopTask);
         if (diff.size() == 0) {
             return null;
         }
@@ -63,7 +63,7 @@ public class ShopTaskListDiffCallback extends DiffUtil.Callback {
         return diff;
     }
 
-    private Bundle manageShopTasks(ShopTask oldShopTask, ShopTask newShopTask){
+    private Bundle getShopTasksDiff(ShopTask oldShopTask, ShopTask newShopTask){
         Bundle diff = new Bundle();
 
         if (!newShopTask.getTitle().equals(oldShopTask.getTitle())){

@@ -2,6 +2,7 @@ package app.shoppinglist.wsux.shoppinglist;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -57,24 +58,29 @@ public class ShareDialog extends Dialog implements View.OnClickListener {
             return;
         }
 
-        EditTitlePopup dialog = new EditTitlePopup(
-                this.getContext(), R.string.change_personal_message,
-                R.string.personal_message_hint, R.string.change,
-                new EditTitlePopup.ResultListener() {
-            @Override
-            public void onAcceptClick(String newTitle) {
-                collaborator.setMessage(newTitle);
-
-            }
-
-            @Override
-            public void onCancelClick() {
-
-            }
-        });
+        EditTitlePopup dialog = createAndShowDialog(collaborator);
 
         dialog.setValue(collaborator.getMessage());
         dialog.show();
+    }
+
+    @NonNull
+    private EditTitlePopup createAndShowDialog(final Collaborator collaborator) {
+        return new EditTitlePopup(
+                    this.getContext(), R.string.change_personal_message,
+                    R.string.personal_message_hint, R.string.change,
+                    new EditTitlePopup.ResultListener() {
+                @Override
+                public void onAcceptClick(String newTitle) {
+                    collaborator.setMessage(newTitle);
+
+                }
+
+                @Override
+                public void onCancelClick() {
+
+                }
+            });
     }
 
     @Override

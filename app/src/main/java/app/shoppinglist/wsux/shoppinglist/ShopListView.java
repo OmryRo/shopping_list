@@ -22,7 +22,7 @@ public class ShopListView implements View.OnClickListener, BaseCollectionItem.On
     private FireBaseManager fireBaseManager;
 
     // views
-    private EditText addTextEt;
+    private EditText addTextEditText;
     private View addTaskContainer;
     private RecyclerView recyclerView;
     private Toolbar topToolbar;
@@ -55,13 +55,13 @@ public class ShopListView implements View.OnClickListener, BaseCollectionItem.On
     }
 
     private void setAddTextButtonView() {
-        final View addTextBt = context.findViewById(R.id.bar_add_task_bt);
-        addTextBt.setOnClickListener(this);
+        final View addTextButton = context.findViewById(R.id.bar_add_task_button);
+        addTextButton.setOnClickListener(this);
     }
 
     private void setAddTextEditTextView() {
-        addTextEt = context.findViewById(R.id.bar_add_task_et);
-        addTextEt.setOnKeyListener(new View.OnKeyListener() {
+        addTextEditText = context.findViewById(R.id.bar_add_task_edit_text);
+        addTextEditText.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View view, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_UP) {
@@ -101,22 +101,22 @@ public class ShopListView implements View.OnClickListener, BaseCollectionItem.On
     }
 
     private void setTaskTitle() {
-        String taskTitle = addTextEt.getText().toString();
+        String taskTitle = addTextEditText.getText().toString();
 
         if (taskTitle.length() == 0) {
             showKeyboard();
             return;
         }
 
-        addTextEt.setText("");
+        addTextEditText.setText("");
         currentShopList.addNewTask(taskTitle, "");
     }
 
     private void showKeyboard(){
-        addTextEt.requestFocus();
+        addTextEditText.requestFocus();
 
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.showSoftInput(addTextEt, InputMethodManager.SHOW_FORCED);
+        imm.showSoftInput(addTextEditText, InputMethodManager.SHOW_FORCED);
     }
 
     @Override
@@ -127,7 +127,7 @@ public class ShopListView implements View.OnClickListener, BaseCollectionItem.On
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.bar_add_task_bt:
+            case R.id.bar_add_task_button:
                 onAddTaskButtonClick();
                 break;
         }
