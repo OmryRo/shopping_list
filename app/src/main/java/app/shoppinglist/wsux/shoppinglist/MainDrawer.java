@@ -54,22 +54,22 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
         this.mainDrawerInterface = mainDrawerInterface;
         this.defaultText = context.getString(R.string.not_available);
 
-        initialDrawer(context, toolbar);
-        initialNavigationAndHeaderViews(context);
+        initiateDrawer(context, toolbar);
+        initiateNavigationAndHeaderViews(context);
 
     }
 
-    private void initialDrawer(Activity context, Toolbar toolbar) {
+    private void initiateDrawer(Activity context, Toolbar toolbar) {
         drawer = context.findViewById(R.id.drawer_layout);
         this.toolbar = toolbar;
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 context, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-        toggeLockDrawer(null);
+        toggleLockDrawer(null);
     }
 
-    private void initialNavigationAndHeaderViews(Activity context) {
+    private void initiateNavigationAndHeaderViews(Activity context) {
         navigationView = context.findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
@@ -81,7 +81,7 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
 
     public void setUserInfo(UserInfo userInfo) {
 
-        toggeLockDrawer(userInfo);
+        toggleLockDrawer(userInfo);
 
         if (this.userInfo == userInfo) {
             return;
@@ -91,7 +91,7 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
         this.userInfo = userInfo;
     }
 
-    void toggeLockDrawer(UserInfo userInfo) {
+    void toggleLockDrawer(UserInfo userInfo) {
         drawer.setDrawerLockMode(userInfo == null ?
                 DrawerLayout.LOCK_MODE_LOCKED_CLOSED :
                 DrawerLayout.LOCK_MODE_UNLOCKED
@@ -209,7 +209,7 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
         selectedList = selected;
         navigationView.setCheckedItem(menuItem);
         userInfo.setLastList(selected.getListId());
-        mainDrawerInterface.selectedList(selected);
+        mainDrawerInterface.selectList(selected);
     }
 
     @Override
@@ -252,7 +252,7 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
 
         void renameListPressed();
 
-        void selectedList(ShopList shopList);
+        void selectList(ShopList shopList);
     }
 
 }

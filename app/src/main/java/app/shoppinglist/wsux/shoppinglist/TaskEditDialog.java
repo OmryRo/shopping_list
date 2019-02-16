@@ -112,15 +112,19 @@ public class TaskEditDialog extends Dialog implements View.OnClickListener,
             return;
         }
 
+        showAlertDialog();
+    }
+
+    private void showAlertDialog() {
         new AlertDialog.Builder(this.getContext())
                 .setTitle(getContext().getString(R.string.verify_before_delete_task, shopTask.getTitle()))
-                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.yes, new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         delete();
                     }
                 })
-                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.no, new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // nothing...

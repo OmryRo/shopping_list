@@ -44,10 +44,10 @@ public class MainActivity extends AppCompatActivity
 
         eventReporter = new EventReporter(this);
 
-        initialTopToolBar();
+        initiateTopToolBar();
     }
 
-    private void initialTopToolBar() {
+    private void initiateTopToolBar() {
         Toolbar topToolBar = findViewById(R.id.toolbar);
         setSupportActionBar(topToolBar);
 
@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_quit_list:
                 onQuitListClicked();
                 break;
-            case R.id.nav_share:
+            case R.id.navigate_share:
                 showShared();
                 break;
         }
@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity
 
     private void onLastListDownloaded(ShopList shopList) {
         mainDrawer.setSelectedList(shopList);
-        selectedList(shopList);
+        selectList(shopList);
     }
 
     @Override
@@ -229,7 +229,7 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onAcceptClick(String newTitle) {
                         userInfo.createNewList(newTitle);
-                        mainDrawer.toggeLockDrawer(userInfo);
+                        mainDrawer.toggleLockDrawer(userInfo);
                     }
 
                     @Override
@@ -243,10 +243,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void selectedList(final ShopList shopList) {
+    public void selectList(final ShopList shopList) {
         currentShopList = shopList;
         shopListView.setShopList(shopList);
-        mainDrawer.toggeLockDrawer(userInfo);
+        mainDrawer.toggleLockDrawer(userInfo);
         mainDrawer.closeDrawer();
     }
 

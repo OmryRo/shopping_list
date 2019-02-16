@@ -30,7 +30,7 @@
         >
 
         <EditText
-            android:id="@+id/bar_add_task_et"
+            android:id="@+id/bar_add_task_edit_text"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:hint="@string/add_task"
@@ -42,7 +42,7 @@
             />
 
         <ImageButton
-            android:id="@+id/bar_add_task_bt"
+            android:id="@+id/bar_add_task_button"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:text="@string/add"
