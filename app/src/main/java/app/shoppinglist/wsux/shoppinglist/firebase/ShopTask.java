@@ -141,8 +141,7 @@ public class ShopTask extends BaseCollectionItem implements Comparable<ShopTask>
             return;
         }
 
-        TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
-        ShopTaskActions.setState(transaction, ref, state).apply();
+        updateField(ref, ShopTaskActions.FIRESTORE_FIELD_STATE, state);
     }
 
     @Override
@@ -211,4 +210,5 @@ public class ShopTask extends BaseCollectionItem implements Comparable<ShopTask>
 
         return state == other.state ? title.compareTo(other.title) : (int) (state - other.state);
     }
+
 }
