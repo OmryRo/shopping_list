@@ -9,7 +9,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import app.shoppinglist.wsux.shoppinglist.firebase.db.CollaboratorActions;
 import app.shoppinglist.wsux.shoppinglist.firebase.db.TransactionWrapper;
 
-public class Collaborator extends BaseCollectionItem  {
+public class Collaborator extends BaseCollectionItem {
 
     private static final String TAG = "COLLABORATOR";
     private static final int[] COLORS = {
