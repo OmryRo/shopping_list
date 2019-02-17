@@ -257,4 +257,9 @@ public class UserInfo extends BaseCollectionItem {
     public String toString() {
         return String.format("UserInfo: %s", userId);
     }
+
+    @Override
+    public void onSuccess() {
+
+    }
 }

@@ -1,10 +1,17 @@
 package app.shoppinglist.wsux.shoppinglist.firebase;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+
+import java.util.HashMap;
 
 import javax.annotation.Nullable;
 
@@ -12,7 +19,9 @@ import app.shoppinglist.wsux.shoppinglist.firebase.db.TransactionWrapper;
 
 public abstract class BaseCollectionItem implements
         EventListener<DocumentSnapshot>,
-        TransactionWrapper.ResultListener {
+        TransactionWrapper.ResultListener,
+        OnSuccessListener<Void>,
+        OnFailureListener {
 
     private static final String TAG = "COLLECTION_ITEM";
     private boolean isReady = false;
@@ -26,6 +35,16 @@ public abstract class BaseCollectionItem implements
 
     BaseCollectionItem(FireBaseManager manager) {
         this.manager = manager;
+    }
+
+    protected Task<Void> updateField(DocumentReference ref, String field, Object data) {
+        manager.reportEvent(FireBaseManager.ON_PROGRESS_START_UPDATE);
+
+        HashMap<String, Object> params = new HashMap<>();
+        params.put(field, data);
+        return ref.update(params)
+                .addOnSuccessListener(this).
+                        addOnFailureListener(this);
     }
 
     public void onQueryError(DocumentSnapshot document, FirebaseFirestoreException e) {
@@ -57,7 +76,7 @@ public abstract class BaseCollectionItem implements
     abstract void specificOnSuccess();
 
     @Override
-    public void onSuccess() {
+    public void onSuccess(Void eVoid) {
         specificOnSuccess();
 
         if (onActionListener != null) {
@@ -68,7 +87,7 @@ public abstract class BaseCollectionItem implements
     abstract void specificOnFailure(Exception e);
 
     @Override
-    public void onFailure(Exception e) {
+    public void onFailure(@NonNull Exception e) {
         specificOnFailure(e);
 
         if (onActionListener != null) {

@@ -75,7 +75,6 @@ public class ShopList extends BaseCollectionItem {
         TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
         ShopListActions.addToken(transaction, ref, token).apply();
     }
-
     public void replaceTokenByCollaborators(final String token) {
         TransactionWrapper transaction = new TransactionWrapper(manager.getDb(), this);
         ShopListActions.addCollaborator(transaction, ref, userInfo.getUserId());
@@ -427,5 +426,10 @@ public class ShopList extends BaseCollectionItem {
     @Override
     public String toString() {
         return String.format("ShopList: %s", listId);
+    }
+
+    @Override
+    public void onSuccess() {
+
     }
 }
