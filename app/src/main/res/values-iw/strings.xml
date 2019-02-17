@@ -53,4 +53,8 @@
     <string name="change_personal_message">שנה הודעה אישית</string>
     <string name="personal_message_hint">ההודעה שלך</string>
     <string name="change">שנה</string>
+    <string name="there_are_no_items_to_show">אין פריטים להצגה.</string>
+    <string name="add_more_items_using_the_bar_below">הוסף פריטים נוספים באמצעות הפס התחתון.</string>
+    <string name="please_choose_a_list">בבקשה בחר רשימה.</string>
+    <string name="select_or_create_a_new_one_using_the_left_menu">בחר או צור חדשה דרך התפריט הצידי.</string>
 </resources>

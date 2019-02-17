@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        if (!mainDrawer.closeDrawer()) {
+        if (!mainDrawer.onBackPressed()) {
             super.onBackPressed();
         }
     }
@@ -247,7 +247,12 @@ public class MainActivity extends AppCompatActivity
         currentShopList = shopList;
         shopListView.setShopList(shopList);
         mainDrawer.toggleLockDrawer(userInfo);
-        mainDrawer.closeDrawer();
+
+        if (shopList != null) {
+            mainDrawer.closeDrawer();
+        } else {
+            mainDrawer.openAndLockDrawer();
+        }
     }
 
     public void onShareListFound(final ShopList listFound) {

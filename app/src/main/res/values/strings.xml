@@ -55,4 +55,8 @@
     <string name="change_personal_message">Change Personal Message</string>
     <string name="personal_message_hint">Your message</string>
     <string name="change">Change</string>
+    <string name="there_are_no_items_to_show">There are no items to show.</string>
+    <string name="add_more_items_using_the_bar_below">Add more items using the bar below.</string>
+    <string name="please_choose_a_list">Please Choose a list.</string>
+    <string name="select_or_create_a_new_one_using_the_left_menu">Select or create a new one using the left menu.</string>
 </resources>

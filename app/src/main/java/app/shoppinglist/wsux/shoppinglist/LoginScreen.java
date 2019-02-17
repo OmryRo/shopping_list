@@ -21,6 +21,7 @@ import app.shoppinglist.wsux.shoppinglist.firebase.FireBaseManager;
 
 public class LoginScreen extends Fragment implements View.OnClickListener {
 
+    private static final int CHANGE_BACKGROUND_IMAGE_EACH_MS = 5000;
     private static final int[] BACKGROUND_IMAGES = {
             R.drawable.login,
             R.drawable.login1,
@@ -93,7 +94,7 @@ public class LoginScreen extends Fragment implements View.OnClickListener {
                     }
                 });
             }
-        }, 5000, 5000);
+        }, CHANGE_BACKGROUND_IMAGE_EACH_MS, CHANGE_BACKGROUND_IMAGE_EACH_MS);
     }
 
     private void stopSlider() {
@@ -127,7 +128,8 @@ public class LoginScreen extends Fragment implements View.OnClickListener {
         @NonNull
         @Override
         public Object instantiateItem(@NonNull ViewGroup container, int position) {
-            View view = LayoutInflater.from(getContext()).inflate(R.layout.slider_image_item, null, false);
+            View view = LayoutInflater.from(getContext())
+                    .inflate(R.layout.slider_image_item, null, false);
 
             if (position >= BACKGROUND_IMAGES.length) {
                 position = 0;
