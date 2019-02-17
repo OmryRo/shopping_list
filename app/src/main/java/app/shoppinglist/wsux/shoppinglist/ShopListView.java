@@ -16,7 +16,7 @@ import app.shoppinglist.wsux.shoppinglist.firebase.ShopList;
 
 public class ShopListView implements View.OnClickListener, BaseCollectionItem.OnChildChangeListener,
         BaseCollectionItem.OnChangeListener {
-    private Activity context;
+    private MainActivity context;
     private TaskAdapter adapter;
     private ShopList currentShopList;
     private FireBaseManager fireBaseManager;
@@ -25,19 +25,22 @@ public class ShopListView implements View.OnClickListener, BaseCollectionItem.On
     private EditText addTextEditText;
     private View addTaskContainer;
     private RecyclerView recyclerView;
+    private View messageEmptyList;
+    private View messageNoListToShow;
     private Toolbar topToolbar;
 
-    ShopListView(Activity context, Toolbar topToolbar, FireBaseManager fireBaseManager) {
+    ShopListView(MainActivity context, Toolbar topToolbar, FireBaseManager fireBaseManager) {
         this.context = context;
         this.topToolbar = topToolbar;
         this.fireBaseManager = fireBaseManager;
 
-        setMainView();
+        setRecyclerView();
+        setMessageViews();
         setBottomToolbar();
-
+        toggleTaskViewing();
     }
 
-    private void setMainView() {
+    private void setRecyclerView() {
         recyclerView = context.findViewById(R.id.shopping_list_view);
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(context);
@@ -47,9 +50,17 @@ public class ShopListView implements View.OnClickListener, BaseCollectionItem.On
         recyclerView.setAdapter(adapter);
     }
 
+    private void setMessageViews() {
+        messageEmptyList = context.findViewById(R.id.message_empty_list);
+        messageEmptyList.setOnClickListener(this);
+
+        messageNoListToShow = context.findViewById(R.id.message_no_lists);
+        messageNoListToShow.setOnClickListener(this);
+    }
+
     private void setBottomToolbar() {
         addTaskContainer = context.findViewById(R.id.bar_add_task_container);
-        toggleToolbar();
+        addTaskContainer.setVisibility(View.GONE);
         setAddTextButtonView();
         setAddTextEditTextView();
     }
@@ -73,8 +84,24 @@ public class ShopListView implements View.OnClickListener, BaseCollectionItem.On
         });
     }
 
-    private void toggleToolbar() {
-        addTaskContainer.setVisibility(currentShopList != null ? View.VISIBLE : View.GONE);
+    private void toggleTaskViewing() {
+
+        int visibleIfExists = (currentShopList != null ? View.VISIBLE : View.GONE);
+        int visibleIfNotExists = (currentShopList == null ? View.VISIBLE : View.GONE);
+        int visibleIfEmpty = (
+                currentShopList != null && currentShopList.getTasks().isEmpty() ?
+                View.VISIBLE : View.GONE);
+
+        addTaskContainer.setVisibility(visibleIfExists);
+        recyclerView.setVisibility(visibleIfEmpty);
+        messageNoListToShow.setVisibility(visibleIfNotExists);
+        messageEmptyList.setVisibility(visibleIfEmpty);
+
+        if (currentShopList != null) {
+            topToolbar.setTitle(currentShopList.getTitle());
+        } else {
+            topToolbar.setTitle(R.string.app_name);
+        }
     }
 
     public void setShopList(ShopList shopList) {
@@ -87,10 +114,14 @@ public class ShopListView implements View.OnClickListener, BaseCollectionItem.On
         }
 
         currentShopList = shopList;
-        toggleToolbar();
-        shopList.setOnChangeListener(this);
-
         adapter.setList(currentShopList);
+
+        if (shopList != null) {
+            shopList.setOnChangeListener(this);
+            shopList.setOnChildChangeListener(this);
+        }
+
+        toggleTaskViewing();
     }
 
     private void onAddTaskButtonClick() {
@@ -98,6 +129,14 @@ public class ShopListView implements View.OnClickListener, BaseCollectionItem.On
             return;
         }
         setTaskTitle();
+    }
+
+    private void onMessageNoListClick() {
+        context.selectList(null);
+    }
+
+    private void onMessageEmptyListClick() {
+        showKeyboard();
     }
 
     private void setTaskTitle() {
@@ -121,7 +160,8 @@ public class ShopListView implements View.OnClickListener, BaseCollectionItem.On
 
     @Override
     public void onChildChange() {
-
+        adapter.onChildChange();
+        toggleTaskViewing();
     }
 
     @Override
@@ -130,11 +170,17 @@ public class ShopListView implements View.OnClickListener, BaseCollectionItem.On
             case R.id.bar_add_task_button:
                 onAddTaskButtonClick();
                 break;
+            case R.id.message_no_lists:
+                onMessageNoListClick();
+                break;
+            case R.id.message_empty_list:
+                onMessageEmptyListClick();
+                break;
         }
     }
 
     @Override
     public void onChange() {
-        topToolbar.setTitle(currentShopList.getTitle());
+        toggleTaskViewing();
     }
 }

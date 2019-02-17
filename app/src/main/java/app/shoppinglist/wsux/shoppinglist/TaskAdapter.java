@@ -49,11 +49,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         if (shopList == currentShopList) {
             return;
         }
-        if (currentShopList != null) {
-            currentShopList.removeAllListeners();
-        }
         currentShopList = shopList;
-        currentShopList.setOnChildChangeListener(this);
     }
 
     public void resetDataset() {
@@ -68,6 +64,10 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     }
 
     private ArrayList<ShopTask> getOrderedShopTasks() {
+        if (currentShopList == null) {
+            return new ArrayList<>();
+        }
+
         ArrayList<ShopTask> listOfLists = new ArrayList<>(currentShopList.getTasks().values());
         Collections.sort(listOfLists);
         return listOfLists;

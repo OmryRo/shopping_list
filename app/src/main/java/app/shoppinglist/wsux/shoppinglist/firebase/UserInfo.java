@@ -170,7 +170,11 @@ public class UserInfo extends BaseCollectionItem {
     }
 
     public String getLastList() {
-        return lastList;
+        if (listNames.contains(lastList)) {
+            return lastList;
+        }
+
+        return null;
     }
 
     public void addToken(final String listId, String token) {

@@ -170,6 +170,14 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
         newUserInfo.setOnMediaDownload(this);
     }
 
+    public boolean onBackPressed() {
+        if (drawer.getDrawerLockMode(GravityCompat.START) != DrawerLayout.LOCK_MODE_LOCKED_OPEN) {
+            return closeDrawer();
+        }
+
+        return false;
+    }
+
     public boolean closeDrawer() {
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
@@ -189,11 +197,10 @@ public class MainDrawer implements NavigationView.OnNavigationItemSelectedListen
         return true;
     }
 
-    void openFirstAvailableShopList() {
+    public void openFirstAvailableShopList() {
         if (getOrderedListOfLists().size() <= 1) {
-            toolbar.setTitle(R.string.title_activity_main);
-            drawer.openDrawer(GravityCompat.START);
-            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN);
+            openAndLockDrawer();
+            mainDrawerInterface.selectList(null);
         } else {
             MenuItem menuItem = (MenuItem) shopListMenuRef.keySet().toArray()[0];
             defineCurrentShoplist(menuItem);
