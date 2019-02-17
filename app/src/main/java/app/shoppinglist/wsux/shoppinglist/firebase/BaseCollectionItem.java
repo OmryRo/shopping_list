@@ -76,12 +76,17 @@ public abstract class BaseCollectionItem implements
     abstract void specificOnSuccess();
 
     @Override
-    public void onSuccess(Void eVoid) {
+    public void onSuccess() {
         specificOnSuccess();
 
         if (onActionListener != null) {
             onActionListener.onActionSuccess();
         }
+    }
+
+    @Override
+    public void onSuccess(Void eVoid) {
+        onSuccess();
     }
 
     abstract void specificOnFailure(Exception e);

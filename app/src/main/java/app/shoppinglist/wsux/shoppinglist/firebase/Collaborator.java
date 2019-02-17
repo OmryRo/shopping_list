@@ -203,11 +203,6 @@ public class Collaborator extends BaseCollectionItem  {
         return String.format("Collaborator: %s -> %s", inList.getListId(), userId);
     }
 
-    @Override
-    public void onSuccess() {
-
-    }
-
     public interface RemoveListener {
         void onCollaboratorRemoved();
     }

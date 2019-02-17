@@ -258,8 +258,4 @@ public class UserInfo extends BaseCollectionItem {
         return String.format("UserInfo: %s", userId);
     }
 
-    @Override
-    public void onSuccess() {
-
-    }
 }

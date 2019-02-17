@@ -211,8 +211,4 @@ public class ShopTask extends BaseCollectionItem implements Comparable<ShopTask>
         return state == other.state ? title.compareTo(other.title) : (int) (state - other.state);
     }
 
-    @Override
-    public void onSuccess() {
-
-    }
 }

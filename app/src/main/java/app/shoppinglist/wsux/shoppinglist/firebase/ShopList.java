@@ -428,8 +428,4 @@ public class ShopList extends BaseCollectionItem {
         return String.format("ShopList: %s", listId);
     }
 
-    @Override
-    public void onSuccess() {
-
-    }
 }
