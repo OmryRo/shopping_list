@@ -93,7 +93,7 @@ public class ShopListView implements View.OnClickListener, BaseCollectionItem.On
                 View.VISIBLE : View.GONE);
 
         addTaskContainer.setVisibility(visibleIfExists);
-        recyclerView.setVisibility(visibleIfEmpty);
+        recyclerView.setVisibility(visibleIfExists);
         messageNoListToShow.setVisibility(visibleIfNotExists);
         messageEmptyList.setVisibility(visibleIfEmpty);
 
