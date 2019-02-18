@@ -7,4 +7,7 @@
     <color name="colorButtonBackground">#dddddd</color>
     <color name="colorButtonPressed">#eeeeee</color>
     <color name="colorButtonText">#000000</color>
+    <color name="sneakBackgroundColorSuccess">#427a28</color>
+    <color name="sneakBackgroundColorWarning">#8c8302</color>
+    <color name="sneakBackgroundColorError">#a02c2c</color>
 </resources>

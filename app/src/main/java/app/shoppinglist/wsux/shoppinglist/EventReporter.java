@@ -152,82 +152,93 @@ public class EventReporter implements FireBaseManager.FireBaseEventsInterface {
     }
 
     private Snackbar createSneakBarOnSignErr(Exception e) {
-        return createSneakBarFailure("Sign in failed", e);
+        return createSneakBarFailure(R.string.sign_in_failed, e);
     }
 
     private Snackbar createSneakBarOnUserUpdateFailure(Exception e) {
-        return createSneakBarFailure("User update failed", e);
+        return createSneakBarFailure(R.string.user_update_failed, e);
     }
 
     private Snackbar createSneakBarOnListFailure(Exception e) {
-        return createSneakBarFailure("List failed", e);
+        return createSneakBarFailure(R.string.list_action_failed, e);
     }
 
     private Snackbar createSneakBarOnTaskCreated() {
-        return createSneakBarSuccess("Task created");
+        return createSneakBarSuccess(R.string.task_created);
     }
 
     private Snackbar createSneakBarOnTaskFailure(Exception e) {
-        return createSneakBarFailure("Task (?) failed", e);
+        return createSneakBarFailure(R.string.task_action_failed, e);
     }
 
     private Snackbar createSneakBarOnCollaboratorFailure(Exception e) {
-        return createSneakBarFailure("Collaborator (?) failed", e);
+        return createSneakBarFailure(R.string.collaborator_action_failed, e);
     }
 
     private Snackbar createSneakBarOnPictureUploadFailed(Exception e) {
-        return createSneakBarFailure("Picture upload failed", e);
+        return createSneakBarFailure(R.string.picture_upload_failed, e);
     }
 
     private Snackbar createSneakBarOnCameraUploadFailed(Exception e) {
-        return createSneakBarFailure("Camera upload failed", e);
+        return createSneakBarFailure(R.string.camera_upload_failed, e);
     }
 
     private Snackbar createSneakBarOnListCreated() {
-        return createSneakBarSuccess("List created");
+        return createSneakBarSuccess(R.string.list_created);
     }
 
     private Snackbar createSneakBarOnListDeleted() {
-        return createSneakBarSuccess("List deleted");
+        return createSneakBarSuccess(R.string.list_deleted);
     }
 
     private Snackbar createSneakBarOnTaskDeleted() {
-        return createSneakBarSuccess("Task deleted");
+        return createSneakBarSuccess(R.string.task_deleted);
     }
 
     private Snackbar createSneakBarOnCollaboratorDeleted() {
-        return createSneakBarSuccess("Collaborator deleted");
+        return createSneakBarSuccess(R.string.task_created);
     }
 
     private Snackbar createSneakBarOnListRemovedFrom() {
-        return createSneakBarWarning("Removed from list");
+        return createSneakBarWarning(R.string.removed_from_list);
     }
 
-    private Snackbar createSneakBarSuccess(String message) {
+    private Snackbar createSneakBarSuccess(int message) {
         Snackbar snackbar = Snackbar
                 .make(context.findViewById(R.id.root_layout), message, Snackbar.LENGTH_SHORT);
-        snackbar.getView().setBackgroundColor(0xff427a28);
+        snackbar.getView().setBackgroundResource(R.color.sneakBackgroundColorSuccess);
         return snackbar;
     }
 
-    private Snackbar createSneakBarWarning(String message) {
+    private Snackbar createSneakBarWarning(int message) {
         Snackbar snackbar = Snackbar
                 .make(context.findViewById(R.id.root_layout), message, Snackbar.LENGTH_SHORT);
-        snackbar.getView().setBackgroundColor(0xff8c8302);
+        snackbar.getView().setBackgroundResource(R.color.sneakBackgroundColorWarning);
         return snackbar;
     }
 
-    private Snackbar createSneakBarFailure(String message, final Exception e) {
+    private Snackbar createSneakBarFailure(int message, final Exception e) {
+
+        // the user can't do any thing with the information about the error message received.
+        // the most he can get from it, is that the app is shitty and doesn't work.
+        // so we should give him the impression the problem is with the network, that most likely
+        // contributed to this error, so in this way the user will try to fix it on his side
+        // instead of raging and uninstall.
+        if (!BuildConfig.DEBUG) {
+            message = R.string.communication_error;
+        }
+
         Snackbar snackbar = Snackbar
                 .make(context.findViewById(R.id.root_layout), message, Snackbar.LENGTH_SHORT);
-        snackbar.getView().setBackgroundColor(0xffa02c2c);
+        snackbar.getView().setBackgroundResource(R.color.sneakBackgroundColorError);
 
-        if (e != null) {
-            snackbar.setAction("details", new View.OnClickListener() {
+        // we don't want the user to see the errors, unless he's one of the developers.
+        if (e != null && BuildConfig.DEBUG) {
+            snackbar.setAction(context.getString(R.string.details_button), new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     new AlertDialog.Builder(context)
-                            .setTitle("Error Message: " + e.getMessage())
+                            .setTitle(context.getString(R.string.error_message, e.getMessage()))
                             .create().show();
                 }
             });

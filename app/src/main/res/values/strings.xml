@@ -59,4 +59,21 @@
     <string name="add_more_items_using_the_bar_below">Add more items using the bar below.</string>
     <string name="please_choose_a_list">Please Choose a list.</string>
     <string name="select_or_create_a_new_one_using_the_left_menu">Select or create a new one using the left menu.</string>
+    <string name="sign_in_failed">Sign in failed.</string>
+    <string name="user_update_failed">User update failed.</string>
+    <string name="list_action_failed">List action failed.</string>
+    <string name="task_created">Task created.</string>
+    <string name="task_action_failed">Task action failed.</string>
+    <string name="collaborator_action_failed">Collaborator action failed.</string>
+    <string name="picture_upload_failed">Picture upload failed.</string>
+    <string name="camera_upload_failed">Camera upload failed.</string>
+    <string name="list_created">List created.</string>
+    <string name="list_deleted">List deleted.</string>
+    <string name="task_deleted">Task deleted.</string>
+    <string name="collaborator_deleted">Collaborator deleted.</string>
+    <string name="removed_from_list">Removed from list.</string>
+    <string name="details_button">Details</string>
+    <string name="error_message">Error message: %s</string>
+    <string name="communication_error">Communication error.</string>
+
 </resources>
