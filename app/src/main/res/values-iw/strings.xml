@@ -57,4 +57,20 @@
     <string name="add_more_items_using_the_bar_below">הוסף פריטים נוספים באמצעות הפס התחתון.</string>
     <string name="please_choose_a_list">בבקשה בחר רשימה.</string>
     <string name="select_or_create_a_new_one_using_the_left_menu">בחר או צור חדשה דרך התפריט הצידי.</string>
+    <string name="sign_in_failed">ההתחברות נכשלה.</string>
+    <string name="user_update_failed">עדכון משתמש נכשל.</string>
+    <string name="list_action_failed">פעולת רשימה נכשלה.</string>
+    <string name="task_created">פריט נוצר.</string>
+    <string name="task_action_failed">פעולת פריט נכשלה.</string>
+    <string name="collaborator_action_failed">עדכון חבר נכשל.</string>
+    <string name="picture_upload_failed">העלאת תמונה נכשלה.</string>
+    <string name="camera_upload_failed">העלאת צילום נכשלה.</string>
+    <string name="list_created">רשימה נוצרה.</string>
+    <string name="list_deleted">רשימה נמחקה.</string>
+    <string name="task_deleted">פריט נמחק.</string>
+    <string name="collaborator_deleted">חבר הוסר.</string>
+    <string name="removed_from_list">הוסרת מרשימה.</string>
+    <string name="details_button">פרטים נוספים</string>
+    <string name="error_message">הודעת שגיאה: %s</string>
+    <string name="communication_error">שגיאת תקשורת.</string>
 </resources>
